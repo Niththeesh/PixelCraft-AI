@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PixelCraft AI</title>
   <meta name="description" content="PixelCraft AI - A production-grade AI Personal Assistant web interface powered by Express.js, Supabase Auth, and Google Gemini.">
+  <link rel="icon" type="image/png" href="images/logo.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -16,7 +17,7 @@
     <div class="auth-card">
       <div class="auth-header">
         <div class="brand">
-          <div class="brand-icon">⚡</div>
+          <img src="images/logo.png" alt="PixelCraft AI Logo" class="brand-logo">
           <span>PixelCraft AI</span>
         </div>
         <h1 class="auth-title" id="auth-title">Welcome back</h1>
@@ -109,7 +110,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <div class="brand-icon">⚡</div>
+          <img src="images/logo.png" alt="PixelCraft AI Logo" class="brand-logo">
           <span>PixelCraft AI</span>
         </div>
       </div>
@@ -271,7 +272,9 @@
 
           <!-- Typing Indicator -->
           <div class="typing-indicator" id="typing-indicator">
-            <div class="message-avatar ai" style="width: 28px; height: 28px; font-size: 0.8rem;">⚡</div>
+            <div class="message-avatar ai" style="width: 28px; height: 28px;">
+              <img src="images/logo.png" alt="PixelCraft AI" class="avatar-logo-img">
+            </div>
             <span style="font-size: 0.85rem; color: var(--text-muted);">PixelCraft AI is thinking...</span>
             <div class="dot-pulse">
               <span></span>

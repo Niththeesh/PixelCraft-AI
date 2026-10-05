@@ -1905,8 +1905,12 @@ document.addEventListener('DOMContentLoaded', () => {
         personaBadgeHtml = `<div class="message-persona-badge">${escapeHtml(badgeLabel)}</div>`;
       }
 
+      const avatarContent = (!persona || persona === 'general') 
+        ? '<img src="images/logo.png" alt="PixelCraft AI" class="avatar-logo-img">'
+        : (PERSONA_LABELS[persona] ? PERSONA_LABELS[persona].icon : '⚡');
+
       messageRow.innerHTML = `
-        <div class="message-avatar ai">⚡</div>
+        <div class="message-avatar ai">${avatarContent}</div>
         <div class="message-bubble">
           ${personaBadgeHtml}
           <div class="message-text">${formatResponseText(text)}</div>
