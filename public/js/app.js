@@ -13,6 +13,22 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Resolve API Base URL (empty for localhost, Render URL for GitHub Pages / external hosts)
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const backendUrl = (window.PIXELCRAFT_CONFIG && window.PIXELCRAFT_CONFIG.RENDER_BACKEND_URL)
+    ? window.PIXELCRAFT_CONFIG.RENDER_BACKEND_URL.replace(/\/$/, '')
+    : '';
+  const API_BASE_URL = isLocal ? '' : backendUrl;
+
+  // Transparent fetch interceptor for relative /api routes
+  const nativeFetch = window.fetch;
+  window.fetch = function(input, init) {
+    if (typeof input === 'string' && input.startsWith('/api/')) {
+      input = `${API_BASE_URL}${input}`;
+    }
+    return nativeFetch.call(this, input, init);
+  };
+
   // Application State
   const state = {
     authToken: localStorage.getItem('supabase_access_token') || null,

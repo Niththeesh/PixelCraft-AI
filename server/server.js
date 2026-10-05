@@ -7,6 +7,18 @@ const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0';
+
+// Native CORS Middleware for Cross-Origin Frontend (GitHub Pages / Custom Domains)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // Parse JSON request bodies
 app.use(express.json());
@@ -56,8 +68,8 @@ app.use('/api', conversationRoutes);
 app.use('/api', promptRoutes);
 
 // Start Express server
-const server = app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Server is running at http://${HOST}:${PORT} (NODE_ENV: ${process.env.NODE_ENV || 'development'})`);
 });
 
 server.on('error', (err) => {
