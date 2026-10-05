@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Personal Assistant</title>
+  <meta name="description" content="A production-grade AI Personal Assistant web interface powered by Express.js, Supabase Auth, and Google Gemini.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       1. Authentication Screen View (Unauthenticated State)
+       ======================================================================== -->
+  <div class="auth-view" id="auth-view">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="brand">
+          <div class="brand-icon">⚡</div>
+          <span>AI Assistant</span>
+        </div>
+        <h1 class="auth-title" id="auth-title">Welcome back</h1>
+        <p class="auth-subtitle" id="auth-subtitle">Sign in to access your personal AI assistant</p>
+      </div>
+
+      <!-- Mode Selector Tabs -->
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab active" id="tab-login" role="tab" aria-selected="true">Sign In</button>
+        <button type="button" class="auth-tab" id="tab-signup" role="tab" aria-selected="false">Sign Up</button>
+      </div>
+
+      <!-- Auth Alert Banner -->
+      <div class="auth-alert" id="auth-alert" style="display: none;" role="alert"></div>
+
+      <!-- Auth Form -->
+      <form class="auth-form" id="auth-form" novalidate>
+        <div class="form-group">
+          <label for="auth-email">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input 
+              type="email" 
+              id="auth-email" 
+              name="email" 
+              placeholder="you@domain.com" 
+              autocomplete="email" 
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="auth-password">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="auth-password" 
+              name="password" 
+              placeholder="••••••••" 
+              autocomplete="current-password" 
+              required 
+              minlength="6"
+            >
+            <button type="button" class="password-toggle-btn" id="btn-toggle-password" title="Show or hide password" aria-label="Toggle password visibility">
+              👁️
+            </button>
+          </div>
+          <span class="field-hint" id="password-hint" style="display: none;">Must be at least 6 characters</span>
+        </div>
+
+        <div class="form-group" id="confirm-password-group" style="display: none;">
+          <label for="auth-confirm-password">Confirm Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="auth-confirm-password" 
+              name="confirmPassword" 
+              placeholder="••••••••" 
+              autocomplete="new-password" 
+              minlength="6"
+            >
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth-submit" id="btn-auth-submit">
+          <span class="btn-text" id="btn-auth-text">Sign In</span>
+          <span class="btn-spinner" id="btn-auth-spinner" style="display: none;">⏳ Processing...</span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p id="auth-footer-prompt">
+          Don't have an account? <button type="button" class="auth-link" id="auth-switch-link">Sign Up</button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. Chat Workspace View (Authenticated State)
+       ======================================================================== -->
+  <div class="app-container" id="app-container">
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Conversations Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">⚡</div>
+          <span>AI Assistant</span>
+        </div>
+      </div>
+
+      <button class="btn-new-chat" id="btn-new-chat">
+        <span>+</span> New Chat
+      </button>
+
+      <div class="conversations-section">
+        <div class="section-label">Your Conversations</div>
+        
+        <!-- Conversation Search Bar -->
+        <div class="chat-search-wrapper">
+          <span class="chat-search-icon">🔍</span>
+          <input 
+            type="text" 
+            id="chat-search-input" 
+            class="chat-search-input" 
+            placeholder="Search conversations..." 
+            aria-label="Search conversations"
+            maxlength="100"
+            autocomplete="off"
+          >
+          <button type="button" id="btn-clear-search" class="chat-search-clear" style="display: none;" title="Clear search" aria-label="Clear search">×</button>
+        </div>
+
+        <ul class="chat-list" id="chat-list">
+          <li class="chat-list-loading">Loading conversations...</li>
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-avatar" id="user-avatar">U</div>
+        <div class="user-info">
+          <span class="user-name" id="user-display-email">user@domain.com</span>
+          <span class="user-status" id="user-status-text">● Authenticated</span>
+        </div>
+        <button class="btn-logout" id="btn-logout" title="Sign out of your account" aria-label="Sign out">
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-workspace">
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <div class="header-left">
+          <button class="mobile-toggle" id="mobile-toggle" aria-label="Open Sidebar Menu">
+            ☰
+          </button>
+          <div class="chat-title-wrap">
+            <h2 id="current-chat-title">AI Assistant Workspace</h2>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="persona-dropdown-wrapper" id="persona-dropdown-wrapper">
+            <button class="action-btn btn-persona" id="btn-persona-selector" title="Select AI Persona & Instructions" aria-label="Select AI Persona">
+              <span class="engine-pill-icon">⚡</span>
+              <span class="persona-current-label" id="current-persona-label">🎯 General Assistant</span>
+              <span class="dropdown-caret">▾</span>
+            </button>
+            <div class="persona-menu" id="persona-menu" style="display: none;" role="menu">
+              <div class="persona-menu-header">AI Persona & Tone</div>
+              <button type="button" class="persona-option active" data-persona="general" role="menuitem">
+                <span class="persona-opt-icon">🎯</span>
+                <div class="persona-opt-text">
+                  <span class="persona-opt-title">General Assistant</span>
+                  <span class="persona-opt-desc">Balanced, accurate & direct</span>
+                </div>
+              </button>
+              <button type="button" class="persona-option" data-persona="code_architect" role="menuitem">
+                <span class="persona-opt-icon">💻</span>
+                <div class="persona-opt-text">
+                  <span class="persona-opt-title">Code Architect</span>
+                  <span class="persona-opt-desc">Production code, patterns & best practices</span>
+                </div>
+              </button>
+              <button type="button" class="persona-option" data-persona="technical_writer" role="menuitem">
+                <span class="persona-opt-icon">📝</span>
+                <div class="persona-opt-text">
+                  <span class="persona-opt-title">Technical Writer</span>
+                  <span class="persona-opt-desc">Step-by-step guides & clear deep-dives</span>
+                </div>
+              </button>
+              <button type="button" class="persona-option" data-persona="executive_summarizer" role="menuitem">
+                <span class="persona-opt-icon">💼</span>
+                <div class="persona-opt-text">
+                  <span class="persona-opt-title">Executive Summarizer</span>
+                  <span class="persona-opt-desc">High-level bullets & actionable takeaways</span>
+                </div>
+              </button>
+              <button type="button" class="persona-option" data-persona="creative_brainstormer" role="menuitem">
+                <span class="persona-opt-icon">🎨</span>
+                <div class="persona-opt-text">
+                  <span class="persona-opt-title">Creative Thinker</span>
+                  <span class="persona-opt-desc">Lateral thinking, metaphors & ideation</span>
+                </div>
+              </button>
+              <div class="persona-menu-divider"></div>
+              <button type="button" class="persona-option persona-custom-btn" id="btn-custom-instruction-open" role="menuitem">
+                <span class="persona-opt-icon">⚙️</span>
+                <div class="persona-opt-text">
+                  <span class="persona-opt-title">Custom Instructions...</span>
+                  <span class="persona-opt-desc" id="custom-instruction-preview">Personalize AI system prompt</span>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="export-dropdown-wrapper" id="export-dropdown-wrapper">
+            <button class="action-btn btn-export-chat" id="btn-export-chat" title="Export conversation transcript" aria-label="Export conversation transcript">
+              📥 Export ▾
+            </button>
+            <div class="export-menu" id="export-menu" style="display: none;" role="menu">
+              <button type="button" class="export-option" data-format="markdown" role="menuitem">📄 Markdown (.md)</button>
+              <button type="button" class="export-option" data-format="json" role="menuitem">📦 JSON (.json)</button>
+              <button type="button" class="export-option" data-format="text" role="menuitem">📝 Plain Text (.txt)</button>
+            </div>
+          </div>
+          <button class="action-btn" id="btn-prompt-vault" title="Browse AI prompt templates and engineering presets" aria-label="Prompt Templates Vault">💡 Prompts</button>
+          <button class="action-btn" id="btn-chat-stats" title="View conversation statistics and token estimates" aria-label="Conversation Statistics">📊 Stats</button>
+          <button class="action-btn" id="btn-fork-chat" title="Fork conversation into a new branch" aria-label="Fork conversation">🔀 Fork</button>
+          <button class="action-btn" id="btn-clear-chat" title="Clear conversation messages" aria-label="Clear conversation messages">Clear Chat</button>
+        </div>
+      </header>
+
+      <!-- Chat Stream -->
+      <section class="chat-stream" id="chat-stream">
+        <div class="chat-content-max">
+          
+          <!-- Welcome / Empty State View -->
+          <div class="welcome-state" id="welcome-state">
+            <div class="welcome-icon">⚡</div>
+            <h1 class="welcome-title">How can I assist you today?</h1>
+            <p class="welcome-subtitle">Select a prompt suggestion below or type your message to begin a real-time conversation.</p>
+
+            <div class="suggestions-grid">
+              <div class="suggestion-card" data-prompt="Brainstorm 5 innovative features for a modern web application">
+                <div class="suggestion-header">💡 Brainstorm Ideas</div>
+                <div class="suggestion-prompt">Create innovative feature concepts for web products</div>
+              </div>
+              <div class="suggestion-card" data-prompt="Explain how Node.js and Express handle async request routing">
+                <div class="suggestion-header">💻 Analyze & Code</div>
+                <div class="suggestion-prompt">Explain backend asynchronous routing mechanisms</div>
+              </div>
+              <div class="suggestion-card" data-prompt="Summarize the core principles of responsive UI design">
+                <div class="suggestion-header">📝 Summarize Text</div>
+                <div class="suggestion-prompt">Condense complex technical topics into key bullet points</div>
+              </div>
+              <div class="suggestion-card" data-prompt="Draft a professional project launch announcement email">
+                <div class="suggestion-header">✉️ Draft Email</div>
+                <div class="suggestion-prompt">Compose clear and persuasive team communication</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Messages Container -->
+          <div class="messages-list" id="messages-container"></div>
+
+          <!-- Typing Indicator -->
+          <div class="typing-indicator" id="typing-indicator">
+            <div class="message-avatar ai" style="width: 28px; height: 28px; font-size: 0.8rem;">⚡</div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">AI Assistant is thinking...</span>
+            <div class="dot-pulse">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Input Bar Container -->
+      <footer class="input-container">
+        <div class="input-box-wrapper">
+          <textarea id="chat-textarea" class="chat-textarea" placeholder="Ask AI Personal Assistant anything..." rows="1"></textarea>
+          <button id="btn-send" class="btn-send" aria-label="Send Message">
+            ➔
+          </button>
+        </div>
+        <div class="input-disclaimer">
+          AI Personal Assistant may produce inaccurate information. Verify important outputs.
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Custom Instructions Modal -->
+  <div class="modal-backdrop" id="modal-custom-instructions" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-custom-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-custom-title">⚙️ Custom AI Instructions</h3>
+        <button class="modal-close" id="btn-close-custom-modal" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Provide custom rules or domain guidance for how Gemini should tailor its responses.</p>
+        <textarea id="custom-instruction-input" class="custom-instruction-textarea" maxlength="1000" rows="5" placeholder="e.g. Always respond concisely in numbered bullet points. Include code examples in TypeScript."></textarea>
+        <div class="char-counter"><span id="custom-instruction-char-count">0</span> / 1000 characters</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="action-btn btn-modal-secondary" id="btn-clear-custom-instructions">Clear</button>
+        <button type="button" class="btn-auth-submit btn-modal-primary" id="btn-save-custom-instructions">Save & Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conversation Analytics & Stats Modal -->
+  <div class="modal-backdrop" id="modal-chat-stats" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-stats-title">
+    <div class="modal-card modal-stats-card">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-stats-title">📊 Conversation Analytics</h3>
+          <p class="modal-subtitle" id="stats-conv-title">Thread Insights</p>
+        </div>
+        <button class="modal-close" id="btn-close-stats-modal" aria-label="Close analytics modal">✕</button>
+      </div>
+      <div class="modal-body stats-modal-body">
+        <!-- 4 KPI Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-value" id="stat-total-messages">0</div>
+            <div class="stat-label">Total Messages</div>
+            <div class="stat-sublabel" id="stat-msg-breakdown">0 user / 0 AI</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value" id="stat-total-tokens">0</div>
+            <div class="stat-label">Estimated Tokens</div>
+            <div class="stat-sublabel" id="stat-token-breakdown">0 prompt / 0 output</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-value" id="stat-total-words">0</div>
+            <div class="stat-label">Total Words</div>
+            <div class="stat-sublabel" id="stat-word-breakdown">0 user / 0 AI</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value" id="stat-thread-duration">0s</div>
+            <div class="stat-label">Thread Lifespan</div>
+            <div class="stat-sublabel" id="stat-duration-sublabel">active duration</div>
+          </div>
+        </div>
+
+        <!-- Dialogue Contribution Meter -->
+        <div class="stats-ratio-section">
+          <div class="stats-ratio-header">
+            <span>Dialogue Contribution</span>
+            <span id="stats-ratio-labels">User 50% / AI 50%</span>
+          </div>
+          <div class="stats-ratio-bar">
+            <div class="ratio-segment user-segment" id="stats-bar-user" style="width: 50%;"></div>
+            <div class="ratio-segment ai-segment" id="stats-bar-ai" style="width: 50%;"></div>
+          </div>
+        </div>
+
+        <!-- Detailed Metrics Table -->
+        <div class="stats-details-list">
+          <div class="stats-detail-row">
+            <span class="detail-name">Avg AI Response Length:</span>
+            <span class="detail-val" id="stat-avg-ai-words">0 words/turn</span>
+          </div>
+          <div class="stats-detail-row">
+            <span class="detail-name">Total Characters:</span>
+            <span class="detail-val" id="stat-total-chars">0 (User: 0 | AI: 0)</span>
+          </div>
+          <div class="stats-detail-row">
+            <span class="detail-name">First Message:</span>
+            <span class="detail-val" id="stat-first-msg-time">—</span>
+          </div>
+          <div class="stats-detail-row">
+            <span class="detail-name">Last Activity:</span>
+            <span class="detail-val" id="stat-last-msg-time">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="action-btn btn-modal-secondary" id="btn-copy-stats">📋 Copy Summary</button>
+        <button type="button" class="btn-auth-submit btn-modal-primary" id="btn-dismiss-stats">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt Library & Templates Modal -->
+  <div class="modal-backdrop" id="modal-prompt-library" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-prompt-title">
+    <div class="modal-card modal-prompt-card">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-prompt-title">💡 AI Prompt Library & Templates</h3>
+          <p class="modal-subtitle">Curated production-grade prompts and engineering presets</p>
+        </div>
+        <button class="modal-close" id="btn-close-prompt-modal" aria-label="Close prompt modal">✕</button>
+      </div>
+      <div class="modal-body prompt-modal-body">
+        <!-- Search & Filter Controls -->
+        <div class="prompt-search-bar">
+          <span class="prompt-search-icon">🔍</span>
+          <input 
+            type="text" 
+            id="prompt-search-input" 
+            class="prompt-search-input" 
+            placeholder="Search prompts by keyword, domain, or task..."
+            aria-label="Search prompts"
+          >
+          <button type="button" id="btn-clear-prompt-search" class="prompt-search-clear" style="display: none;" title="Clear search">×</button>
+        </div>
+
+        <!-- Category Pills Bar -->
+        <div class="prompt-category-pills" id="prompt-category-pills" role="tablist">
+          <button type="button" class="category-pill active" data-cat="all">⚡ All Prompts</button>
+          <button type="button" class="category-pill" data-cat="coding">💻 Code & Architecture</button>
+          <button type="button" class="category-pill" data-cat="security">🛡️ Security & Performance</button>
+          <button type="button" class="category-pill" data-cat="writing">📝 Writing & Specs</button>
+          <button type="button" class="category-pill" data-cat="executive">💼 Executive & Business</button>
+          <button type="button" class="category-pill" data-cat="creative">🎨 Brainstorm & Creative</button>
+        </div>
+
+        <!-- Prompts Grid Container -->
+        <div class="prompt-cards-container" id="prompt-cards-container">
+          <div class="prompt-loading">Loading prompt library...</div>
+        </div>
+      </div>
+      <div class="modal-actions prompt-modal-footer">
+        <span class="prompt-counter-text" id="prompt-counter-text">Showing prompt templates</span>
+        <button type="button" class="btn-auth-submit btn-modal-primary" id="btn-dismiss-prompts">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vanilla JavaScript Application -->
+  <script src="js/app.js"></script>
+</body>
+</html>
