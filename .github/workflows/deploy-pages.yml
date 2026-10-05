@@ -26,12 +26,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup GitHub Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
-      - name: Upload public/ as Pages artifact
+      - name: Upload public/ contents as Pages artifact root
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public   # deploys only the public/ folder as the site root
+          # ./public makes the CONTENTS of public/ the artifact root:
+          # public/index.html  →  index.html
+          # public/css/        →  css/
+          # public/js/         →  js/
+          # public/images/     →  images/
+          path: ./public
 
       - name: Deploy to GitHub Pages
         id: deployment
