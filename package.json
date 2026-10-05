@@ -1,7 +1,7 @@
 {
   "name": "my-web-app",
   "version": "1.0.0",
-  "description": "Full-stack AI Personal Assistant with Express backend and Google Gemini API",
+  "description": "PixelCraft AI - Full-stack AI Assistant with Express backend, Supabase Auth, and Google Gemini",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js"

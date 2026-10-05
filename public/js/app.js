@@ -1,5 +1,5 @@
 /**
- * AI Personal Assistant - Production Client Script (app.js)
+ * PixelCraft AI - Production Client Script (app.js)
  * Connects frontend UI to Express backend APIs & Supabase Auth:
  * - POST /api/auth/signup (User registration via Supabase Auth)
  * - POST /api/auth/login (User authentication via Supabase Auth)
