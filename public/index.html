@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Base path for GitHub Pages deployment under /PixelCraft-AI/. Has no effect on localhost. -->
-  <base href="/PixelCraft-AI/">
+  <!-- Dynamic base path: GitHub Pages uses subpath, Vercel and localhost use root -->
+  <script>
+    if (window.location.hostname.includes('github.io')) {
+      document.write('<base href="/PixelCraft-AI/">');
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
