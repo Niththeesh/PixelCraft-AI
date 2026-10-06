@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <!-- Base path for GitHub Pages deployment under /PixelCraft-AI/. Has no effect on localhost. -->
   <base href="/PixelCraft-AI/">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>PixelCraft AI</title>
   <meta name="description" content="PixelCraft AI - A production-grade AI Personal Assistant web interface powered by Express.js, Supabase Auth, and Google Gemini.">
   <link rel="icon" type="image/png" href="images/logo.png">
@@ -115,6 +119,7 @@
           <img src="images/logo.png" alt="PixelCraft AI Logo" class="brand-logo">
           <span>PixelCraft AI</span>
         </div>
+        <button class="sidebar-close-btn" id="btn-close-sidebar" aria-label="Close sidebar" title="Close sidebar">✕</button>
       </div>
 
       <button class="btn-new-chat" id="btn-new-chat">
@@ -168,7 +173,7 @@
             <h2 id="current-chat-title">AI Assistant Workspace</h2>
           </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div class="header-actions">
           <div class="persona-dropdown-wrapper" id="persona-dropdown-wrapper">
             <button class="action-btn btn-persona" id="btn-persona-selector" title="Select AI Persona & Instructions" aria-label="Select AI Persona">
               <span class="engine-pill-icon">⚡</span>
@@ -224,7 +229,9 @@
           </div>
           <div class="export-dropdown-wrapper" id="export-dropdown-wrapper">
             <button class="action-btn btn-export-chat" id="btn-export-chat" title="Export conversation transcript" aria-label="Export conversation transcript">
-              📥 Export ▾
+              <span class="btn-icon">📥</span>
+              <span class="btn-text-label">Export</span>
+              <span class="dropdown-caret">▾</span>
             </button>
             <div class="export-menu" id="export-menu" style="display: none;" role="menu">
               <button type="button" class="export-option" data-format="markdown" role="menuitem">📄 Markdown (.md)</button>
@@ -232,10 +239,22 @@
               <button type="button" class="export-option" data-format="text" role="menuitem">📝 Plain Text (.txt)</button>
             </div>
           </div>
-          <button class="action-btn" id="btn-prompt-vault" title="Browse AI prompt templates and engineering presets" aria-label="Prompt Templates Vault">💡 Prompts</button>
-          <button class="action-btn" id="btn-chat-stats" title="View conversation statistics and token estimates" aria-label="Conversation Statistics">📊 Stats</button>
-          <button class="action-btn" id="btn-fork-chat" title="Fork conversation into a new branch" aria-label="Fork conversation">🔀 Fork</button>
-          <button class="action-btn" id="btn-clear-chat" title="Clear conversation messages" aria-label="Clear conversation messages">Clear Chat</button>
+          <button class="action-btn" id="btn-prompt-vault" title="Browse AI prompt templates and engineering presets" aria-label="Prompt Templates Vault">
+            <span class="btn-icon">💡</span>
+            <span class="btn-text-label">Prompts</span>
+          </button>
+          <button class="action-btn" id="btn-chat-stats" title="View conversation statistics and token estimates" aria-label="Conversation Statistics">
+            <span class="btn-icon">📊</span>
+            <span class="btn-text-label">Stats</span>
+          </button>
+          <button class="action-btn" id="btn-fork-chat" title="Fork conversation into a new branch" aria-label="Fork conversation">
+            <span class="btn-icon">🔀</span>
+            <span class="btn-text-label">Fork</span>
+          </button>
+          <button class="action-btn btn-clear-chat-header" id="btn-clear-chat" title="Clear conversation messages" aria-label="Clear conversation messages">
+            <span class="btn-icon">🗑️</span>
+            <span class="btn-text-label">Clear</span>
+          </button>
         </div>
       </header>
 

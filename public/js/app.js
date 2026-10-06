@@ -92,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebar: document.getElementById('sidebar'),
     sidebarOverlay: document.getElementById('sidebar-overlay'),
     mobileToggle: document.getElementById('mobile-toggle'),
+    btnCloseSidebar: document.getElementById('btn-close-sidebar'),
     btnNewChat: document.getElementById('btn-new-chat'),
     btnClearChat: document.getElementById('btn-clear-chat'),
     btnForkChat: document.getElementById('btn-fork-chat'),
@@ -502,19 +503,43 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 4. Mobile Sidebar Off-Canvas Drawer Toggle
+  // 4. Mobile & Tablet Sidebar Off-Canvas Drawer Toggle
   // ==========================================================================
   function setupSidebarToggle() {
     if (elements.mobileToggle) {
-      elements.mobileToggle.addEventListener('click', () => {
+      elements.mobileToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
         elements.sidebar.classList.add('open');
         elements.sidebarOverlay.classList.add('open');
+      });
+    }
+
+    if (elements.btnCloseSidebar) {
+      elements.btnCloseSidebar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeSidebar();
       });
     }
 
     if (elements.sidebarOverlay) {
       elements.sidebarOverlay.addEventListener('click', closeSidebar);
     }
+
+    // Keyboard support: Escape closes mobile drawer or open menus
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+        if (elements.exportMenu) elements.exportMenu.style.display = 'none';
+        if (elements.personaMenu) elements.personaMenu.style.display = 'none';
+      }
+    });
+
+    // Auto-close overlay when rotating/resizing back to large desktop screens
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) {
+        closeSidebar();
+      }
+    });
   }
 
   function closeSidebar() {

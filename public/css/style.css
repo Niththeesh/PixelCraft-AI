@@ -53,8 +53,11 @@ body {
   color: var(--text-main);
   line-height: 1.6;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   display: flex;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Scrollbars */
@@ -98,7 +101,9 @@ button {
   display: flex;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+  position: relative;
 }
 
 /* ==========================================================================
@@ -121,6 +126,26 @@ button {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-close-btn {
+  display: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
 }
 
 .brand {
@@ -504,20 +529,51 @@ button {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .mobile-toggle {
   display: none;
-  padding: 0.5rem;
+  padding: 0.5rem 0.65rem;
   border-radius: var(--radius-sm);
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.chat-title-wrap {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .chat-title-wrap h2 {
   font-size: 1.1rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.btn-text-label {
+  display: inline;
 }
 
 .engine-pill {
@@ -1172,44 +1228,6 @@ button {
 }
 
 /* ==========================================================================
-   Responsive Breakpoints
-   ========================================================================== */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    transform: translateX(-100%);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .sidebar-overlay.open {
-    display: block;
-    opacity: 1;
-  }
-
-  .mobile-toggle {
-    display: flex;
-  }
-
-  .suggestions-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .welcome-title {
-    font-size: 1.75rem;
-  }
-
-  .message-bubble {
-    max-width: 90%;
-  }
-}
-
-/* ==========================================================================
    Authentication Screen Component
    ========================================================================== */
 .auth-view {
@@ -1852,6 +1870,531 @@ button {
 .prompt-counter-text {
   font-size: 0.78rem;
   color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Complete Responsive Design System (Tablets, iPads & Mobile Devices)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Large Tablets & Small Laptops (max-width: 1024px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 260px;
+  }
+
+  .chat-header {
+    padding: 0 1.25rem;
+  }
+
+  .chat-title-wrap h2 {
+    max-width: 220px;
+    font-size: 1.05rem;
+  }
+
+  .header-actions {
+    gap: 0.45rem;
+  }
+
+  .persona-current-label {
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .chat-content-max {
+    max-width: 720px;
+  }
+
+  .modal-card {
+    max-width: 90vw;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Medium Tablets (Portrait mode: iPads, Surfaces, Android Tabs) (max-width: 900px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    height: 100dvh;
+    width: min(320px, 82vw);
+    transform: translateX(-100%);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.7);
+    z-index: 120;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .sidebar-overlay.open {
+    pointer-events: auto;
+    opacity: 1;
+  }
+
+  .sidebar-close-btn {
+    display: inline-flex;
+  }
+
+  .mobile-toggle {
+    display: inline-flex;
+  }
+
+  .chat-header {
+    height: 60px;
+    padding: 0 1rem;
+  }
+
+  .chat-title-wrap h2 {
+    max-width: 180px;
+    font-size: 1rem;
+  }
+
+  .chat-stream {
+    padding: 1.5rem 1rem;
+  }
+
+  .message-bubble {
+    max-width: 88%;
+  }
+
+  .suggestions-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+  }
+
+  .modal-stats-card,
+  .modal-prompt-card {
+    max-width: 94vw;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Small Tablets & Standard Mobile Phones (max-width: 768px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 56px;
+  }
+
+  .chat-header {
+    height: 56px;
+    padding: 0 0.85rem;
+  }
+
+  .header-left {
+    gap: 0.6rem;
+  }
+
+  .mobile-toggle {
+    padding: 0.45rem 0.55rem;
+    font-size: 1rem;
+  }
+
+  .chat-title-wrap h2 {
+    max-width: 140px;
+    font-size: 0.92rem;
+  }
+
+  /* Compact icon-first header buttons for mobile screen economy */
+  .header-actions {
+    gap: 0.35rem;
+  }
+
+  .header-actions .btn-text-label {
+    display: none;
+  }
+
+  .header-actions .action-btn {
+    padding: 0.42rem 0.55rem;
+    border-radius: var(--radius-sm);
+    min-width: 35px;
+    min-height: 35px;
+    font-size: 0.9rem;
+    justify-content: center;
+  }
+
+  .btn-persona {
+    padding: 0.35rem 0.6rem;
+    border-radius: 18px;
+    gap: 0.3rem;
+  }
+
+  .persona-current-label {
+    max-width: 72px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .persona-menu {
+    position: fixed;
+    top: 58px;
+    left: 12px;
+    right: 12px;
+    min-width: unset;
+    width: auto;
+    max-height: 75dvh;
+    overflow-y: auto;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.75);
+  }
+
+  .export-menu {
+    right: 0;
+    min-width: 165px;
+  }
+
+  /* Welcome & Prompt Suggestions View */
+  .welcome-state {
+    padding: 1.5rem 0.5rem 1rem;
+  }
+
+  .welcome-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 1.8rem;
+    border-radius: 16px;
+    margin-bottom: 1rem;
+  }
+
+  .welcome-title {
+    font-size: 1.55rem;
+    line-height: 1.25;
+    margin-bottom: 0.5rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 0.88rem;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .suggestions-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    max-width: 100%;
+  }
+
+  .suggestion-card {
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .suggestion-header {
+    font-size: 0.88rem;
+  }
+
+  .suggestion-prompt {
+    font-size: 0.8rem;
+  }
+
+  /* Stream & Messages */
+  .chat-stream {
+    padding: 1rem 0.75rem;
+  }
+
+  .message-row {
+    gap: 0.65rem;
+  }
+
+  .message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+  }
+
+  .message-bubble {
+    max-width: 92%;
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    border-radius: var(--radius-md);
+    word-break: break-word;
+  }
+
+  .message-bubble pre {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    padding: 0.75rem;
+    margin: 0.65rem 0;
+  }
+
+  .message-actions {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .message-actions .action-btn {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.72rem;
+    min-height: 28px;
+  }
+
+  /* Chat Input Bar & Mobile Keyboard Protection */
+  .input-container {
+    padding: 0.6rem 0.75rem calc(0.65rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .input-box-wrapper {
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-lg);
+    gap: 0.5rem;
+  }
+
+  .chat-textarea {
+    font-size: 16px; /* 16px font prevents iOS Safari auto-zoom on input focus */
+    min-height: 24px;
+    max-height: 120px;
+    line-height: 1.4;
+  }
+
+  .btn-send {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
+
+  .input-disclaimer {
+    font-size: 0.68rem;
+    margin-top: 0.35rem;
+  }
+
+  /* Modals on Mobile */
+  .modal-backdrop {
+    padding: 0.5rem;
+  }
+
+  .modal-card {
+    max-width: 100%;
+    max-height: 94dvh;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header {
+    padding: 0.9rem 1.15rem;
+  }
+
+  .modal-body {
+    padding: 1rem 1.15rem;
+    gap: 0.85rem;
+  }
+
+  .modal-actions {
+    padding: 0.75rem 1.15rem;
+    gap: 0.5rem;
+  }
+
+  /* Stats Modal */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+  }
+
+  .stat-card {
+    padding: 0.65rem 0.5rem;
+  }
+
+  .stat-icon {
+    font-size: 1.1rem;
+  }
+
+  .stat-value {
+    font-size: 1.15rem;
+  }
+
+  .stat-label {
+    font-size: 0.68rem;
+  }
+
+  .stat-sublabel {
+    font-size: 0.62rem;
+  }
+
+  .stats-detail-row {
+    font-size: 0.75rem;
+  }
+
+  /* Prompt Library Modal */
+  .prompt-cards-container {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .prompt-search-input {
+    font-size: 0.82rem;
+    padding: 0.55rem 2rem 0.55rem 2.2rem;
+  }
+
+  .prompt-category-pills {
+    gap: 0.4rem;
+  }
+
+  .category-pill {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.65rem;
+  }
+
+  .prompt-card {
+    padding: 0.85rem;
+  }
+
+  .prompt-card-preview {
+    max-height: 48px;
+    font-size: 0.68rem;
+  }
+
+  .btn-prompt-act {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.72rem;
+    min-height: 30px;
+  }
+
+  /* Auth Card */
+  .auth-view {
+    padding: 1rem;
+  }
+
+  .auth-card {
+    padding: 1.65rem 1.35rem;
+    border-radius: var(--radius-lg);
+    gap: 1.25rem;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.85rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Compact Mobile Devices (max-width: 480px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .chat-header {
+    padding: 0 0.5rem;
+  }
+
+  .header-left {
+    gap: 0.45rem;
+  }
+
+  .mobile-toggle {
+    padding: 0.35rem 0.45rem;
+    font-size: 0.95rem;
+  }
+
+  .chat-title-wrap h2 {
+    max-width: 95px;
+    font-size: 0.82rem;
+  }
+
+  .header-actions {
+    gap: 0.22rem;
+  }
+
+  .header-actions .action-btn {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0.3rem 0.35rem;
+    font-size: 0.85rem;
+  }
+
+  .btn-persona {
+    padding: 0.28rem 0.45rem;
+  }
+
+  /* On extra small phones, save space by showing icon-only for persona */
+  .persona-current-label {
+    display: none;
+  }
+
+  .message-bubble {
+    max-width: 95%;
+    padding: 0.75rem 0.85rem;
+    font-size: 0.88rem;
+  }
+
+  .message-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  .welcome-title {
+    font-size: 1.35rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 0.82rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .modal-card {
+    border-radius: var(--radius-sm);
+  }
+
+  .prompt-card-actions {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .btn-prompt-copy {
+    margin-left: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. Touch Device Optimizations (Mobiles, Tablets, Touch Laptops)
+   -------------------------------------------------------------------------- */
+@media (hover: none) or (pointer: coarse) {
+  /* Conversation action buttons always visible on touch screens */
+  .chat-item .chat-item-actions {
+    opacity: 0.88;
+  }
+
+  .chat-item-action-btn {
+    padding: 4px 6px;
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 0.78rem;
+  }
+
+  .chat-item {
+    padding: 0.75rem 0.85rem;
+    -webkit-tap-highlight-color: rgba(99, 102, 241, 0.2);
+  }
+
+  button, 
+  .suggestion-card, 
+  .chat-item, 
+  .category-pill,
+  .action-btn {
+    touch-action: manipulation;
+  }
+
+  .btn-new-chat,
+  .btn-auth-submit {
+    min-height: 44px;
+  }
 }
 
 
