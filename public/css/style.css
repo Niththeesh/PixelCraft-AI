@@ -1243,6 +1243,55 @@ button {
   box-shadow: none;
 }
 
+/* Guest Mode Locked State for AI Chat */
+.app-container.guest-mode .input-box-wrapper {
+  cursor: pointer;
+  border-color: rgba(99, 102, 241, 0.25);
+  background: rgba(30, 41, 59, 0.85);
+}
+
+.app-container.guest-mode .input-box-wrapper:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+}
+
+.app-container.guest-mode .chat-textarea {
+  cursor: pointer;
+  opacity: 0.8;
+  user-select: none;
+}
+
+.app-container.guest-mode .btn-send {
+  display: none !important;
+}
+
+.btn-guest-gate-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-hover));
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-guest-gate-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5);
+}
+
+.app-container.guest-mode .btn-guest-gate-trigger {
+  display: inline-flex !important;
+}
+
 .input-disclaimer {
   font-size: 0.78rem;
   color: var(--text-subtle);

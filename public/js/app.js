@@ -49,13 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
     promptSearchQuery: ''
   };
 
-  // Try to parse saved user object
-  try {
-    const savedUser = localStorage.getItem('supabase_user');
-    if (savedUser) {
-      state.authUser = JSON.parse(savedUser);
+  // Try to parse saved user object ONLY if authToken exists
+  if (state.authToken) {
+    try {
+      const savedUser = localStorage.getItem('supabase_user');
+      if (savedUser) {
+        state.authUser = JSON.parse(savedUser);
+      }
+    } catch (e) {
+      state.authUser = null;
     }
-  } catch (e) {
+  } else {
     state.authUser = null;
   }
 
@@ -127,7 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
     messagesContainer: document.getElementById('messages-container'),
     typingIndicator: document.getElementById('typing-indicator'),
     chatStream: document.getElementById('chat-stream'),
+    inputBoxWrapper: document.getElementById('input-box-wrapper'),
     chatTextarea: document.getElementById('chat-textarea'),
+    btnGuestGateTrigger: document.getElementById('btn-guest-gate-trigger'),
     btnSend: document.getElementById('btn-send'),
     suggestionCards: document.querySelectorAll('.suggestion-card'),
 
@@ -289,6 +295,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (elements.appContainer) {
+      elements.appContainer.classList.remove('guest-mode');
+    }
+
+    if (elements.chatTextarea) {
+      elements.chatTextarea.readOnly = false;
+      elements.chatTextarea.placeholder = 'Ask PixelCraft AI anything...';
+    }
+
     const email = state.authUser.email || 'User';
     if (elements.userDisplayEmail) {
       elements.userDisplayEmail.textContent = email;
@@ -319,6 +334,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderGuestState() {
     state.authUser = null;
+
+    if (elements.appContainer) {
+      elements.appContainer.classList.add('guest-mode');
+    }
+
+    if (elements.chatTextarea) {
+      elements.chatTextarea.value = '';
+      elements.chatTextarea.readOnly = true;
+      elements.chatTextarea.placeholder = '🔒 Sign in or create an account to use PixelCraft AI...';
+    }
+
+    if (elements.btnSend) {
+      elements.btnSend.disabled = true;
+    }
 
     if (elements.userDisplayEmail) {
       elements.userDisplayEmail.textContent = 'Guest Visitor';
@@ -708,7 +737,45 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupTextarea() {
     if (!elements.chatTextarea) return;
 
+    // Intercept click and focus in guest state to show Auth Gate modal immediately
+    elements.chatTextarea.addEventListener('click', (e) => {
+      if (!state.authToken || !state.authUser) {
+        e.preventDefault();
+        showAuthGateModal();
+      }
+    });
+
+    elements.chatTextarea.addEventListener('focus', () => {
+      if (!state.authToken || !state.authUser) {
+        elements.chatTextarea.blur();
+        showAuthGateModal();
+      }
+    });
+
+    if (elements.inputBoxWrapper) {
+      elements.inputBoxWrapper.addEventListener('click', (e) => {
+        if (!state.authToken || !state.authUser) {
+          e.preventDefault();
+          showAuthGateModal();
+        }
+      });
+    }
+
+    if (elements.btnGuestGateTrigger) {
+      elements.btnGuestGateTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showAuthGateModal();
+      });
+    }
+
     elements.chatTextarea.addEventListener('input', () => {
+      if (!state.authToken || !state.authUser) {
+        elements.chatTextarea.value = '';
+        showAuthGateModal();
+        return;
+      }
+
       elements.chatTextarea.style.height = 'auto';
       elements.chatTextarea.style.height = Math.min(elements.chatTextarea.scrollHeight, 160) + 'px';
 

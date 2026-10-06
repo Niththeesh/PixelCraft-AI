@@ -340,8 +340,11 @@
 
       <!-- Input Bar Container -->
       <footer class="input-container">
-        <div class="input-box-wrapper">
+        <div class="input-box-wrapper" id="input-box-wrapper">
           <textarea id="chat-textarea" class="chat-textarea" placeholder="Ask PixelCraft AI anything..." rows="1"></textarea>
+          <button id="btn-guest-gate-trigger" class="btn-guest-gate-trigger" style="display: none;" type="button" aria-label="Sign in to chat">
+            🔒 Sign In to Chat
+          </button>
           <button id="btn-send" class="btn-send" aria-label="Send Message">
             ➔
           </button>
