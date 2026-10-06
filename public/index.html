@@ -13,8 +13,27 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>PixelCraft AI</title>
-  <meta name="description" content="PixelCraft AI - A production-grade AI Personal Assistant web interface powered by Express.js, Supabase Auth, and Google Gemini.">
+  <!-- Primary Search Engine SEO Metadata -->
+  <title>PixelCraft AI - AI Personal Assistant</title>
+  <meta name="description" content="PixelCraft AI is an intelligent personal AI assistant powered by Google Gemini, designed for answering questions, generating content, explanations, creative ideas, and coding assistance.">
+  <meta name="keywords" content="PixelCraft AI, AI assistant, AI chatbot, personal AI assistant, AI tools, coding assistant">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://pixelcraft-ai-seven.vercel.app/">
+
+  <!-- Open Graph / Facebook / LinkedIn Metadata -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="PixelCraft AI - AI Personal Assistant">
+  <meta property="og:description" content="PixelCraft AI is an intelligent personal AI assistant powered by Google Gemini, designed for answering questions, generating content, explanations, creative ideas, and coding assistance.">
+  <meta property="og:url" content="https://pixelcraft-ai-seven.vercel.app/">
+  <meta property="og:site_name" content="PixelCraft AI">
+  <meta property="og:image" content="https://pixelcraft-ai-seven.vercel.app/images/logo.png">
+
+  <!-- Twitter Card Metadata -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="PixelCraft AI - AI Personal Assistant">
+  <meta name="twitter:description" content="PixelCraft AI is an intelligent personal AI assistant powered by Google Gemini, designed for answering questions, generating content, explanations, creative ideas, and coding assistance.">
+  <meta name="twitter:image" content="https://pixelcraft-ai-seven.vercel.app/images/logo.png">
+
   <link rel="icon" type="image/png" href="images/logo.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -27,7 +46,7 @@
     <div class="auth-card">
       <div class="auth-header">
         <div class="brand">
-          <img src="images/logo.png" alt="PixelCraft AI Logo" class="brand-logo">
+          <img src="images/logo.png" alt="PixelCraft AI Assistant Logo" class="brand-logo">
           <span>PixelCraft AI</span>
         </div>
         <h1 class="auth-title" id="auth-title">Welcome back</h1>
@@ -120,7 +139,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <img src="images/logo.png" alt="PixelCraft AI Logo" class="brand-logo">
+          <img src="images/logo.png" alt="PixelCraft AI Assistant Logo" class="brand-logo">
           <span>PixelCraft AI</span>
         </div>
         <button class="sidebar-close-btn" id="btn-close-sidebar" aria-label="Close sidebar" title="Close sidebar">✕</button>
@@ -269,7 +288,7 @@
           <!-- Welcome / Empty State View -->
           <div class="welcome-state" id="welcome-state">
             <div class="welcome-icon">⚡</div>
-            <h1 class="welcome-title">How can I assist you today?</h1>
+            <h1 class="welcome-title">How can PixelCraft AI assist you today?</h1>
             <p class="welcome-subtitle">Select a prompt suggestion below or type your message to begin a real-time conversation.</p>
 
             <div class="suggestions-grid">
@@ -298,7 +317,7 @@
           <!-- Typing Indicator -->
           <div class="typing-indicator" id="typing-indicator">
             <div class="message-avatar ai" style="width: 28px; height: 28px;">
-              <img src="images/logo.png" alt="PixelCraft AI" class="avatar-logo-img">
+              <img src="images/logo.png" alt="PixelCraft AI Assistant Avatar" class="avatar-logo-img">
             </div>
             <span style="font-size: 0.85rem; color: var(--text-muted);">PixelCraft AI is thinking...</span>
             <div class="dot-pulse">
