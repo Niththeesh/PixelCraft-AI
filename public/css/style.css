@@ -488,6 +488,40 @@ button {
   border-color: rgba(239, 68, 68, 0.35);
 }
 
+.btn-sidebar-login {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-hover));
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.btn-sidebar-login:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
+}
+
+.btn-header-login {
+  background: rgba(99, 102, 241, 0.15) !important;
+  border: 1px solid var(--border-glow) !important;
+  color: #c7d2fe !important;
+  font-weight: 600 !important;
+  padding: 0.32rem 0.8rem !important;
+  border-radius: 20px !important;
+}
+
+.btn-header-login:hover {
+  background: rgba(99, 102, 241, 0.28) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.35) !important;
+}
+
 /* Sidebar Overlay for Mobile */
 .sidebar-overlay {
   display: none;
@@ -1251,6 +1285,7 @@ button {
 }
 
 .auth-card {
+  position: relative;
   width: 100%;
   max-width: 440px;
   background: rgba(24, 32, 53, 0.88);
@@ -1265,6 +1300,29 @@ button {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.auth-back-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.auth-back-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text-main);
 }
 
 .auth-header {
@@ -1870,6 +1928,99 @@ button {
 .prompt-counter-text {
   font-size: 0.78rem;
   color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Authentication Gate Modal
+   ========================================================================== */
+.modal-auth-gate-card {
+  max-width: 480px;
+  background: rgba(20, 27, 45, 0.96);
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.75), 0 0 35px rgba(99, 102, 241, 0.25);
+}
+
+.auth-gate-modal-body {
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.85rem;
+}
+
+.auth-gate-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a5b4fc;
+}
+
+.auth-gate-headline {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.auth-gate-message {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.auth-gate-features {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  text-align: left;
+  margin-top: 0.35rem;
+}
+
+.auth-gate-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.gate-feat-icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.auth-gate-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.1rem 1.75rem;
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end;
+}
+
+.btn-gate-action {
+  padding: 0.7rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
 }
 
 /* ==========================================================================

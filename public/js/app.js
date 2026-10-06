@@ -87,6 +87,15 @@ document.addEventListener('DOMContentLoaded', () => {
     userDisplayEmail: document.getElementById('user-display-email'),
     userStatusText: document.getElementById('user-status-text'),
     btnLogout: document.getElementById('btn-logout'),
+    btnSidebarLogin: document.getElementById('btn-sidebar-login'),
+    btnHeaderLogin: document.getElementById('btn-header-login'),
+    btnCloseAuthView: document.getElementById('btn-close-auth-view'),
+
+    // Authentication Gate Modal elements
+    modalAuthGate: document.getElementById('modal-auth-gate'),
+    btnCloseAuthGateModal: document.getElementById('btn-close-auth-gate-modal'),
+    btnGateLogin: document.getElementById('btn-gate-login'),
+    btnGateSignup: document.getElementById('btn-gate-signup'),
 
     // Chat Workspace elements
     sidebar: document.getElementById('sidebar'),
@@ -192,11 +201,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 1. Session Detection and Verification
+  // 1. Session Detection and Verification & Auth Gate
   // ==========================================================================
   async function checkInitialSession() {
     if (!state.authToken) {
-      showAuthView();
+      showChatWorkspace();
+      renderGuestState();
       return;
     }
 
@@ -211,18 +221,44 @@ document.addEventListener('DOMContentLoaded', () => {
           state.authUser = data.user;
           localStorage.setItem('supabase_user', JSON.stringify(data.user));
           showChatWorkspace();
+          renderUserProfile();
           loadConversations();
           return;
         }
       }
 
       // Token invalid or expired
-      handleLogout('Your session has expired. Please sign in again.');
+      handleUnauthorized();
     } catch (err) {
       console.error('Session check error:', err);
-      // Fallback: If network issue but token exists, attempt to show workspace or auth view
-      showAuthView('Could not verify existing session. Please sign in.');
+      // On connection issue or missing session, keep public workspace visible in guest mode
+      showChatWorkspace();
+      renderGuestState();
     }
+  }
+
+  function showAuthGateModal() {
+    if (elements.modalAuthGate) {
+      elements.modalAuthGate.style.display = 'flex';
+    }
+  }
+
+  function hideAuthGateModal() {
+    if (elements.modalAuthGate) {
+      elements.modalAuthGate.style.display = 'none';
+    }
+  }
+
+  /**
+   * Guard for protected actions:
+   * Returns true if authenticated; if unauthenticated, shows the Auth Gate modal and returns false.
+   */
+  function requireUserAuth(actionDescription = 'use PixelCraft AI') {
+    if (state.authToken && state.authUser) {
+      return true;
+    }
+    showAuthGateModal();
+    return false;
   }
 
   function showAuthView(alertMessage = null) {
@@ -240,11 +276,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.authView) elements.authView.classList.remove('active');
     if (elements.appContainer) elements.appContainer.classList.remove('hidden');
 
-    renderUserProfile();
+    if (state.authUser) {
+      renderUserProfile();
+    } else {
+      renderGuestState();
+    }
   }
 
   function renderUserProfile() {
-    if (!state.authUser) return;
+    if (!state.authUser) {
+      renderGuestState();
+      return;
+    }
 
     const email = state.authUser.email || 'User';
     if (elements.userDisplayEmail) {
@@ -260,6 +303,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (elements.userStatusText) {
       elements.userStatusText.textContent = '● Authenticated';
+      elements.userStatusText.style.color = 'var(--accent-emerald)';
+    }
+
+    if (elements.btnLogout) {
+      elements.btnLogout.style.display = 'inline-flex';
+    }
+    if (elements.btnSidebarLogin) {
+      elements.btnSidebarLogin.style.display = 'none';
+    }
+    if (elements.btnHeaderLogin) {
+      elements.btnHeaderLogin.style.display = 'none';
+    }
+  }
+
+  function renderGuestState() {
+    state.authUser = null;
+
+    if (elements.userDisplayEmail) {
+      elements.userDisplayEmail.textContent = 'Guest Visitor';
+      elements.userDisplayEmail.title = 'Guest Visitor';
+    }
+
+    if (elements.userAvatar) {
+      elements.userAvatar.textContent = '👤';
+    }
+
+    if (elements.userStatusText) {
+      elements.userStatusText.textContent = '○ Not Signed In';
+      elements.userStatusText.style.color = 'var(--text-muted)';
+    }
+
+    if (elements.btnLogout) {
+      elements.btnLogout.style.display = 'none';
+    }
+    if (elements.btnSidebarLogin) {
+      elements.btnSidebarLogin.style.display = 'inline-flex';
+    }
+    if (elements.btnHeaderLogin) {
+      elements.btnHeaderLogin.style.display = 'inline-flex';
+    }
+
+    if (elements.chatList) {
+      elements.chatList.innerHTML = `
+        <li class="chat-list-empty" style="text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.82rem;">
+          <div style="font-size: 1.4rem; margin-bottom: 0.4rem;">🔒</div>
+          <p style="margin-bottom: 0.6rem; line-height: 1.4;">Sign in to save and access your conversations.</p>
+          <button type="button" class="btn-sidebar-login" style="margin: 0 auto; display: inline-flex;" onclick="document.getElementById('btn-sidebar-login').click();">Sign In</button>
+        </li>
+      `;
     }
   }
 
@@ -296,6 +388,55 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auth Form Submission
     if (elements.authForm) {
       elements.authForm.addEventListener('submit', handleAuthSubmit);
+    }
+
+    // Close Auth View (Return to Homepage)
+    if (elements.btnCloseAuthView) {
+      elements.btnCloseAuthView.addEventListener('click', () => {
+        showChatWorkspace();
+      });
+    }
+
+    // Sidebar & Header Guest Login Buttons
+    if (elements.btnSidebarLogin) {
+      elements.btnSidebarLogin.addEventListener('click', () => {
+        switchAuthMode('login');
+        showAuthView();
+      });
+    }
+    if (elements.btnHeaderLogin) {
+      elements.btnHeaderLogin.addEventListener('click', () => {
+        switchAuthMode('login');
+        showAuthView();
+      });
+    }
+
+    // Auth Gate Modal Actions
+    if (elements.btnGateLogin) {
+      elements.btnGateLogin.addEventListener('click', () => {
+        hideAuthGateModal();
+        switchAuthMode('login');
+        showAuthView();
+      });
+    }
+    if (elements.btnGateSignup) {
+      elements.btnGateSignup.addEventListener('click', () => {
+        hideAuthGateModal();
+        switchAuthMode('signup');
+        showAuthView();
+      });
+    }
+    if (elements.btnCloseAuthGateModal) {
+      elements.btnCloseAuthGateModal.addEventListener('click', () => {
+        hideAuthGateModal();
+      });
+    }
+    if (elements.modalAuthGate) {
+      elements.modalAuthGate.addEventListener('click', (e) => {
+        if (e.target === elements.modalAuthGate) {
+          hideAuthGateModal();
+        }
+      });
     }
   }
 
@@ -494,12 +635,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.currentChatTitle) elements.currentChatTitle.textContent = 'AI Assistant Workspace';
     if (elements.welcomeState) elements.welcomeState.style.display = 'flex';
 
-    // Show Auth Screen
-    showAuthView(message);
+    // Show Workspace in Guest state (keeps public homepage accessible)
+    showChatWorkspace();
+    renderGuestState();
+
+    if (message) {
+      showAuthGateModal();
+    }
   }
 
   function handleUnauthorized() {
-    handleLogout('Session expired. Please sign in again.');
+    state.authToken = null;
+    state.authUser = null;
+    state.conversations = [];
+    state.currentConversationId = null;
+    state.messages = [];
+    localStorage.removeItem('supabase_access_token');
+    localStorage.removeItem('supabase_user');
+    showChatWorkspace();
+    renderGuestState();
+    showAuthGateModal();
   }
 
   // ==========================================================================
@@ -584,6 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (elements.btnClearChat) {
       elements.btnClearChat.addEventListener('click', () => {
+        if (!requireUserAuth('manage conversation messages')) return;
         if (state.currentConversationId && state.messages.length > 0) {
           clearCurrentConversationMessages();
         } else {
@@ -594,6 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (elements.btnForkChat) {
       elements.btnForkChat.addEventListener('click', () => {
+        if (!requireUserAuth('fork conversation')) return;
         if (state.currentConversationId) {
           const currentConv = state.conversations.find(c => c.id === state.currentConversationId);
           forkConversation(state.currentConversationId, currentConv?.title);
@@ -605,6 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (elements.btnChatStats) {
       elements.btnChatStats.addEventListener('click', () => {
+        if (!requireUserAuth('view conversation statistics')) return;
         if (state.currentConversationId) {
           const currentConv = state.conversations.find(c => c.id === state.currentConversationId);
           openConversationStats(state.currentConversationId, currentConv?.title);
@@ -623,6 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     elements.btnExportChat.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (!requireUserAuth('export conversation')) return;
       const isVisible = elements.exportMenu.style.display === 'flex';
       elements.exportMenu.style.display = isVisible ? 'none' : 'flex';
       if (elements.personaMenu) elements.personaMenu.style.display = 'none';
@@ -646,10 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function exportCurrentConversation(format = 'markdown') {
-    if (!state.authToken) {
-      alert('Please sign in to export conversations.');
-      return;
-    }
+    if (!requireUserAuth('export conversations')) return;
 
     if (!state.currentConversationId) {
       alert('Please select an active conversation to export.');
@@ -833,6 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openCustomInstructionModal() {
+    if (!requireUserAuth('set custom instructions')) return;
     if (!elements.modalCustomInstructions) return;
     if (elements.customInstructionInput) {
       elements.customInstructionInput.value = state.customInstructions || '';
@@ -922,8 +1079,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function openConversationStats(conversationId, fallbackTitle = null) {
-    if (!state.authToken) {
-      alert('Please sign in to view conversation analytics.');
+    if (!requireUserAuth('view conversation statistics')) {
       return;
     }
 
@@ -1279,6 +1435,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function insertPromptIntoChat(template, recommendedPersona = null) {
+    if (!requireUserAuth('use prompt templates')) return;
     if (!elements.chatTextarea) return;
 
     if (recommendedPersona && PERSONA_LABELS[recommendedPersona]) {
@@ -1299,6 +1456,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function runPromptInstantly(template, recommendedPersona = null) {
+    if (!requireUserAuth('run prompt templates')) return;
     if (!elements.chatTextarea) return;
 
     insertPromptIntoChat(template, recommendedPersona);
@@ -1773,7 +1931,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   function setupNewChat() {
     if (elements.btnNewChat) {
-      elements.btnNewChat.addEventListener('click', startNewChat);
+      elements.btnNewChat.addEventListener('click', () => {
+        if (!requireUserAuth('start a new conversation')) return;
+        startNewChat();
+      });
     }
   }
 
@@ -1812,6 +1973,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // 11. Send Message Flow with Authenticated Persistence
   // ==========================================================================
   async function sendMessage() {
+    if (!requireUserAuth('send messages')) return;
+
     const text = elements.chatTextarea.value.trim();
     if (!text || state.isGenerating) return;
 
@@ -2202,6 +2365,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupSuggestions() {
     elements.suggestionCards.forEach(card => {
       card.addEventListener('click', () => {
+        if (!requireUserAuth('use prompt suggestions')) return;
         const prompt = card.getAttribute('data-prompt');
         if (prompt && !state.isGenerating) {
           elements.chatTextarea.value = prompt;

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const geminiService = require('../services/geminiService');
 const conversationService = require('../services/conversationService');
-const { optionalAuth } = require('../middleware/authMiddleware');
+const { requireAuth } = require('../middleware/authMiddleware');
 
 // Standard PostgreSQL UUID format (8-4-4-4-12 hex digits)
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -13,11 +13,11 @@ function isValidUUID(uuid) {
 
 /**
  * POST /api/chat
- * Accepts user message prompt, optionally binds to conversationId if authenticated,
+ * Strictly protected route: Requires authenticated Supabase session.
+ * Accepts user message prompt, binds to conversationId,
  * dispatches to Gemini Service, and persists conversation messages in Supabase.
- * Keeps unauthenticated direct chat working for tests & health checks.
  */
-router.post('/chat', optionalAuth, async (req, res) => {
+router.post('/chat', requireAuth, async (req, res) => {
   const { message, conversationId, persona, systemInstruction } = req.body || {};
 
   // Payload Validation: Message must be a non-empty string

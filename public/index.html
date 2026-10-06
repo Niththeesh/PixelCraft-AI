@@ -44,6 +44,7 @@
        ======================================================================== -->
   <div class="auth-view" id="auth-view">
     <div class="auth-card">
+      <button type="button" class="auth-back-btn" id="btn-close-auth-view" aria-label="Return to homepage" title="Return to homepage">✕</button>
       <div class="auth-header">
         <div class="brand">
           <img src="images/logo.png" alt="PixelCraft AI Assistant Logo" class="brand-logo">
@@ -178,6 +179,9 @@
           <span class="user-name" id="user-display-email">user@domain.com</span>
           <span class="user-status" id="user-status-text">● Authenticated</span>
         </div>
+        <button class="btn-sidebar-login" id="btn-sidebar-login" style="display: none;" title="Sign in to your account" aria-label="Sign In">
+          Sign In
+        </button>
         <button class="btn-logout" id="btn-logout" title="Sign out of your account" aria-label="Sign out">
           Sign Out
         </button>
@@ -197,6 +201,10 @@
           </div>
         </div>
         <div class="header-actions">
+          <button class="action-btn btn-header-login" id="btn-header-login" style="display: none;" title="Sign in to PixelCraft AI" aria-label="Sign In">
+            <span class="btn-icon">🔐</span>
+            <span class="btn-text-label">Sign In</span>
+          </button>
           <div class="persona-dropdown-wrapper" id="persona-dropdown-wrapper">
             <button class="action-btn btn-persona" id="btn-persona-selector" title="Select AI Persona & Instructions" aria-label="Select AI Persona">
               <span class="engine-pill-icon">⚡</span>
@@ -484,6 +492,42 @@
       <div class="modal-actions prompt-modal-footer">
         <span class="prompt-counter-text" id="prompt-counter-text">Showing prompt templates</span>
         <button type="button" class="btn-auth-submit btn-modal-primary" id="btn-dismiss-prompts">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authentication Gate Modal (Shown when unauthenticated users attempt protected AI actions) -->
+  <div class="modal-backdrop" id="modal-auth-gate" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-auth-gate-title">
+    <div class="modal-card modal-auth-gate-card">
+      <div class="modal-header">
+        <div class="brand">
+          <img src="images/logo.png" alt="PixelCraft AI Assistant Logo" class="brand-logo">
+          <span id="modal-auth-gate-title">PixelCraft AI</span>
+        </div>
+        <button class="modal-close" id="btn-close-auth-gate-modal" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body auth-gate-modal-body">
+        <div class="auth-gate-badge">🔒 Authentication Required</div>
+        <h3 class="auth-gate-headline">Sign in to Continue</h3>
+        <p class="auth-gate-message">Sign in or create an account to use PixelCraft AI.</p>
+        <div class="auth-gate-features">
+          <div class="auth-gate-feature-item">
+            <span class="gate-feat-icon">⚡</span>
+            <span>Real-time intelligent answers powered by Google Gemini</span>
+          </div>
+          <div class="auth-gate-feature-item">
+            <span class="gate-feat-icon">💾</span>
+            <span>Save and manage your conversation history</span>
+          </div>
+          <div class="auth-gate-feature-item">
+            <span class="gate-feat-icon">🎯</span>
+            <span>Custom AI personas, prompt templates & analytics</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions auth-gate-modal-actions">
+        <button type="button" class="action-btn btn-modal-secondary btn-gate-action" id="btn-gate-login">Sign In</button>
+        <button type="button" class="btn-auth-submit btn-modal-primary btn-gate-action" id="btn-gate-signup">Create Account</button>
       </div>
     </div>
   </div>
