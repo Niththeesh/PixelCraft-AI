@@ -8,13 +8,31 @@ const { createClient } = require('@supabase/supabase-js');
  * Never expose this client or its credentials to frontend/client assets.
  */
 
+// Robust lookup helper: checks exact names, aliases, trimmed names, and case-insensitivity
+function resolveEnvVar(...names) {
+  for (const name of names) {
+    if (process.env[name]) return process.env[name];
+  }
+  const envKeys = Object.keys(process.env);
+  for (const name of names) {
+    const target = name.trim().toUpperCase();
+    for (const key of envKeys) {
+      if (key.trim().toUpperCase() === target && process.env[key]) {
+        return process.env[key];
+      }
+    }
+  }
+  return '';
+}
+
 // Helper to safely extract and clean credentials
 function getCredentials() {
-  let url = (process.env.SUPABASE_URL || '').trim();
-  let key = (
-    process.env.SUPABASE_SECRET_KEY || 
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 
-    ''
+  let url = resolveEnvVar('SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL').trim();
+  let key = resolveEnvVar(
+    'SUPABASE_SECRET_KEY',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'SUPABASE_SERVICE_KEY',
+    'SUPABASE_KEY'
   ).trim();
 
   // Strip accidental enclosing single or double quotes
@@ -71,28 +89,28 @@ async function checkDatabaseHealth() {
     return {
       success: false,
       status: 'NOT_CONFIGURED',
-      error: 'SUPABASE_URL is missing in .env'
+      error: 'SUPABASE_URL is missing from environment variables'
     };
   }
   if (url.includes('your-project-id')) {
     return {
       success: false,
       status: 'NOT_CONFIGURED',
-      error: 'SUPABASE_URL is still set to the placeholder "https://your-project-id.supabase.co" in .env. Please update it with your actual Supabase project URL.'
+      error: 'SUPABASE_URL is still set to placeholder "https://your-project-id.supabase.co". Please update it with your actual Supabase project URL.'
     };
   }
   if (!key) {
     return {
       success: false,
       status: 'NOT_CONFIGURED',
-      error: 'SUPABASE_SECRET_KEY is missing in .env'
+      error: 'SUPABASE_SECRET_KEY is missing from environment variables'
     };
   }
   if (key === 'your_supabase_secret_key_here' || key === 'your_supabase_service_role_key_here') {
     return {
       success: false,
       status: 'NOT_CONFIGURED',
-      error: 'SUPABASE_SECRET_KEY is still set to placeholder in .env. Please provide your actual Supabase secret key.'
+      error: 'SUPABASE_SECRET_KEY is still set to placeholder. Please provide your actual Supabase secret key.'
     };
   }
 
