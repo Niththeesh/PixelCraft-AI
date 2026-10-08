@@ -68,6 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
     state.authUser = null;
   }
 
+  // AI Persona Definitions & State
+  const PERSONA_LABELS = {
+    general: { name: 'General Assistant', icon: '🎯' },
+    code_architect: { name: 'Code Architect', icon: '💻' },
+    technical_writer: { name: 'Technical Writer', icon: '📝' },
+    executive_summarizer: { name: 'Executive Summarizer', icon: '💼' },
+    creative_brainstormer: { name: 'Creative Thinker', icon: '🎨' }
+  };
+
+  let currentStatsData = null;
+
   // DOM Selectors
   const elements = {
     // Auth elements
@@ -233,21 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
   init();
 
   async function init() {
-    setupAuthListeners();
-    setupSidebarToggle();
-    setupTextarea();
-    setupMessaging();
-    setupSuggestions();
-    setupNewChat();
-    setupSearch();
-    setupExport();
-    setupPersonaSelector();
-    setupStatsModal();
-    setupPromptLibrary();
-    setupLogout();
-    setupAccountExperience();
-    initCustomizationPreferences();
-
     // 1. Detect OAuth callback parameters early before asynchronous steps
     const earlyCheck = parseUrlAuthParams();
     if (earlyCheck && earlyCheck.handled && earlyCheck.token) {
@@ -259,6 +255,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Check for OAuth callbacks, verification links, or existing session on startup
     await checkInitialSession(earlyCheck);
+
+    // 4. Safely initialize UI components and listeners
+    try { setupAuthListeners(); } catch (e) { console.error('setupAuthListeners failed:', e); }
+    try { setupSidebarToggle(); } catch (e) { console.error('setupSidebarToggle failed:', e); }
+    try { setupTextarea(); } catch (e) { console.error('setupTextarea failed:', e); }
+    try { setupMessaging(); } catch (e) { console.error('setupMessaging failed:', e); }
+    try { setupSuggestions(); } catch (e) { console.error('setupSuggestions failed:', e); }
+    try { setupNewChat(); } catch (e) { console.error('setupNewChat failed:', e); }
+    try { setupSearch(); } catch (e) { console.error('setupSearch failed:', e); }
+    try { setupExport(); } catch (e) { console.error('setupExport failed:', e); }
+    try { setupPersonaSelector(); } catch (e) { console.error('setupPersonaSelector failed:', e); }
+    try { setupStatsModal(); } catch (e) { console.error('setupStatsModal failed:', e); }
+    try { setupPromptLibrary(); } catch (e) { console.error('setupPromptLibrary failed:', e); }
+    try { setupLogout(); } catch (e) { console.error('setupLogout failed:', e); }
+    try { setupAccountExperience(); } catch (e) { console.error('setupAccountExperience failed:', e); }
+    try { initCustomizationPreferences(); } catch (e) { console.error('initCustomizationPreferences failed:', e); }
   }
 
   // ==========================================================================
@@ -496,6 +508,50 @@ document.addEventListener('DOMContentLoaded', () => {
     return { connected, identifiers };
   }
 
+  function updateConnectedAccountsUI() {
+    if (!state.authUser) return;
+    try {
+      const { connected, identifiers } = getConnectedProviders(state.authUser);
+
+      // Google Provider
+      const badgeGoogle = document.getElementById('badge-status-google');
+      const identGoogle = document.getElementById('provider-ident-google');
+      if (badgeGoogle) {
+        badgeGoogle.className = 'provider-status-badge ' + (connected.google ? 'badge-connected' : 'badge-not-connected');
+        badgeGoogle.textContent = connected.google ? 'Connected' : 'Not connected';
+      }
+      if (identGoogle) {
+        identGoogle.textContent = identifiers.google || (state.authUser.email || 'Google Account');
+        identGoogle.style.display = connected.google ? 'inline' : 'none';
+      }
+
+      // Facebook Provider
+      const badgeFacebook = document.getElementById('badge-status-facebook');
+      const identFacebook = document.getElementById('provider-ident-facebook');
+      if (badgeFacebook) {
+        badgeFacebook.className = 'provider-status-badge ' + (connected.facebook ? 'badge-connected' : 'badge-not-connected');
+        badgeFacebook.textContent = connected.facebook ? 'Connected' : 'Not connected';
+      }
+      if (identFacebook) {
+        identFacebook.textContent = identifiers.facebook || 'Facebook Account';
+        identFacebook.style.display = connected.facebook ? 'inline' : 'none';
+      }
+
+      // Email Provider
+      const badgeEmail = document.getElementById('badge-status-email');
+      const identEmail = document.getElementById('provider-ident-email');
+      if (badgeEmail) {
+        badgeEmail.className = 'provider-status-badge ' + (connected.email ? 'badge-connected' : 'badge-not-connected');
+        badgeEmail.textContent = connected.email ? 'Connected' : 'Not connected';
+      }
+      if (identEmail) {
+        identEmail.textContent = identifiers.email || state.authUser.email || 'Email Account';
+      }
+    } catch (e) {
+      // Safe fallback
+    }
+  }
+
   // ==========================================================================
   // Helper: Centralized Authentication State Synchronizer
   // ==========================================================================
@@ -507,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.authToken = token;
       try {
         localStorage.setItem('supabase_access_token', token);
+        sessionStorage.setItem('supabase_access_token', token);
       } catch (_) {}
     }
 
@@ -514,6 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.authUser = user;
       try {
         localStorage.setItem('supabase_user', JSON.stringify(user));
+        sessionStorage.setItem('supabase_user', JSON.stringify(user));
       } catch (_) {}
     }
 
@@ -526,6 +584,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       localStorage.removeItem('supabase_access_token');
       localStorage.removeItem('supabase_user');
+      sessionStorage.removeItem('supabase_access_token');
+      sessionStorage.removeItem('supabase_user');
     } catch (_) {}
   }
 
@@ -1087,6 +1147,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.authForm) {
       elements.authForm.addEventListener('submit', handleAuthSubmit);
     }
+
+    // Dynamic OAuth Hash & Token Listener
+    window.addEventListener('hashchange', () => {
+      const hashCheck = parseUrlAuthParams();
+      if (hashCheck && hashCheck.handled && hashCheck.token) {
+        checkInitialSession(hashCheck);
+      }
+    });
 
     // Close Auth View (Return to Homepage)
     if (elements.btnCloseAuthView) {
@@ -1985,13 +2053,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // Setup AI Persona & Custom Instructions Selector
   // ==========================================================================
-  const PERSONA_LABELS = {
-    general: { name: 'General Assistant', icon: '🎯' },
-    code_architect: { name: 'Code Architect', icon: '💻' },
-    technical_writer: { name: 'Technical Writer', icon: '📝' },
-    executive_summarizer: { name: 'Executive Summarizer', icon: '💼' },
-    creative_brainstormer: { name: 'Creative Thinker', icon: '🎨' }
-  };
+  // (PERSONA_LABELS defined at top of module)
+
 
   function setupPersonaSelector() {
     if (!elements.btnPersonaSelector || !elements.personaMenu) return;
@@ -2138,7 +2201,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // Setup Conversation Analytics & Stats Modal
   // ==========================================================================
-  let currentStatsData = null;
+  // (currentStatsData defined at top of module)
 
   function setupStatsModal() {
     if (!elements.modalChatStats) return;
@@ -3133,6 +3196,18 @@ document.addEventListener('DOMContentLoaded', () => {
           if (storedUser) activeUser = JSON.parse(storedUser);
         } catch (_) {}
       }
+    }
+
+    // 4. Stored access token in sessionStorage
+    if (!activeToken) {
+      try {
+        const sessionToken = sessionStorage.getItem('supabase_access_token');
+        if (sessionToken) {
+          activeToken = sessionToken;
+          const sessionUser = sessionStorage.getItem('supabase_user');
+          if (sessionUser) activeUser = JSON.parse(sessionUser);
+        }
+      } catch (_) {}
     }
 
     // If genuinely NO token exists: preserve draft message and prompt for authentication
