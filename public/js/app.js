@@ -47,7 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
     customInstructions: localStorage.getItem('assistant_custom_instructions') || '',
     prompts: [],
     activePromptCategory: 'all',
-    promptSearchQuery: ''
+    promptSearchQuery: '',
+    pendingDraftMessage: (function() { try { return sessionStorage.getItem('pixelcraft_pending_draft') || null; } catch(_) { return null; } })(),
+    welcomeToastTimer: null,
+    isInitializingAuth: false,
+    isProcessingOAuthCallback: false
   };
 
   // Try to parse saved user object ONLY if authToken exists
@@ -90,14 +94,63 @@ document.addEventListener('DOMContentLoaded', () => {
     authFooterPrompt: document.getElementById('auth-footer-prompt'),
     authSwitchLink: document.getElementById('auth-switch-link'),
 
-    // User profile elements
+    // Welcome Greeting Toast element
+    welcomeToastBanner: document.getElementById('welcome-toast-banner'),
+    welcomeToastText: document.getElementById('welcome-toast-text'),
+
+    // User profile and account elements
+    btnProfileTrigger: document.getElementById('btn-profile-trigger'),
+    userAvatarWrap: document.getElementById('user-avatar-wrap'),
     userAvatar: document.getElementById('user-avatar'),
+    userAvatarStatusDot: document.getElementById('user-avatar-status-dot'),
+    userDisplayName: document.getElementById('user-display-name'),
     userDisplayEmail: document.getElementById('user-display-email'),
     userStatusText: document.getElementById('user-status-text'),
+    profileChevron: document.getElementById('profile-chevron'),
     btnLogout: document.getElementById('btn-logout'),
     btnSidebarLogin: document.getElementById('btn-sidebar-login'),
     btnHeaderLogin: document.getElementById('btn-header-login'),
     btnCloseAuthView: document.getElementById('btn-close-auth-view'),
+
+    // Profile Popover Menu elements
+    profilePopoverMenu: document.getElementById('profile-popover-menu'),
+    popoverAvatar: document.getElementById('popover-avatar'),
+    popoverName: document.getElementById('popover-name'),
+    popoverEmail: document.getElementById('popover-email'),
+    menuItemProfile: document.getElementById('menu-item-profile'),
+    menuItemSettings: document.getElementById('menu-item-settings'),
+    menuItemConnectedAccounts: document.getElementById('menu-item-connected-accounts'),
+
+    // Profile Modal elements
+    modalUserProfile: document.getElementById('modal-user-profile'),
+    btnCloseProfileModal: document.getElementById('btn-close-profile-modal'),
+    btnDismissProfile: document.getElementById('btn-dismiss-profile'),
+    btnEditProfile: document.getElementById('btn-edit-profile'),
+    profileEditNotice: document.getElementById('profile-edit-feedback'),
+    profileModalAvatar: document.getElementById('profile-modal-avatar'),
+    profileModalHeroName: document.getElementById('profile-modal-hero-name'),
+    profileModalHeroEmail: document.getElementById('profile-modal-hero-email'),
+    profileModalBadge: document.getElementById('profile-modal-badge'),
+    profileModalFullName: document.getElementById('profile-modal-full-name'),
+    profileModalEmailVal: document.getElementById('profile-modal-email-val'),
+    profileModalMemberSince: document.getElementById('profile-modal-member-since'),
+
+    // Settings Modal elements
+    modalUserSettings: document.getElementById('modal-user-settings'),
+    btnCloseSettingsModal: document.getElementById('btn-close-settings-modal'),
+    btnDismissSettings: document.getElementById('btn-dismiss-settings'),
+    settingsTabBtns: document.querySelectorAll('.settings-tab-btn'),
+    settingsTabContents: document.querySelectorAll('.settings-tab-content'),
+    btnSettingsSignout: document.getElementById('btn-settings-signout'),
+    badgeStatusGoogle: document.getElementById('badge-status-google'),
+    badgeStatusFacebook: document.getElementById('badge-status-facebook'),
+    badgeStatusEmail: document.getElementById('badge-status-email'),
+    providerIdentGoogle: document.getElementById('provider-ident-google'),
+    providerIdentFacebook: document.getElementById('provider-ident-facebook'),
+    providerIdentEmail: document.getElementById('provider-ident-email'),
+    themeOptionBtns: document.querySelectorAll('.theme-option-btn'),
+    densityRadioInputs: document.querySelectorAll('input[name="ui-density"]'),
+    accentSwatches: document.querySelectorAll('.accent-swatch'),
 
     // Authentication Gate Modal elements
     modalAuthGate: document.getElementById('modal-auth-gate'),
@@ -192,12 +245,20 @@ document.addEventListener('DOMContentLoaded', () => {
     setupStatsModal();
     setupPromptLibrary();
     setupLogout();
+    setupAccountExperience();
+    initCustomizationPreferences();
 
-    // Initialize public Supabase client in browser if anon key is available
+    // 1. Detect OAuth callback parameters early before asynchronous steps
+    const earlyCheck = parseUrlAuthParams();
+    if (earlyCheck && earlyCheck.handled && earlyCheck.token) {
+      state.isProcessingOAuthCallback = true;
+    }
+
+    // 2. Initialize public Supabase client in browser if anon key is available
     await initSupabaseBrowserClient();
 
-    // Check for OAuth callbacks, verification links, or existing session on startup
-    await checkInitialSession();
+    // 3. Check for OAuth callbacks, verification links, or existing session on startup
+    await checkInitialSession(earlyCheck);
   }
 
   // ==========================================================================
@@ -214,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // Helper: Extract Friendly Display Name
+  // Helper: Extract Friendly Display Name & Account Metadata
   // ==========================================================================
   function getUserDisplayName(user) {
     if (!user) return 'User';
@@ -235,93 +296,385 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'User';
   }
 
+  function getUserAvatarUrl(user) {
+    if (!user) return null;
+    const meta = user.user_metadata || {};
+    if (meta.avatar_url && typeof meta.avatar_url === 'string' && meta.avatar_url.trim()) {
+      return meta.avatar_url.trim();
+    }
+    if (meta.picture && typeof meta.picture === 'string' && meta.picture.trim()) {
+      return meta.picture.trim();
+    }
+    return null;
+  }
+
+  function getUserInitials(displayName) {
+    if (!displayName || typeof displayName !== 'string') return 'U';
+    const clean = displayName.trim();
+    const parts = clean.split(/\s+/);
+    if (parts.length >= 2 && parts[0] && parts[1]) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return clean.substring(0, 2).toUpperCase();
+  }
+
+  function setAvatarElement(targetElement, avatarUrl, initials) {
+    if (!targetElement) return;
+    targetElement.innerHTML = '';
+    if (avatarUrl) {
+      const img = document.createElement('img');
+      img.src = avatarUrl;
+      img.alt = initials || 'Avatar';
+      img.onerror = () => {
+        targetElement.textContent = initials || 'U';
+      };
+      targetElement.appendChild(img);
+    } else {
+      targetElement.textContent = initials || 'U';
+    }
+  }
+
+  function formatMemberSinceDate(dateString) {
+    if (!dateString) return 'Active Member';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Active Member';
+      return date.toLocaleDateString(undefined, {
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return 'Active Member';
+    }
+  }
+
+  /**
+   * Displays the modern "Welcome, [User Name] 👋" greeting banner
+   * Uses authenticated user metadata: full_name -> name -> user_name -> email prefix
+   */
+  function showWelcomeGreeting(user) {
+    if (!user) return;
+    const displayName = getUserDisplayName(user);
+    const greetingText = `Welcome, ${displayName} 👋`;
+
+    if (elements.welcomeToastText) {
+      elements.welcomeToastText.textContent = greetingText;
+    }
+    if (elements.welcomeToastBanner) {
+      elements.welcomeToastBanner.style.display = 'inline-flex';
+      // Force reflow for CSS transition
+      void elements.welcomeToastBanner.offsetWidth;
+      elements.welcomeToastBanner.classList.add('show');
+
+      if (state.welcomeToastTimer) clearTimeout(state.welcomeToastTimer);
+      state.welcomeToastTimer = setTimeout(() => {
+        if (elements.welcomeToastBanner) {
+          elements.welcomeToastBanner.classList.remove('show');
+          setTimeout(() => {
+            if (elements.welcomeToastBanner && !elements.welcomeToastBanner.classList.contains('show')) {
+              elements.welcomeToastBanner.style.display = 'none';
+            }
+          }, 400);
+        }
+      }, 4500);
+    }
+  }
+
+  /**
+   * Triggers the dedicated post-verification welcome email flow on the server.
+   * Completely safe and asynchronous; verifies email_confirmed_at server-side.
+   */
+  async function triggerPostVerifyWelcome(token) {
+    if (!token) return;
+    try {
+      await fetch('/api/auth/post-verify-welcome', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (e) {
+      console.warn('Post-verification welcome email notice:', e.message);
+    }
+  }
+
+  /**
+   * Restores any pending draft prompt message that the user typed while unauthenticated.
+   */
+  function restoreDraftMessage() {
+    let draft = state.pendingDraftMessage;
+    if (!draft) {
+      try {
+        draft = sessionStorage.getItem('pixelcraft_pending_draft');
+      } catch (_) {}
+    }
+
+    if (draft && elements.chatTextarea) {
+      elements.chatTextarea.value = draft;
+      elements.chatTextarea.style.height = 'auto';
+      elements.chatTextarea.style.height = Math.min(elements.chatTextarea.scrollHeight, 160) + 'px';
+      if (elements.btnSend) {
+        elements.btnSend.disabled = false;
+      }
+      elements.chatTextarea.focus();
+    }
+  }
+
+  /**
+   * Safe identity & provider resolution from authenticated Supabase user.
+   * Excludes any tokens or secrets; strictly evaluates connection status and identifiers.
+   */
+  function getConnectedProviders(user) {
+    const connected = {
+      google: false,
+      facebook: false,
+      email: false
+    };
+    const identifiers = {
+      google: null,
+      facebook: null,
+      email: null
+    };
+
+    if (!user) return { connected, identifiers };
+
+    // 1. Inspect user.identities array (highest fidelity)
+    if (Array.isArray(user.identities) && user.identities.length > 0) {
+      user.identities.forEach(ident => {
+        const prov = (ident.provider || '').toLowerCase().trim();
+        if (prov === 'google') {
+          connected.google = true;
+          identifiers.google = ident.identity_data?.email || user.email || 'Connected Gmail';
+        } else if (prov === 'facebook') {
+          connected.facebook = true;
+          identifiers.facebook = ident.identity_data?.name || 'Connected Facebook Account';
+        } else if (prov === 'email') {
+          connected.email = true;
+          identifiers.email = ident.identity_data?.email || user.email;
+        }
+      });
+    }
+
+    // 2. Check app_metadata.providers
+    const appProviders = user.app_metadata?.providers || [];
+    if (Array.isArray(appProviders)) {
+      appProviders.forEach(p => {
+        const prov = (p || '').toLowerCase().trim();
+        if (prov === 'google') {
+          connected.google = true;
+          if (!identifiers.google) identifiers.google = user.email || 'Connected Gmail';
+        } else if (prov === 'facebook') {
+          connected.facebook = true;
+          if (!identifiers.facebook) identifiers.facebook = 'Connected';
+        } else if (prov === 'email') {
+          connected.email = true;
+          if (!identifiers.email) identifiers.email = user.email;
+        }
+      });
+    }
+
+    // 3. Check primary provider in app_metadata
+    const primaryProv = (user.app_metadata?.provider || '').toLowerCase().trim();
+    if (primaryProv === 'google') {
+      connected.google = true;
+      if (!identifiers.google) identifiers.google = user.email;
+    } else if (primaryProv === 'facebook') {
+      connected.facebook = true;
+      if (!identifiers.facebook) identifiers.facebook = 'Connected';
+    } else if (primaryProv === 'email') {
+      connected.email = true;
+      if (!identifiers.email) identifiers.email = user.email;
+    }
+
+    // 4. Default: If user has email and no social provider marked it, email auth is active
+    if (user.email && !connected.google && !connected.facebook) {
+      connected.email = true;
+      if (!identifiers.email) identifiers.email = user.email;
+    }
+
+    return { connected, identifiers };
+  }
+
   // ==========================================================================
-  // Helper: Initialize Browser Supabase Client (Using Public Anon Key Only)
+  // Helper: Centralized Authentication State Synchronizer
   // ==========================================================================
+  function setAuthenticatedSession(session, userFallback = null, tokenFallback = null) {
+    const token = session?.access_token || tokenFallback || state.authToken;
+    const user = session?.user || userFallback || state.authUser;
+
+    if (token) {
+      state.authToken = token;
+      try {
+        localStorage.setItem('supabase_access_token', token);
+      } catch (_) {}
+    }
+
+    if (user) {
+      state.authUser = user;
+      try {
+        localStorage.setItem('supabase_user', JSON.stringify(user));
+      } catch (_) {}
+    }
+
+    return { token: state.authToken, user: state.authUser };
+  }
+
+  function clearAuthenticatedSession() {
+    state.authToken = null;
+    state.authUser = null;
+    try {
+      localStorage.removeItem('supabase_access_token');
+      localStorage.removeItem('supabase_user');
+    } catch (_) {}
+  }
+
+  // ==========================================================================
+  // Helper: Initialize Browser Supabase Client (Public Anon / Publishable Key Only)
+  // ==========================================================================
+  let authListenerAttached = false;
+
   async function initSupabaseBrowserClient() {
     try {
-      const res = await fetch('/api/auth/config');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.supabaseUrl && data.supabaseAnonKey && window.supabase) {
-          state.supabaseClient = window.supabase.createClient(data.supabaseUrl, data.supabaseAnonKey, {
-            auth: {
-              persistSession: true,
-              autoRefreshToken: true,
-              detectSessionInUrl: true
-            }
-          });
+      let supabaseUrl = null;
+      let supabaseKey = null;
 
-          // Listen for browser auth events (OAuth callback / session recovery)
-          state.supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (session && session.access_token && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-              state.authToken = session.access_token;
-              state.authUser = session.user;
-              localStorage.setItem('supabase_access_token', state.authToken);
-              localStorage.setItem('supabase_user', JSON.stringify(state.authUser));
-              showChatWorkspace();
-              renderUserProfile();
-              loadConversations();
-            }
-          });
+      try {
+        const res = await fetch('/api/auth/config');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.supabaseUrl) supabaseUrl = data.supabaseUrl;
+          if (data.supabasePublishableKey || data.supabaseAnonKey) {
+            supabaseKey = data.supabasePublishableKey || data.supabaseAnonKey;
+          }
         }
+      } catch (e) {
+        // Config fetch notice
+      }
+
+      // Initialize ONLY when both supabaseUrl and a valid public anon key exist
+      // NEVER use dummy or fake placeholder keys
+      if (supabaseUrl && supabaseKey && window.supabase) {
+        state.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+          }
+        });
+
+        // Register single auth state change listener
+        setupSupabaseAuthListener();
+      } else {
+        state.supabaseClient = null;
       }
     } catch (e) {
-      console.warn('Browser Supabase client initialization notice:', e.message);
+      state.supabaseClient = null;
     }
+  }
+
+  function setupSupabaseAuthListener() {
+    if (!state.supabaseClient || !state.supabaseClient.auth || authListenerAttached) return;
+    authListenerAttached = true;
+
+    state.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+      // Do not allow background auth events to race or clobber active initialization
+      if (state.isProcessingOAuthCallback || state.isInitializingAuth) return;
+
+      if (session && session.access_token) {
+        setAuthenticatedSession(session, session.user, session.access_token);
+        renderAuthenticatedState();
+
+        if (event === 'SIGNED_IN') {
+          showWelcomeGreeting(session.user);
+          restoreDraftMessage();
+        }
+      } else if (event === 'SIGNED_OUT') {
+        clearAuthenticatedSession();
+        renderGuestState();
+      }
+      // CRITICAL: Do NOT wipe tokens on INITIAL_SESSION when session is null.
+    });
+  }
+
+  // ==========================================================================
+  // Helper: Decode JWT Payload Client-Side (Fallback for metadata extraction)
+  // ==========================================================================
+  function decodeJwtPayload(token) {
+    if (!token || typeof token !== 'string') return null;
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4 !== 0) {
+        base64 += '=';
+      }
+      const jsonStr = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const parsed = JSON.parse(jsonStr);
+      if (parsed && (parsed.sub || parsed.email)) {
+        return {
+          id: parsed.sub,
+          email: parsed.email || '',
+          user_metadata: parsed.user_metadata || {},
+          app_metadata: parsed.app_metadata || {}
+        };
+      }
+    } catch (_) {}
+    return null;
   }
 
   // ==========================================================================
   // Helper: Parse URL OAuth & Verification Parameters
   // ==========================================================================
   function parseUrlAuthParams() {
-    const hash = window.location.hash.substring(1);
-    const search = window.location.search.substring(1);
-    const params = new URLSearchParams(hash || search);
+    const rawHash = (window.location.hash || '').replace(/^[#\/?]+/, '');
+    const rawSearch = (window.location.search || '').replace(/^[?]+/, '');
+    const hashParams = new URLSearchParams(rawHash);
+    const searchParams = new URLSearchParams(rawSearch);
+
+    const getParam = (key) => hashParams.get(key) || searchParams.get(key);
 
     // 1. Check for Auth Errors (Expired links, OAuth cancellation, access denied)
-    const error = params.get('error');
-    const errorCode = params.get('error_code');
-    const errorDescription = params.get('error_description');
+    const error = getParam('error');
+    const errorCode = getParam('error_code');
+    const errorDescription = getParam('error_description');
 
     if (error || errorCode || errorDescription) {
-      // Clean URL fragment immediately to prevent replay on refresh
-      window.history.replaceState({}, document.title, window.location.pathname);
+      try {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (_) {}
 
       const errLower = (errorDescription || error || '').toLowerCase();
       if (errorCode === 'otp_expired' || errLower.includes('expired') || errLower.includes('otp')) {
         showAuthAlert('The verification link has expired or has already been used. Please sign in or request a new link.', 'error');
         showAuthView();
-        return { handled: true };
+        return { handled: true, error: true };
       }
       if (error === 'access_denied' || errLower.includes('cancel')) {
         showAuthAlert('Sign-in was cancelled or access was denied. Please try again.', 'error');
         showAuthView();
-        return { handled: true };
+        return { handled: true, error: true };
       }
 
       showAuthAlert(decodeURIComponent(errorDescription || error || 'Authentication could not be completed. Please try again.'), 'error');
       showAuthView();
-      return { handled: true };
+      return { handled: true, error: true };
     }
 
     // 2. Check for Auth Tokens (Successful OAuth callback or Email verification link)
-    const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token');
-    const type = params.get('type'); // 'signup' | 'recovery' | 'invite'
+    const accessToken = getParam('access_token');
+    const refreshToken = getParam('refresh_token');
+    const type = getParam('type'); // 'signup' | 'recovery' | 'invite' | 'bearer'
 
     if (accessToken) {
-      // Clean URL fragment immediately
-      window.history.replaceState({}, document.title, window.location.pathname);
-
-      state.authToken = accessToken;
-      localStorage.setItem('supabase_access_token', accessToken);
-
-      if (type === 'signup') {
-        showAuthAlert('Email verified successfully! Welcome to PixelCraft AI.', 'success');
-      }
-
-      return { handled: true, token: accessToken, type };
+      // Return captured tokens WITHOUT removing URL hash yet.
+      // Cleanup happens strictly after session is safely restored and persisted.
+      return { handled: true, token: accessToken, refreshToken, type };
     }
 
     return { handled: false };
@@ -330,53 +683,173 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // 1. Session Detection and Verification & Auth Gate
   // ==========================================================================
-  async function checkInitialSession() {
-    // Check URL parameters first (OAuth returns & email confirmation links)
-    const urlCheck = parseUrlAuthParams();
+  async function checkInitialSession(preParsedCheck = null) {
+    state.isInitializingAuth = true;
 
-    if (!state.authToken) {
-      showChatWorkspace();
-      renderGuestState();
+    // 1. Detect OAuth callback
+    const urlCheck = preParsedCheck || parseUrlAuthParams();
+    const isOAuthCallback = Boolean(urlCheck && urlCheck.handled && urlCheck.token);
+    if (isOAuthCallback) {
+      state.isProcessingOAuthCallback = true;
+    }
+
+    // If OAuth error was already handled and displayed
+    if (urlCheck && urlCheck.error) {
+      state.isProcessingOAuthCallback = false;
+      state.isInitializingAuth = false;
       return;
     }
 
-    try {
-      const response = await fetch('/api/auth/session', {
-        headers: getAuthHeaders()
-      });
+    let session = null;
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.user) {
-          state.authUser = data.user;
-          localStorage.setItem('supabase_user', JSON.stringify(data.user));
-          showChatWorkspace();
-          renderUserProfile();
-          loadConversations();
-          return;
+    // 2 & 3. Capture callback parameters & Establish/restore Supabase session
+    if (state.supabaseClient && state.supabaseClient.auth) {
+      if (isOAuthCallback) {
+        try {
+          const { data: setRes } = await state.supabaseClient.auth.setSession({
+            access_token: urlCheck.token,
+            refresh_token: urlCheck.refreshToken || urlCheck.token
+          });
+          if (setRes && setRes.session) {
+            session = setRes.session;
+          }
+        } catch (_) {}
+      }
+
+      // Explicitly verify getSession() as requested:
+      try {
+        const { data: getRes } = await state.supabaseClient.auth.getSession();
+        if (getRes && getRes.session) {
+          session = getRes.session;
+        }
+      } catch (_) {}
+    }
+
+    // 4. Confirm authenticated user/session
+    // If client session is not present but OAuth token exists in callback:
+    if ((!session || !session.access_token) && isOAuthCallback) {
+      try {
+        const res = await fetch('/api/auth/session', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${urlCheck.token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.user) {
+            session = {
+              access_token: urlCheck.token,
+              refresh_token: urlCheck.refreshToken || urlCheck.token,
+              user: data.user
+            };
+          }
+        }
+      } catch (_) {}
+
+      // Fallback: decode JWT payload if backend fetch had temporary glitch
+      if (!session) {
+        const decodedUser = decodeJwtPayload(urlCheck.token);
+        if (decodedUser) {
+          session = {
+            access_token: urlCheck.token,
+            refresh_token: urlCheck.refreshToken || urlCheck.token,
+            user: decodedUser
+          };
         }
       }
 
-      // Token invalid or expired
-      handleUnauthorized('Your session has expired. Please sign in again to continue.');
-    } catch (err) {
-      console.error('Session check error:', err);
-      // On connection issue, keep public workspace visible in guest mode
-      showChatWorkspace();
+      if (urlCheck.type === 'signup') {
+        showAuthAlert('Email verified successfully! Welcome to PixelCraft AI.', 'success');
+        triggerPostVerifyWelcome(urlCheck.token);
+      }
+    }
+
+    // Existing session restore from localStorage (for normal page reloads)
+    if (!session && !isOAuthCallback) {
+      const storedToken = state.authToken || localStorage.getItem('supabase_access_token');
+      if (storedToken) {
+        try {
+          const res = await fetch('/api/auth/session', {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${storedToken}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.user) {
+              session = {
+                access_token: storedToken,
+                user: data.user
+              };
+            }
+          } else if (res.status === 401) {
+            clearAuthenticatedSession();
+          }
+        } catch (_) {
+          if (state.authToken) {
+            session = {
+              access_token: state.authToken,
+              user: state.authUser
+            };
+          }
+        }
+      }
+    }
+
+    // 5 & 6. Synchronize application state & Persist required token/session state
+    if (session && session.access_token) {
+      setAuthenticatedSession(session, session.user, session.access_token);
+
+      // 7. Clean URL — ONLY AFTER session/token has been captured, verified, and persisted!
+      if (isOAuthCallback || (window.location.hash && window.location.hash.includes('access_token'))) {
+        try {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (_) {}
+      }
+
+      // 8. Render authenticated state
+      hideAuthGateModal();
+      renderAuthenticatedState();
+
+      if (isOAuthCallback) {
+        showWelcomeGreeting(state.authUser);
+        restoreDraftMessage();
+      }
+    } else {
+      // 7. Clean URL if leftover hash exists
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        try {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (_) {}
+      }
+
+      // Guest state
+      clearAuthenticatedSession();
       renderGuestState();
     }
+
+    state.isProcessingOAuthCallback = false;
+    state.isInitializingAuth = false;
   }
 
-  function showAuthGateModal() {
-    if (elements.modalAuthGate) {
-      elements.modalAuthGate.style.display = 'flex';
+  function renderAuthenticatedState() {
+    hideAuthView();
+    if (elements.appContainer) {
+      elements.appContainer.classList.remove('hidden');
     }
+    renderUserProfile();
+    loadConversations();
+    restoreDraftMessage();
+  }
+
+  function showAuthGateModal(message = 'Sign in or create an account to continue.') {
+    showAuthView(message);
   }
 
   function hideAuthGateModal() {
-    if (elements.modalAuthGate) {
-      elements.modalAuthGate.style.display = 'none';
-    }
+    hideAuthView();
   }
 
   /**
@@ -384,29 +857,43 @@ document.addEventListener('DOMContentLoaded', () => {
    * Returns true if authenticated; if unauthenticated, shows the Auth Gate modal and returns false.
    */
   function requireUserAuth(actionDescription = 'use PixelCraft AI') {
-    if (state.authToken && state.authUser) {
+    const token = state.authToken || localStorage.getItem('supabase_access_token');
+    if (token) {
       return true;
     }
-    showAuthGateModal();
+    showAuthView('Sign in or create an account to continue.');
     return false;
   }
 
-  function showAuthView(alertMessage = null) {
+  function showAuthView(alertMessage = null, initialMode = null) {
+    if (initialMode) {
+      switchAuthMode(initialMode);
+    }
     if (elements.authView) elements.authView.classList.add('active');
-    if (elements.appContainer) elements.appContainer.classList.add('hidden');
 
     if (alertMessage) {
-      showAuthAlert(alertMessage, 'error');
+      showAuthAlert(alertMessage, 'info');
     } else {
       hideAuthAlert();
     }
   }
 
+  function hideAuthView() {
+    if (elements.authView) {
+      elements.authView.classList.remove('active');
+    }
+    hideAuthAlert();
+    if (elements.chatTextarea && state.pendingDraftMessage && !elements.chatTextarea.value) {
+      elements.chatTextarea.value = state.pendingDraftMessage;
+    }
+  }
+
   function showChatWorkspace() {
-    if (elements.authView) elements.authView.classList.remove('active');
+    hideAuthView();
     if (elements.appContainer) elements.appContainer.classList.remove('hidden');
 
-    if (state.authUser) {
+    const token = state.authToken || localStorage.getItem('supabase_access_token');
+    if (token) {
       renderUserProfile();
     } else {
       renderGuestState();
@@ -414,7 +901,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderUserProfile() {
-    if (!state.authUser) {
+    const token = state.authToken || localStorage.getItem('supabase_access_token');
+    if (!token && !state.authUser) {
       renderGuestState();
       return;
     }
@@ -429,17 +917,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const displayName = getUserDisplayName(state.authUser);
-    const email = state.authUser.email || displayName;
+    const email = state.authUser?.email || `${displayName.toLowerCase()}@pixelcraft.ai`;
+    const avatarUrl = getUserAvatarUrl(state.authUser);
+    const initials = getUserInitials(displayName);
+
+    // Update bottom-left profile card trigger
+    if (elements.userDisplayName) {
+      elements.userDisplayName.textContent = displayName;
+      elements.userDisplayName.title = displayName;
+    }
 
     if (elements.userDisplayEmail) {
-      elements.userDisplayEmail.textContent = `Welcome, ${displayName}`;
+      elements.userDisplayEmail.textContent = email;
       elements.userDisplayEmail.title = email;
     }
 
     if (elements.userAvatar) {
-      // Derive initials from display name
-      const initial = displayName.substring(0, 2).toUpperCase();
-      elements.userAvatar.textContent = initial;
+      setAvatarElement(elements.userAvatar, avatarUrl, initials);
+    }
+
+    if (elements.userAvatarStatusDot) {
+      elements.userAvatarStatusDot.className = 'avatar-status-dot online';
+      elements.userAvatarStatusDot.title = 'Active';
     }
 
     if (elements.userStatusText) {
@@ -447,41 +946,66 @@ document.addEventListener('DOMContentLoaded', () => {
       elements.userStatusText.style.color = 'var(--accent-emerald)';
     }
 
-    if (elements.btnLogout) {
-      elements.btnLogout.style.display = 'inline-flex';
+    // Update Popover user header
+    if (elements.popoverName) {
+      elements.popoverName.textContent = displayName;
     }
+    if (elements.popoverEmail) {
+      elements.popoverEmail.textContent = email;
+    }
+    if (elements.popoverAvatar) {
+      setAvatarElement(elements.popoverAvatar, avatarUrl, initials);
+    }
+
     if (elements.btnSidebarLogin) {
       elements.btnSidebarLogin.style.display = 'none';
+    }
+    if (elements.btnProfileTrigger) {
+      elements.btnProfileTrigger.style.display = 'flex';
     }
     if (elements.btnHeaderLogin) {
       elements.btnHeaderLogin.style.display = 'none';
     }
+    if (elements.btnLogout) {
+      elements.btnLogout.style.display = 'flex';
+    }
+
+    // Refresh Connected Accounts UI in settings modal
+    updateConnectedAccountsUI();
   }
 
   function renderGuestState() {
-    state.authUser = null;
-
     if (elements.appContainer) {
       elements.appContainer.classList.add('guest-mode');
     }
 
     if (elements.chatTextarea) {
-      elements.chatTextarea.value = '';
-      elements.chatTextarea.readOnly = true;
-      elements.chatTextarea.placeholder = '🔒 Sign in or create an account to use PixelCraft AI...';
+      elements.chatTextarea.readOnly = false;
+      elements.chatTextarea.disabled = false;
+      elements.chatTextarea.placeholder = 'Ask PixelCraft AI anything...';
+      const hasContent = elements.chatTextarea.value.trim().length > 0;
+      if (elements.btnSend) {
+        elements.btnSend.disabled = !hasContent;
+      }
     }
 
-    if (elements.btnSend) {
-      elements.btnSend.disabled = true;
+    if (elements.userDisplayName) {
+      elements.userDisplayName.textContent = 'Guest Visitor';
+      elements.userDisplayName.title = 'Guest Visitor';
     }
 
     if (elements.userDisplayEmail) {
-      elements.userDisplayEmail.textContent = 'Guest Visitor';
-      elements.userDisplayEmail.title = 'Guest Visitor';
+      elements.userDisplayEmail.textContent = 'Sign in to access chats';
+      elements.userDisplayEmail.title = 'Sign in to access chats';
     }
 
     if (elements.userAvatar) {
-      elements.userAvatar.textContent = '👤';
+      elements.userAvatar.innerHTML = '👤';
+    }
+
+    if (elements.userAvatarStatusDot) {
+      elements.userAvatarStatusDot.className = 'avatar-status-dot offline';
+      elements.userAvatarStatusDot.title = 'Not signed in';
     }
 
     if (elements.userStatusText) {
@@ -492,12 +1016,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.btnLogout) {
       elements.btnLogout.style.display = 'none';
     }
+    if (elements.btnProfileTrigger) {
+      elements.btnProfileTrigger.style.display = 'flex';
+    }
     if (elements.btnSidebarLogin) {
       elements.btnSidebarLogin.style.display = 'inline-flex';
     }
     if (elements.btnHeaderLogin) {
       elements.btnHeaderLogin.style.display = 'inline-flex';
     }
+
+    hideProfilePopover();
 
     if (elements.chatList) {
       elements.chatList.innerHTML = `
@@ -562,7 +1091,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close Auth View (Return to Homepage)
     if (elements.btnCloseAuthView) {
       elements.btnCloseAuthView.addEventListener('click', () => {
-        showChatWorkspace();
+        hideAuthView();
+      });
+    }
+
+    // Dismiss when clicking directly on auth-view overlay backdrop
+    if (elements.authView) {
+      elements.authView.addEventListener('click', (e) => {
+        if (e.target === elements.authView) {
+          hideAuthView();
+        }
       });
     }
 
@@ -618,6 +1156,15 @@ document.addEventListener('DOMContentLoaded', () => {
     setAuthLoading(true);
 
     const providerLabel = provider === 'google' ? 'Google' : 'Facebook';
+
+    // Preserve any draft text typed into the textarea across OAuth redirects
+    const currentInput = elements.chatTextarea ? elements.chatTextarea.value.trim() : '';
+    if (currentInput) {
+      state.pendingDraftMessage = currentInput;
+      try {
+        sessionStorage.setItem('pixelcraft_pending_draft', currentInput);
+      } catch (_) {}
+    }
 
     try {
       const origin = window.location.origin;
@@ -771,7 +1318,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok && data.success) {
         // Case A: Email verification required
         if (data.needsEmailVerification) {
-          showAuthAlert(data.message || 'Account created. Please check your email and verify your account.', 'info');
+          showAuthAlert(data.message || 'Welcome to PixelCraft AI! Your account has been created. Please check your email to verify your account.', 'info');
           elements.authPassword.value = '';
           if (elements.authConfirmPassword) elements.authConfirmPassword.value = '';
           switchAuthMode('login');
@@ -780,19 +1327,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Case B: Direct active session (Login or unconfirmed signup)
         if (data.session && data.session.access_token) {
-          state.authToken = data.session.access_token;
-          state.authUser = data.session.user;
+          // Sync into Supabase browser client if configured
+          if (state.supabaseClient && state.supabaseClient.auth) {
+            try {
+              await state.supabaseClient.auth.setSession({
+                access_token: data.session.access_token,
+                refresh_token: data.session.refresh_token || data.session.access_token
+              });
+            } catch (_) {}
+          }
 
-          localStorage.setItem('supabase_access_token', state.authToken);
-          localStorage.setItem('supabase_user', JSON.stringify(state.authUser));
+          setAuthenticatedSession(data.session, data.session.user, data.session.access_token);
 
           // Clear auth inputs
           elements.authPassword.value = '';
           if (elements.authConfirmPassword) elements.authConfirmPassword.value = '';
 
           // Transition to Chat Workspace
-          showChatWorkspace();
-          loadConversations();
+          renderAuthenticatedState();
+          showWelcomeGreeting(state.authUser);
+          restoreDraftMessage();
         } else if (data.user) {
           showAuthAlert(data.message || 'Registration successful! Please sign in.', 'success');
           switchAuthMode('login');
@@ -847,6 +1401,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupLogout() {
     if (elements.btnLogout) {
       elements.btnLogout.addEventListener('click', () => {
+        hideProfilePopover();
         handleLogout();
       });
     }
@@ -855,15 +1410,24 @@ document.addEventListener('DOMContentLoaded', () => {
   async function handleLogout(message = null) {
     const token = state.authToken;
 
+    hideProfilePopover();
+    closeProfileModal();
+    closeSettingsModal();
+
     // Reset local state
-    state.authToken = null;
-    state.authUser = null;
+    clearAuthenticatedSession();
     state.conversations = [];
     state.currentConversationId = null;
     state.messages = [];
 
-    localStorage.removeItem('supabase_access_token');
-    localStorage.removeItem('supabase_user');
+    // Sign out from browser Supabase client if available
+    try {
+      if (state.supabaseClient && state.supabaseClient.auth) {
+        await state.supabaseClient.auth.signOut();
+      }
+    } catch (e) {
+      // Ignore
+    }
 
     // Notify backend if token existed
     if (token) {
@@ -891,21 +1455,328 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGuestState();
 
     if (message) {
-      showAuthGateModal();
+      showAuthView(message);
     }
   }
 
-  function handleUnauthorized() {
-    state.authToken = null;
-    state.authUser = null;
+  // ==========================================================================
+  // 4. User Account, Profile & Settings Experience
+  // ==========================================================================
+  function setupAccountExperience() {
+    // 1. Profile Trigger in sidebar footer
+    if (elements.btnProfileTrigger) {
+      elements.btnProfileTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!state.authUser) {
+          showAuthGateModal();
+          return;
+        }
+        toggleProfilePopover();
+      });
+    }
+
+    // 2. Profile Popover Menu items
+    if (elements.menuItemProfile) {
+      elements.menuItemProfile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProfileModal();
+      });
+    }
+
+    if (elements.menuItemSettings) {
+      elements.menuItemSettings.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openSettingsModal('account');
+      });
+    }
+
+    if (elements.menuItemConnectedAccounts) {
+      elements.menuItemConnectedAccounts.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openSettingsModal('account');
+      });
+    }
+
+    // 3. Document click-outside listener
+    document.addEventListener('click', (e) => {
+      if (elements.profilePopoverMenu && 
+          elements.profilePopoverMenu.style.display === 'flex' &&
+          !elements.profilePopoverMenu.contains(e.target) && 
+          elements.btnProfileTrigger && 
+          !elements.btnProfileTrigger.contains(e.target)) {
+        hideProfilePopover();
+      }
+    });
+
+    // 4. Keyboard accessibility: Escape key closes popover & modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        hideAuthView();
+        hideProfilePopover();
+        closeProfileModal();
+        closeSettingsModal();
+        hideAuthGateModal();
+      }
+    });
+
+    // 5. Profile Modal controls
+    if (elements.btnCloseProfileModal) {
+      elements.btnCloseProfileModal.addEventListener('click', closeProfileModal);
+    }
+    if (elements.btnDismissProfile) {
+      elements.btnDismissProfile.addEventListener('click', closeProfileModal);
+    }
+    if (elements.modalUserProfile) {
+      elements.modalUserProfile.addEventListener('click', (e) => {
+        if (e.target === elements.modalUserProfile) closeProfileModal();
+      });
+    }
+
+    // 6. Edit Profile Action
+    if (elements.btnEditProfile) {
+      elements.btnEditProfile.addEventListener('click', () => {
+        if (elements.profileEditNotice) {
+          elements.profileEditNotice.textContent = 'Account profile identity is managed securely via your authenticated Supabase credentials. Display name and avatar sync automatically on login.';
+          elements.profileEditNotice.style.display = 'block';
+        }
+      });
+    }
+
+    // 7. Settings Modal controls & tab navigation
+    if (elements.btnCloseSettingsModal) {
+      elements.btnCloseSettingsModal.addEventListener('click', closeSettingsModal);
+    }
+    if (elements.btnDismissSettings) {
+      elements.btnDismissSettings.addEventListener('click', closeSettingsModal);
+    }
+    if (elements.modalUserSettings) {
+      elements.modalUserSettings.addEventListener('click', (e) => {
+        if (e.target === elements.modalUserSettings) closeSettingsModal();
+      });
+    }
+
+    if (elements.settingsTabBtns) {
+      elements.settingsTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-tab');
+          if (tab) switchSettingsTab(tab);
+        });
+      });
+    }
+
+    // 8. Sign Out in Settings
+    if (elements.btnSettingsSignout) {
+      elements.btnSettingsSignout.addEventListener('click', () => {
+        closeSettingsModal();
+        handleLogout();
+      });
+    }
+  }
+
+  function toggleProfilePopover() {
+    const isVisible = elements.profilePopoverMenu && elements.profilePopoverMenu.style.display === 'flex';
+    if (isVisible) {
+      hideProfilePopover();
+    } else {
+      showProfilePopover();
+    }
+  }
+
+  function showProfilePopover() {
+    if (!elements.profilePopoverMenu) return;
+    elements.profilePopoverMenu.style.display = 'flex';
+    elements.profilePopoverMenu.setAttribute('aria-hidden', 'false');
+    if (elements.btnProfileTrigger) {
+      elements.btnProfileTrigger.classList.add('active');
+      elements.btnProfileTrigger.setAttribute('aria-expanded', 'true');
+    }
+    // Close other dropdowns
+    if (elements.exportMenu) elements.exportMenu.style.display = 'none';
+    if (elements.personaMenu) elements.personaMenu.style.display = 'none';
+  }
+
+  function hideProfilePopover() {
+    if (!elements.profilePopoverMenu) return;
+    elements.profilePopoverMenu.style.display = 'none';
+    elements.profilePopoverMenu.setAttribute('aria-hidden', 'true');
+    if (elements.btnProfileTrigger) {
+      elements.btnProfileTrigger.classList.remove('active');
+      elements.btnProfileTrigger.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  function openProfileModal() {
+    hideProfilePopover();
+    if (!state.authUser) {
+      showAuthGateModal();
+      return;
+    }
+
+    const displayName = getUserDisplayName(state.authUser);
+    const email = state.authUser.email || `${displayName.toLowerCase()}@pixelcraft.ai`;
+    const avatarUrl = getUserAvatarUrl(state.authUser);
+    const initials = getUserInitials(displayName);
+
+    if (elements.profileModalHeroName) elements.profileModalHeroName.textContent = displayName;
+    if (elements.profileModalHeroEmail) elements.profileModalHeroEmail.textContent = email;
+    if (elements.profileModalFullName) elements.profileModalFullName.textContent = displayName;
+    if (elements.profileModalEmailVal) elements.profileModalEmailVal.textContent = email;
+    if (elements.profileModalMemberSince) {
+      elements.profileModalMemberSince.textContent = formatMemberSinceDate(state.authUser.created_at);
+    }
+    if (elements.profileModalAvatar) {
+      setAvatarElement(elements.profileModalAvatar, avatarUrl, initials);
+    }
+    if (elements.profileEditNotice) {
+      elements.profileEditNotice.style.display = 'none';
+      elements.profileEditNotice.textContent = '';
+    }
+
+    if (elements.modalUserProfile) {
+      elements.modalUserProfile.style.display = 'flex';
+    }
+  }
+
+  function closeProfileModal() {
+    if (elements.modalUserProfile) {
+      elements.modalUserProfile.style.display = 'none';
+    }
+  }
+
+  function openSettingsModal(targetTab = 'account') {
+    hideProfilePopover();
+    if (!state.authUser) {
+      showAuthGateModal();
+      return;
+    }
+
+    updateConnectedAccountsUI();
+    switchSettingsTab(targetTab);
+
+    if (elements.modalUserSettings) {
+      elements.modalUserSettings.style.display = 'flex';
+    }
+  }
+
+  function closeSettingsModal() {
+    if (elements.modalUserSettings) {
+      elements.modalUserSettings.style.display = 'none';
+    }
+  }
+
+  function switchSettingsTab(tabName) {
+    if (elements.settingsTabBtns) {
+      elements.settingsTabBtns.forEach(btn => {
+        const isActive = btn.getAttribute('data-tab') === tabName;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+    }
+
+    if (elements.settingsTabContents) {
+      elements.settingsTabContents.forEach(content => {
+        const isMatch = content.id === `tab-content-${tabName}`;
+        content.style.display = isMatch ? 'flex' : 'none';
+        content.classList.toggle('active', isMatch);
+      });
+    }
+  }
+
+  // ==========================================================================
+  // 5. Client Customization Preferences
+  // ==========================================================================
+  function initCustomizationPreferences() {
+    // 1. Theme (dark / light / system)
+    const savedTheme = localStorage.getItem('pixelcraft_theme') || 'dark';
+    applyThemePreference(savedTheme);
+
+    if (elements.themeOptionBtns) {
+      elements.themeOptionBtns.forEach(btn => {
+        const themeVal = btn.getAttribute('data-theme-val');
+        btn.classList.toggle('active', themeVal === savedTheme);
+        btn.addEventListener('click', () => {
+          elements.themeOptionBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyThemePreference(themeVal);
+        });
+      });
+    }
+
+    // Listen for OS theme changes if in system mode
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        const currentPref = localStorage.getItem('pixelcraft_theme');
+        if (currentPref === 'system') {
+          applyThemePreference('system');
+        }
+      });
+    }
+
+    // 2. UI Density (comfortable / compact)
+    const savedDensity = localStorage.getItem('pixelcraft_density') || 'comfortable';
+    applyDensityPreference(savedDensity);
+
+    if (elements.densityRadioInputs) {
+      elements.densityRadioInputs.forEach(radio => {
+        radio.checked = radio.value === savedDensity;
+        radio.addEventListener('change', () => {
+          if (radio.checked) {
+            applyDensityPreference(radio.value);
+          }
+        });
+      });
+    }
+
+    // 3. Accent Color
+    const savedAccent = localStorage.getItem('pixelcraft_accent') || '#6366f1';
+    applyAccentPreference(savedAccent);
+
+    if (elements.accentSwatches) {
+      elements.accentSwatches.forEach(swatch => {
+        const accentVal = swatch.getAttribute('data-accent');
+        swatch.classList.toggle('active', accentVal === savedAccent);
+        swatch.addEventListener('click', () => {
+          elements.accentSwatches.forEach(s => s.classList.remove('active'));
+          swatch.classList.add('active');
+          applyAccentPreference(accentVal);
+        });
+      });
+    }
+  }
+
+  function applyThemePreference(theme) {
+    localStorage.setItem('pixelcraft_theme', theme);
+    if (theme === 'system') {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }
+
+  function applyDensityPreference(density) {
+    localStorage.setItem('pixelcraft_density', density);
+    document.documentElement.setAttribute('data-density', density);
+  }
+
+  function applyAccentPreference(accentColor) {
+    localStorage.setItem('pixelcraft_accent', accentColor);
+    document.documentElement.style.setProperty('--accent-primary', accentColor);
+  }
+
+  function handleUnauthorized(message = 'Your session has expired. Please sign in again to continue.') {
+    clearAuthenticatedSession();
     state.conversations = [];
     state.currentConversationId = null;
     state.messages = [];
-    localStorage.removeItem('supabase_access_token');
-    localStorage.removeItem('supabase_user');
+    if (state.supabaseClient && state.supabaseClient.auth) {
+      try {
+        state.supabaseClient.auth.signOut();
+      } catch (_) {}
+    }
     showChatWorkspace();
     renderGuestState();
-    showAuthGateModal();
+    showAuthView(message);
   }
 
   // ==========================================================================
@@ -959,50 +1830,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupTextarea() {
     if (!elements.chatTextarea) return;
 
-    // Intercept click and focus in guest state to show Auth Gate modal immediately
-    elements.chatTextarea.addEventListener('click', (e) => {
-      if (!state.authToken || !state.authUser) {
-        e.preventDefault();
-        showAuthGateModal();
-      }
-    });
-
-    elements.chatTextarea.addEventListener('focus', () => {
-      if (!state.authToken || !state.authUser) {
-        elements.chatTextarea.blur();
-        showAuthGateModal();
-      }
-    });
-
-    if (elements.inputBoxWrapper) {
-      elements.inputBoxWrapper.addEventListener('click', (e) => {
-        if (!state.authToken || !state.authUser) {
-          e.preventDefault();
-          showAuthGateModal();
-        }
-      });
-    }
-
-    if (elements.btnGuestGateTrigger) {
-      elements.btnGuestGateTrigger.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        showAuthGateModal();
-      });
-    }
-
     elements.chatTextarea.addEventListener('input', () => {
-      if (!state.authToken || !state.authUser) {
-        elements.chatTextarea.value = '';
-        showAuthGateModal();
-        return;
-      }
-
       elements.chatTextarea.style.height = 'auto';
       elements.chatTextarea.style.height = Math.min(elements.chatTextarea.scrollHeight, 160) + 'px';
 
       const hasContent = elements.chatTextarea.value.trim().length > 0;
-      elements.btnSend.disabled = !hasContent || state.isGenerating;
+      if (elements.btnSend) {
+        elements.btnSend.disabled = !hasContent || state.isGenerating;
+      }
     });
 
     elements.chatTextarea.addEventListener('keydown', (e) => {
@@ -1012,7 +1847,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    elements.btnSend.disabled = true;
+    if (elements.btnSend) {
+      elements.btnSend.disabled = true;
+    }
   }
 
   // ==========================================================================
@@ -2262,14 +3099,62 @@ document.addEventListener('DOMContentLoaded', () => {
   // 11. Send Message Flow with Authenticated Persistence
   // ==========================================================================
   async function sendMessage() {
-    if (!requireUserAuth('send messages')) return;
-
     const text = elements.chatTextarea.value.trim();
     if (!text || state.isGenerating) return;
 
-    // Reset textarea input
+    // Resolve active token following strict priority:
+    // 1. Current valid Supabase session if browser client is configured and active
+    let activeToken = null;
+    let activeUser = null;
+
+    if (state.supabaseClient && state.supabaseClient.auth) {
+      try {
+        const { data } = await state.supabaseClient.auth.getSession();
+        if (data?.session?.access_token) {
+          activeToken = data.session.access_token;
+          activeUser = data.session.user || null;
+        }
+      } catch (_) {}
+    }
+
+    // 2. In-memory state.authToken
+    if (!activeToken && state.authToken) {
+      activeToken = state.authToken;
+      activeUser = state.authUser || null;
+    }
+
+    // 3. Stored access token in localStorage
+    if (!activeToken) {
+      const storedToken = localStorage.getItem('supabase_access_token');
+      if (storedToken) {
+        activeToken = storedToken;
+        try {
+          const storedUser = localStorage.getItem('supabase_user');
+          if (storedUser) activeUser = JSON.parse(storedUser);
+        } catch (_) {}
+      }
+    }
+
+    // If genuinely NO token exists: preserve draft message and prompt for authentication
+    if (!activeToken) {
+      state.pendingDraftMessage = text;
+      try {
+        sessionStorage.setItem('pixelcraft_pending_draft', text);
+      } catch (_) {}
+      showAuthView('Sign in or create an account to continue.');
+      return;
+    }
+
+    // Synchronize active state atomically
+    setAuthenticatedSession({ access_token: activeToken, user: activeUser }, activeUser, activeToken);
+
+    // Reset textarea input and clear draft
     elements.chatTextarea.value = '';
     elements.chatTextarea.style.height = 'auto';
+    state.pendingDraftMessage = null;
+    try {
+      sessionStorage.removeItem('pixelcraft_pending_draft');
+    } catch (_) {}
 
     state.isGenerating = true;
     elements.chatTextarea.disabled = true;
@@ -2287,12 +3172,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       // 1. If this is a new chat, create a conversation in Supabase for this authenticated user
-      if (!state.currentConversationId && state.authToken) {
+      if (!state.currentConversationId && activeToken) {
         const titleSnippet = text.length > 32 ? text.substring(0, 32).trim() + '...' : text;
         try {
           const convRes = await fetch('/api/conversations', {
             method: 'POST',
-            headers: getAuthHeaders(),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${activeToken}`
+            },
             body: JSON.stringify({ title: titleSnippet })
           });
 
@@ -2317,7 +3205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // 2. Dispatch to backend POST /api/chat with conversationId, persona, and Bearer Token
+      // 2. Dispatch to backend POST /api/chat with Bearer Token
       const payload = { 
         message: text,
         persona: state.activePersona
@@ -2331,7 +3219,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${activeToken}`
+        },
         body: JSON.stringify(payload)
       });
 
@@ -2654,7 +3545,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupSuggestions() {
     elements.suggestionCards.forEach(card => {
       card.addEventListener('click', () => {
-        if (!requireUserAuth('use prompt suggestions')) return;
         const prompt = card.getAttribute('data-prompt');
         if (prompt && !state.isGenerating) {
           elements.chatTextarea.value = prompt;

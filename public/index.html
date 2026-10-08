@@ -50,8 +50,8 @@
           <img src="images/logo.png" alt="PixelCraft AI Assistant Logo" class="brand-logo">
           <span>PixelCraft AI</span>
         </div>
-        <h1 class="auth-title" id="auth-title">Welcome back</h1>
-        <p class="auth-subtitle" id="auth-subtitle">Sign in to access PixelCraft AI</p>
+        <h1 class="auth-title" id="auth-title">Sign in to continue</h1>
+        <p class="auth-subtitle" id="auth-subtitle">Sign in or create an account to start chatting with PixelCraft AI</p>
       </div>
 
       <!-- OAuth Social Actions -->
@@ -201,23 +201,71 @@
         </ul>
       </div>
 
-      <div class="sidebar-footer">
-        <div class="user-avatar" id="user-avatar">U</div>
-        <div class="user-info">
-          <span class="user-name" id="user-display-email">user@domain.com</span>
-          <span class="user-status" id="user-status-text">● Authenticated</span>
-        </div>
-        <button class="btn-sidebar-login" id="btn-sidebar-login" style="display: none;" title="Sign in to your account" aria-label="Sign In">
-          Sign In
+      <div class="sidebar-footer" id="sidebar-footer">
+        <!-- Interactive User Profile Card Trigger (Authenticated State) -->
+        <button type="button" class="profile-card-trigger" id="btn-profile-trigger" aria-haspopup="true" aria-expanded="false" aria-label="Account and user settings">
+          <div class="profile-avatar-wrapper" id="user-avatar-wrap">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <span class="avatar-status-dot online" id="user-avatar-status-dot" title="Active"></span>
+          </div>
+          <div class="user-info" id="user-info">
+            <span class="user-name" id="user-display-name">User</span>
+            <span class="user-email-text" id="user-display-email">user@domain.com</span>
+          </div>
+          <span class="profile-chevron" id="profile-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
         </button>
-        <button class="btn-logout" id="btn-logout" title="Sign out of your account" aria-label="Sign out">
-          Sign Out
+
+        <!-- Profile Menu Popover (Opens smoothly above trigger) -->
+        <div class="profile-menu-popover" id="profile-popover-menu" role="menu" aria-label="User Profile Menu" style="display: none;">
+          <div class="popover-user-header">
+            <div class="popover-avatar-sm" id="popover-avatar">U</div>
+            <div class="popover-user-meta">
+              <span class="popover-user-name" id="popover-name">User</span>
+              <span class="popover-user-email" id="popover-email">user@domain.com</span>
+            </div>
+          </div>
+          <div class="popover-divider"></div>
+          <div class="popover-menu-items">
+            <button type="button" class="popover-menu-item" id="menu-item-profile" role="menuitem">
+              <span class="popover-item-icon">👤</span>
+              <span class="popover-item-label">Profile</span>
+            </button>
+            <button type="button" class="popover-menu-item" id="menu-item-settings" role="menuitem">
+              <span class="popover-item-icon">⚙️</span>
+              <span class="popover-item-label">Settings</span>
+            </button>
+            <button type="button" class="popover-menu-item" id="menu-item-connected-accounts" role="menuitem">
+              <span class="popover-item-icon">🔗</span>
+              <span class="popover-item-label">Connected Accounts</span>
+            </button>
+          </div>
+          <div class="popover-divider"></div>
+          <div class="popover-menu-footer">
+            <button type="button" class="popover-menu-item popover-item-danger btn-logout" id="btn-logout" role="menuitem">
+              <span class="popover-item-icon">🚪</span>
+              <span class="popover-item-label">Sign Out</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Guest Mode Actions (Shown when unauthenticated) -->
+        <button class="btn-sidebar-login" id="btn-sidebar-login" style="display: none;" title="Sign in to your account" aria-label="Sign In">
+          <span class="btn-icon">🔐</span> Sign In
         </button>
       </div>
     </aside>
 
     <!-- Main Workspace -->
     <main class="main-workspace">
+      <!-- Floating Welcome Notification Toast -->
+      <div class="welcome-toast-banner" id="welcome-toast-banner" style="display: none;" role="status" aria-live="polite">
+        <span class="welcome-toast-text" id="welcome-toast-text">Welcome, User 👋</span>
+      </div>
+
       <!-- Chat Header -->
       <header class="chat-header">
         <div class="header-left">
@@ -563,10 +611,295 @@
     </div>
   </div>
 
+  <!-- User Profile Modal -->
+  <div class="modal-backdrop" id="modal-user-profile" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-profile-title">
+    <div class="modal-card modal-profile-card">
+      <div class="modal-header">
+        <div class="modal-header-titles">
+          <h3 id="modal-profile-title">User Profile</h3>
+          <p class="modal-subtitle">Personal account overview and authentication status</p>
+        </div>
+        <button class="modal-close" id="btn-close-profile-modal" aria-label="Close profile modal">✕</button>
+      </div>
+      <div class="modal-body profile-modal-body">
+        <div class="profile-hero-card">
+          <div class="profile-hero-avatar-wrap">
+            <div class="profile-hero-avatar" id="profile-modal-avatar">U</div>
+            <span class="profile-hero-status-dot" title="Active"></span>
+          </div>
+          <div class="profile-hero-details">
+            <h4 class="profile-hero-name" id="profile-modal-hero-name">User Name</h4>
+            <span class="profile-hero-email" id="profile-modal-hero-email">user@domain.com</span>
+            <span class="profile-badge-pill" id="profile-modal-badge"><span class="dot-emerald">●</span> Active Supabase User</span>
+          </div>
+        </div>
+
+        <div class="profile-info-grid">
+          <div class="profile-info-row">
+            <div class="profile-info-label">Full Name</div>
+            <div class="profile-info-value" id="profile-modal-full-name">—</div>
+          </div>
+          <div class="profile-info-row">
+            <div class="profile-info-label">Email Address</div>
+            <div class="profile-info-value" id="profile-modal-email-val">—</div>
+          </div>
+          <div class="profile-info-row">
+            <div class="profile-info-label">Account Status</div>
+            <div class="profile-info-value status-active">
+              <span class="badge-active">● Active</span>
+            </div>
+          </div>
+          <div class="profile-info-row">
+            <div class="profile-info-label">Member Since</div>
+            <div class="profile-info-value" id="profile-modal-member-since">—</div>
+          </div>
+        </div>
+
+        <div id="profile-edit-feedback" class="profile-notice" style="display: none;"></div>
+      </div>
+      <div class="modal-actions profile-modal-actions">
+        <button type="button" class="action-btn btn-modal-secondary" id="btn-edit-profile">✏️ Edit Profile</button>
+        <button type="button" class="btn-auth-submit btn-modal-primary" id="btn-dismiss-profile">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Settings & Connected Accounts Modal -->
+  <div class="modal-backdrop" id="modal-user-settings" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+    <div class="modal-card modal-settings-card">
+      <div class="modal-header">
+        <div class="modal-header-titles">
+          <h3 id="modal-settings-title">⚙️ Application Settings</h3>
+          <p class="modal-subtitle">Manage preferences, appearance, security, and connected accounts</p>
+        </div>
+        <button class="modal-close" id="btn-close-settings-modal" aria-label="Close settings modal">✕</button>
+      </div>
+      
+      <!-- Settings Navigation Tabs -->
+      <div class="settings-nav-tabs" role="tablist" aria-label="Settings categories">
+        <button type="button" class="settings-tab-btn active" data-tab="account" role="tab" aria-selected="true" id="tab-btn-account">
+          <span class="tab-icon">👤</span> Account & Identities
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="appearance" role="tab" aria-selected="false" id="tab-btn-appearance">
+          <span class="tab-icon">🎨</span> Appearance
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="security" role="tab" aria-selected="false" id="tab-btn-security">
+          <span class="tab-icon">🛡️</span> Security
+        </button>
+        <button type="button" class="settings-tab-btn" data-tab="about" role="tab" aria-selected="false" id="tab-btn-about">
+          <span class="tab-icon">✨</span> About
+        </button>
+      </div>
+
+      <div class="modal-body settings-modal-body">
+        <!-- Tab 1: Account & Connected Accounts -->
+        <div class="settings-tab-content active" id="tab-content-account" role="tabpanel" aria-labelledby="tab-btn-account">
+          <div class="settings-section">
+            <h4 class="settings-section-title">Connected Accounts</h4>
+            <p class="settings-section-desc">Authentication providers linked to your authenticated Supabase account.</p>
+            
+            <div class="connected-providers-list">
+              <!-- Google Provider Card -->
+              <div class="provider-card" id="provider-card-google">
+                <div class="provider-icon-wrap provider-icon-google">
+                  <svg width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                </div>
+                <div class="provider-meta">
+                  <div class="provider-header-line">
+                    <span class="provider-name">Google</span>
+                    <span class="provider-status-badge badge-not-connected" id="badge-status-google">Not connected</span>
+                  </div>
+                  <span class="provider-subtext" id="provider-desc-google">Gmail authentication</span>
+                  <span class="provider-identifier" id="provider-ident-google">user@gmail.com</span>
+                </div>
+              </div>
+
+              <!-- Facebook Provider Card -->
+              <div class="provider-card" id="provider-card-facebook">
+                <div class="provider-icon-wrap provider-icon-facebook">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#1877F2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </div>
+                <div class="provider-meta">
+                  <div class="provider-header-line">
+                    <span class="provider-name">Facebook</span>
+                    <span class="provider-status-badge badge-not-connected" id="badge-status-facebook">Not connected</span>
+                  </div>
+                  <span class="provider-subtext" id="provider-desc-facebook">Meta OAuth login</span>
+                  <span class="provider-identifier" id="provider-ident-facebook">Facebook account</span>
+                </div>
+              </div>
+
+              <!-- Email Provider Card -->
+              <div class="provider-card" id="provider-card-email">
+                <div class="provider-icon-wrap provider-icon-email">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </div>
+                <div class="provider-meta">
+                  <div class="provider-header-line">
+                    <span class="provider-name">Email</span>
+                    <span class="provider-status-badge badge-not-connected" id="badge-status-email">Not connected</span>
+                  </div>
+                  <span class="provider-subtext" id="provider-desc-email">Email & password credentials</span>
+                  <span class="provider-identifier" id="provider-ident-email">user@domain.com</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Appearance -->
+        <div class="settings-tab-content" id="tab-content-appearance" role="tabpanel" aria-labelledby="tab-btn-appearance" style="display: none;">
+          <div class="settings-section">
+            <h4 class="settings-section-title">Theme</h4>
+            <p class="settings-section-desc">Select your preferred color theme for PixelCraft AI.</p>
+            <div class="theme-selection-grid">
+              <button type="button" class="theme-option-btn active" data-theme-val="dark">
+                <span class="theme-icon">🌙</span>
+                <span class="theme-name">Dark</span>
+                <span class="theme-indicator">✓ Active</span>
+              </button>
+              <button type="button" class="theme-option-btn" data-theme-val="light">
+                <span class="theme-icon">☀️</span>
+                <span class="theme-name">Light</span>
+                <span class="theme-indicator">Select</span>
+              </button>
+              <button type="button" class="theme-option-btn" data-theme-val="system">
+                <span class="theme-icon">💻</span>
+                <span class="theme-name">System</span>
+                <span class="theme-indicator">Sync with OS</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h4 class="settings-section-title">Interface Density</h4>
+            <p class="settings-section-desc">Adjust UI padding and spacing density.</p>
+            <div class="density-selection-grid">
+              <label class="density-option">
+                <input type="radio" name="ui-density" value="comfortable" checked>
+                <span class="density-label">
+                  <strong>Comfortable</strong>
+                  <small>Standard spacing for optimal reading</small>
+                </span>
+              </label>
+              <label class="density-option">
+                <input type="radio" name="ui-density" value="compact">
+                <span class="density-label">
+                  <strong>Compact</strong>
+                  <small>Tighter layout with maximum screen efficiency</small>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h4 class="settings-section-title">Accent Color</h4>
+            <p class="settings-section-desc">Choose a primary theme accent for buttons and highlights.</p>
+            <div class="accent-swatches-grid">
+              <button type="button" class="accent-swatch active" data-accent="#6366f1" style="--swatch-color: #6366f1;" title="Indigo (Default)">
+                <span class="swatch-check">✓</span>
+              </button>
+              <button type="button" class="accent-swatch" data-accent="#06b6d4" style="--swatch-color: #06b6d4;" title="Cyan">
+                <span class="swatch-check">✓</span>
+              </button>
+              <button type="button" class="accent-swatch" data-accent="#10b981" style="--swatch-color: #10b981;" title="Emerald">
+                <span class="swatch-check">✓</span>
+              </button>
+              <button type="button" class="accent-swatch" data-accent="#8b5cf6" style="--swatch-color: #8b5cf6;" title="Violet">
+                <span class="swatch-check">✓</span>
+              </button>
+              <button type="button" class="accent-swatch" data-accent="#f43f5e" style="--swatch-color: #f43f5e;" title="Rose">
+                <span class="swatch-check">✓</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Security -->
+        <div class="settings-tab-content" id="tab-content-security" role="tabpanel" aria-labelledby="tab-btn-security" style="display: none;">
+          <div class="settings-section">
+            <h4 class="settings-section-title">Authentication & Session</h4>
+            <p class="settings-section-desc">Security overview of your active session.</p>
+            <div class="security-card">
+              <div class="security-item">
+                <span class="security-label">Session Status</span>
+                <span class="security-val badge-verified">● Active JWT Session</span>
+              </div>
+              <div class="security-item">
+                <span class="security-label">Authentication Provider</span>
+                <span class="security-val" id="security-primary-auth">Supabase Auth</span>
+              </div>
+              <div class="security-item">
+                <span class="security-label">Data Privacy</span>
+                <span class="security-val">Client encrypted / Row-level isolated</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h4 class="settings-section-title">Sign Out of PixelCraft AI</h4>
+            <p class="settings-section-desc">Securely terminate the active session and remove cached credentials from this device.</p>
+            <button type="button" class="action-btn btn-danger-action" id="btn-settings-signout">
+              🚪 Sign Out of All Sessions
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab 4: About -->
+        <div class="settings-tab-content" id="tab-content-about" role="tabpanel" aria-labelledby="tab-btn-about" style="display: none;">
+          <div class="settings-section about-section">
+            <div class="about-hero">
+              <img src="images/logo.png" alt="PixelCraft AI Logo" class="about-logo">
+              <div>
+                <h4 class="about-title">PixelCraft AI</h4>
+                <span class="about-version">Version 2.4.0 (Production)</span>
+              </div>
+            </div>
+            <p class="about-text">
+              PixelCraft AI is an advanced intelligent workspace powered by Google Gemini, designed for rapid coding, architectural reasoning, and workflow automation.
+            </p>
+            <div class="about-specs-list">
+              <div class="about-spec-row">
+                <span class="spec-label">Engine:</span>
+                <span class="spec-val">Google Gemini API</span>
+              </div>
+              <div class="about-spec-row">
+                <span class="spec-label">Authentication:</span>
+                <span class="spec-val">Supabase Auth (OAuth 2.0 & Email)</span>
+              </div>
+              <div class="about-spec-row">
+                <span class="spec-label">Database:</span>
+                <span class="spec-val">Supabase PostgreSQL with RLS</span>
+              </div>
+              <div class="about-spec-row">
+                <span class="spec-label">Architecture:</span>
+                <span class="spec-val">Serverless Node.js + Vanilla JS UI</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions settings-modal-actions">
+        <button type="button" class="btn-auth-submit btn-modal-primary" id="btn-dismiss-settings">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Supabase Browser SDK for Client-Side OAuth & Session Handling -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Configuration & Vanilla JavaScript Application -->
   <script src="js/config.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=AUTH-FIX-2"></script>
 </body>
 </html>

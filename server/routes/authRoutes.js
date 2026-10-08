@@ -18,5 +18,6 @@ router.get('/oauth/:provider', (req, res) => authController.getOAuthUrl(req, res
 // Protected Session Endpoints
 router.get('/session', requireAuth, (req, res) => authController.getSession(req, res));
 router.get('/me', requireAuth, (req, res) => authController.getSession(req, res));
+router.post('/post-verify-welcome', requireAuth, (req, res) => authController.sendPostVerifyWelcomeEmail(req, res));
 
 module.exports = router;
