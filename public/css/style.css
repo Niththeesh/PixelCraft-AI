@@ -1398,6 +1398,84 @@ button {
   color: var(--text-muted);
 }
 
+/* OAuth Buttons */
+.oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.btn-oauth {
+  width: 100%;
+  padding: 0.72rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid var(--border-color);
+  min-height: 44px;
+}
+
+.btn-oauth .oauth-icon {
+  flex-shrink: 0;
+}
+
+.btn-oauth-google {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.btn-oauth-google:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.btn-oauth-facebook {
+  background: rgba(24, 119, 242, 0.12);
+  color: #ffffff;
+  border-color: rgba(24, 119, 242, 0.35);
+}
+
+.btn-oauth-facebook:hover {
+  background: rgba(24, 119, 242, 0.22);
+  border-color: rgba(24, 119, 242, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(24, 119, 242, 0.25);
+}
+
+/* Auth Divider */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 0.1rem 0;
+  color: var(--text-subtle);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.auth-divider span {
+  padding: 0 0.75rem;
+}
+
 .auth-tabs {
   display: flex;
   background: rgba(15, 23, 42, 0.85);
@@ -1447,6 +1525,27 @@ button {
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid rgba(16, 185, 129, 0.4);
   color: #6ee7b7;
+}
+
+.auth-alert.info,
+.auth-notice {
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.38);
+  color: #a5f3fc;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.user-greeting {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
 }
 
 .auth-form {

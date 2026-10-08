@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     authToken: localStorage.getItem('supabase_access_token') || null,
     authUser: null,
     authMode: 'login', // 'login' | 'signup'
+    supabaseClient: null,
     conversations: [],
     currentConversationId: null,
     messages: [],
@@ -70,9 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
     appContainer: document.getElementById('app-container'),
     authTitle: document.getElementById('auth-title'),
     authSubtitle: document.getElementById('auth-subtitle'),
+    btnOAuthGoogle: document.getElementById('btn-oauth-google'),
+    btnOAuthFacebook: document.getElementById('btn-oauth-facebook'),
     tabLogin: document.getElementById('tab-login'),
     tabSignup: document.getElementById('tab-signup'),
     authAlert: document.getElementById('auth-alert'),
+    authNotice: document.getElementById('auth-notice'),
     authForm: document.getElementById('auth-form'),
     authEmail: document.getElementById('auth-email'),
     authPassword: document.getElementById('auth-password'),
@@ -189,7 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupPromptLibrary();
     setupLogout();
 
-    // Check session on startup
+    // Initialize public Supabase client in browser if anon key is available
+    await initSupabaseBrowserClient();
+
+    // Check for OAuth callbacks, verification links, or existing session on startup
     await checkInitialSession();
   }
 
@@ -207,9 +214,126 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
+  // Helper: Extract Friendly Display Name
+  // ==========================================================================
+  function getUserDisplayName(user) {
+    if (!user) return 'User';
+    const meta = user.user_metadata || {};
+    if (meta.full_name && typeof meta.full_name === 'string' && meta.full_name.trim()) {
+      return meta.full_name.trim();
+    }
+    if (meta.name && typeof meta.name === 'string' && meta.name.trim()) {
+      return meta.name.trim();
+    }
+    if (meta.user_name && typeof meta.user_name === 'string' && meta.user_name.trim()) {
+      return meta.user_name.trim();
+    }
+    if (user.email && typeof user.email === 'string') {
+      const prefix = user.email.split('@')[0];
+      return prefix.charAt(0).toUpperCase() + prefix.slice(1);
+    }
+    return 'User';
+  }
+
+  // ==========================================================================
+  // Helper: Initialize Browser Supabase Client (Using Public Anon Key Only)
+  // ==========================================================================
+  async function initSupabaseBrowserClient() {
+    try {
+      const res = await fetch('/api/auth/config');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.supabaseUrl && data.supabaseAnonKey && window.supabase) {
+          state.supabaseClient = window.supabase.createClient(data.supabaseUrl, data.supabaseAnonKey, {
+            auth: {
+              persistSession: true,
+              autoRefreshToken: true,
+              detectSessionInUrl: true
+            }
+          });
+
+          // Listen for browser auth events (OAuth callback / session recovery)
+          state.supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (session && session.access_token && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+              state.authToken = session.access_token;
+              state.authUser = session.user;
+              localStorage.setItem('supabase_access_token', state.authToken);
+              localStorage.setItem('supabase_user', JSON.stringify(state.authUser));
+              showChatWorkspace();
+              renderUserProfile();
+              loadConversations();
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Browser Supabase client initialization notice:', e.message);
+    }
+  }
+
+  // ==========================================================================
+  // Helper: Parse URL OAuth & Verification Parameters
+  // ==========================================================================
+  function parseUrlAuthParams() {
+    const hash = window.location.hash.substring(1);
+    const search = window.location.search.substring(1);
+    const params = new URLSearchParams(hash || search);
+
+    // 1. Check for Auth Errors (Expired links, OAuth cancellation, access denied)
+    const error = params.get('error');
+    const errorCode = params.get('error_code');
+    const errorDescription = params.get('error_description');
+
+    if (error || errorCode || errorDescription) {
+      // Clean URL fragment immediately to prevent replay on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      const errLower = (errorDescription || error || '').toLowerCase();
+      if (errorCode === 'otp_expired' || errLower.includes('expired') || errLower.includes('otp')) {
+        showAuthAlert('The verification link has expired or has already been used. Please sign in or request a new link.', 'error');
+        showAuthView();
+        return { handled: true };
+      }
+      if (error === 'access_denied' || errLower.includes('cancel')) {
+        showAuthAlert('Sign-in was cancelled or access was denied. Please try again.', 'error');
+        showAuthView();
+        return { handled: true };
+      }
+
+      showAuthAlert(decodeURIComponent(errorDescription || error || 'Authentication could not be completed. Please try again.'), 'error');
+      showAuthView();
+      return { handled: true };
+    }
+
+    // 2. Check for Auth Tokens (Successful OAuth callback or Email verification link)
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const type = params.get('type'); // 'signup' | 'recovery' | 'invite'
+
+    if (accessToken) {
+      // Clean URL fragment immediately
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      state.authToken = accessToken;
+      localStorage.setItem('supabase_access_token', accessToken);
+
+      if (type === 'signup') {
+        showAuthAlert('Email verified successfully! Welcome to PixelCraft AI.', 'success');
+      }
+
+      return { handled: true, token: accessToken, type };
+    }
+
+    return { handled: false };
+  }
+
+  // ==========================================================================
   // 1. Session Detection and Verification & Auth Gate
   // ==========================================================================
   async function checkInitialSession() {
+    // Check URL parameters first (OAuth returns & email confirmation links)
+    const urlCheck = parseUrlAuthParams();
+
     if (!state.authToken) {
       showChatWorkspace();
       renderGuestState();
@@ -234,10 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Token invalid or expired
-      handleUnauthorized();
+      handleUnauthorized('Your session has expired. Please sign in again to continue.');
     } catch (err) {
       console.error('Session check error:', err);
-      // On connection issue or missing session, keep public workspace visible in guest mode
+      // On connection issue, keep public workspace visible in guest mode
       showChatWorkspace();
       renderGuestState();
     }
@@ -304,15 +428,17 @@ document.addEventListener('DOMContentLoaded', () => {
       elements.chatTextarea.placeholder = 'Ask PixelCraft AI anything...';
     }
 
-    const email = state.authUser.email || 'User';
+    const displayName = getUserDisplayName(state.authUser);
+    const email = state.authUser.email || displayName;
+
     if (elements.userDisplayEmail) {
-      elements.userDisplayEmail.textContent = email;
+      elements.userDisplayEmail.textContent = `Welcome, ${displayName}`;
       elements.userDisplayEmail.title = email;
     }
 
     if (elements.userAvatar) {
-      // Derive initials from email
-      const initial = email.substring(0, 2).toUpperCase();
+      // Derive initials from display name
+      const initial = displayName.substring(0, 2).toUpperCase();
       elements.userAvatar.textContent = initial;
     }
 
@@ -402,6 +528,20 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // Continue with Google OAuth Button
+    if (elements.btnOAuthGoogle) {
+      elements.btnOAuthGoogle.addEventListener('click', () => {
+        handleOAuthSignIn('google');
+      });
+    }
+
+    // Continue with Facebook OAuth Button
+    if (elements.btnOAuthFacebook) {
+      elements.btnOAuthFacebook.addEventListener('click', () => {
+        handleOAuthSignIn('facebook');
+      });
+    }
+
     // Toggle Password Visibility
     if (elements.btnTogglePassword) {
       elements.btnTogglePassword.addEventListener('click', () => {
@@ -469,6 +609,66 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /**
+   * Initiates Google or Facebook OAuth with Supabase Auth
+   * Uses client-side browser SDK with public anon key first; falls back to server redirect
+   */
+  async function handleOAuthSignIn(provider) {
+    hideAuthAlert();
+    setAuthLoading(true);
+
+    const providerLabel = provider === 'google' ? 'Google' : 'Facebook';
+
+    try {
+      const origin = window.location.origin;
+
+      // Primary Flow: Direct Browser Supabase OAuth (Client-Side with Public Anon Key)
+      if (state.supabaseClient) {
+        const { data, error } = await state.supabaseClient.auth.signInWithOAuth({
+          provider: provider,
+          options: {
+            redirectTo: origin
+          }
+        });
+
+        if (error) {
+          const errMsg = (error.message || '').toLowerCase();
+          if (errMsg.includes('not enabled') || errMsg.includes('unsupported provider')) {
+            showAuthAlert(`${providerLabel} sign-in is not yet enabled in your Supabase Dashboard. Please enable the ${providerLabel} provider in Authentication → Providers.`, 'error');
+          } else {
+            showAuthAlert(`Unable to sign in with ${providerLabel}: ${error.message}`, 'error');
+          }
+          setAuthLoading(false);
+          return;
+        }
+
+        // Browser automatically redirects to provider authorization URL
+        return;
+      }
+
+      // Fallback Flow: Server-Assisted OAuth Redirect URL Generator
+      const response = await fetch(`/api/auth/oauth/${provider}`);
+      const result = await response.json();
+
+      if (response.ok && result.success && result.url) {
+        window.location.href = result.url;
+        return;
+      }
+
+      const errMsg = (result.error || '').toLowerCase();
+      if (errMsg.includes('not enabled') || errMsg.includes('unsupported provider')) {
+        showAuthAlert(`${providerLabel} sign-in is not yet enabled in the Supabase Dashboard. Please sign in with email or enable ${providerLabel} in Supabase settings.`, 'error');
+      } else {
+        showAuthAlert(result.error || `Unable to start ${providerLabel} login. Please try again.`, 'error');
+      }
+    } catch (err) {
+      console.error(`OAuth ${provider} error:`, err);
+      showAuthAlert(`Network error connecting to ${providerLabel}. Please check your connection and try again.`, 'error');
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
   function switchAuthMode(mode) {
     state.authMode = mode;
     hideAuthAlert();
@@ -522,10 +722,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = (elements.authEmail.value || '').trim();
     const password = elements.authPassword.value || '';
     const confirmPassword = elements.authConfirmPassword ? elements.authConfirmPassword.value || '' : '';
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Frontend Validations
+    // Client-side input validations
     if (!email) {
       showAuthAlert('Please enter your email address.', 'error');
+      elements.authEmail.focus();
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      showAuthAlert('Please enter a valid email address (e.g., name@domain.com).', 'error');
       elements.authEmail.focus();
       return;
     }
@@ -537,13 +744,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (password.length < 6) {
-      showAuthAlert('Password must be at least 6 characters.', 'error');
+      showAuthAlert('Password must be at least 6 characters long.', 'error');
       elements.authPassword.focus();
       return;
     }
 
     if (state.authMode === 'signup' && password !== confirmPassword) {
-      showAuthAlert('Passwords do not match. Please verify.', 'error');
+      showAuthAlert('Passwords do not match. Please verify your password.', 'error');
       elements.authConfirmPassword.focus();
       return;
     }
@@ -562,8 +769,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        // Case A: Email verification required
+        if (data.needsEmailVerification) {
+          showAuthAlert(data.message || 'Account created. Please check your email and verify your account.', 'info');
+          elements.authPassword.value = '';
+          if (elements.authConfirmPassword) elements.authConfirmPassword.value = '';
+          switchAuthMode('login');
+          return;
+        }
+
+        // Case B: Direct active session (Login or unconfirmed signup)
         if (data.session && data.session.access_token) {
-          // Successful login or direct auto-login signup
           state.authToken = data.session.access_token;
           state.authUser = data.session.user;
 
@@ -578,11 +794,11 @@ document.addEventListener('DOMContentLoaded', () => {
           showChatWorkspace();
           loadConversations();
         } else if (data.user) {
-          // Registered but needs login
           showAuthAlert(data.message || 'Registration successful! Please sign in.', 'success');
           switchAuthMode('login');
         }
       } else {
+        // Handle error responses with explicit friendly messages
         const errorMsg = data.error || (state.authMode === 'signup' ? 'Failed to create account.' : 'Invalid credentials.');
         showAuthAlert(errorMsg, 'error');
       }
@@ -597,6 +813,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function setAuthLoading(loading) {
     if (elements.btnAuthSubmit) {
       elements.btnAuthSubmit.disabled = loading;
+    }
+    if (elements.btnOAuthGoogle) {
+      elements.btnOAuthGoogle.disabled = loading;
+    }
+    if (elements.btnOAuthFacebook) {
+      elements.btnOAuthFacebook.disabled = loading;
     }
     if (elements.btnAuthText) {
       elements.btnAuthText.style.display = loading ? 'none' : 'inline';

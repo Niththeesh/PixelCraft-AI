@@ -49,54 +49,69 @@ class AuthController {
 
       const normalizedEmail = email.trim().toLowerCase();
 
-      // 1. Create user in Supabase Auth with auto-confirmed email
-      const { data: createData, error: createError } = await client.auth.admin.createUser({
+      // Use isolated client so user session never overwrites the server's admin client
+      const authClient = createIsolatedClient() || client;
+
+      // Register user with Supabase Auth (respects Supabase Email Confirmation setting)
+      const origin = req.headers.origin || 'https://pixelcraft-ai-seven.vercel.app';
+      const { data, error } = await authClient.auth.signUp({
         email: normalizedEmail,
         password: password,
-        email_confirm: true
+        options: {
+          emailRedirectTo: origin
+        }
       });
 
-      if (createError) {
-        const msg = createError.message || '';
-        if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('unique') || msg.toLowerCase().includes('exists')) {
+      if (error) {
+        const msg = (error.message || '').toLowerCase();
+        if (msg.includes('already registered') || msg.includes('unique') || msg.includes('already exists') || msg.includes('user already registered')) {
           return res.status(409).json({
             success: false,
-            error: 'An account with this email already exists. Please log in.'
+            error: 'An account with this email already exists. Please sign in instead.'
+          });
+        }
+        if (msg.includes('rate limit') || msg.includes('over_email_send_rate_limit')) {
+          return res.status(429).json({
+            success: false,
+            error: 'Too many verification emails sent. Please wait a few minutes before trying again.'
+          });
+        }
+        if (msg.includes('weak') || msg.includes('password should be at least')) {
+          return res.status(400).json({
+            success: false,
+            error: 'Password is too weak. Please use at least 6 characters with letters and numbers.'
           });
         }
         return res.status(400).json({
           success: false,
-          error: createError.message || 'Failed to create user account.'
+          error: error.message || 'Failed to create user account.'
         });
       }
 
-      // 2. Automatically establish session via signInWithPassword on an isolated client
-      const authClient = createIsolatedClient() || client;
-      const { data: loginData, error: loginError } = await authClient.auth.signInWithPassword({
-        email: normalizedEmail,
-        password: password
-      });
-
-      if (loginError || !loginData || !loginData.session) {
+      // If Supabase has email confirmation enabled, session is null until verified
+      if (!data.session) {
         return res.status(201).json({
           success: true,
-          message: 'Account created successfully. Please sign in.',
+          needsEmailVerification: true,
+          message: 'Account created. Please check your email and verify your account.',
           user: {
-            id: createData.user.id,
-            email: createData.user.email
+            id: data.user?.id,
+            email: data.user?.email
           }
         });
       }
 
+      // If email confirmation is disabled in Supabase, session is returned immediately
       return res.status(201).json({
         success: true,
         message: 'Registration successful',
         session: {
-          access_token: loginData.session.access_token,
-          expires_in: loginData.session.expires_in,
+          access_token: data.session.access_token,
+          expires_in: data.session.expires_in,
           user: {
-            id: loginData.user.id,
-            email: loginData.user.email
+            id: data.user.id,
+            email: data.user.email,
+            user_metadata: data.user.user_metadata || {}
           }
         }
       });
@@ -120,14 +135,14 @@ class AuthController {
       if (!email || typeof email !== 'string' || !email.trim()) {
         return res.status(400).json({
           success: false,
-          error: 'Email is required.'
+          error: 'Please enter your email address.'
         });
       }
 
       if (!password || typeof password !== 'string' || !password) {
         return res.status(400).json({
           success: false,
-          error: 'Password is required.'
+          error: 'Please enter your password.'
         });
       }
 
@@ -144,6 +159,20 @@ class AuthController {
       });
 
       if (error || !data || !data.session) {
+        const errMsg = (error?.message || '').toLowerCase();
+        if (errMsg.includes('email not confirmed') || errMsg.includes('not confirmed')) {
+          return res.status(403).json({
+            success: false,
+            needsEmailVerification: true,
+            error: 'Your email address has not been verified yet. Please check your inbox to activate your account.'
+          });
+        }
+        if (errMsg.includes('invalid login credentials') || errMsg.includes('invalid credentials')) {
+          return res.status(401).json({
+            success: false,
+            error: 'Invalid email or password. Please verify your credentials and try again.'
+          });
+        }
         return res.status(401).json({
           success: false,
           error: error?.message || 'Invalid email or password.'
@@ -158,7 +187,8 @@ class AuthController {
           expires_in: data.session.expires_in,
           user: {
             id: data.user.id,
-            email: data.user.email
+            email: data.user.email,
+            user_metadata: data.user.user_metadata || {}
           }
         }
       });
@@ -192,9 +222,57 @@ class AuthController {
       success: true,
       user: {
         id: req.user.id,
-        email: req.user.email
+        email: req.user.email,
+        user_metadata: req.user.user_metadata || {}
       }
     });
+  }
+
+  /**
+   * GET /api/auth/oauth/:provider
+   * Fallback server-side OAuth redirect URL generator
+   */
+  async getOAuthUrl(req, res) {
+    try {
+      const provider = (req.params.provider || '').toLowerCase().trim();
+      if (!['google', 'facebook'].includes(provider)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Supported OAuth providers are "google" and "facebook".'
+        });
+      }
+
+      const client = this.getClient(res);
+      if (!client) return;
+
+      const redirectTo = req.headers.origin || 'https://pixelcraft-ai-seven.vercel.app';
+      const authClient = createIsolatedClient() || client;
+      const { data, error } = await authClient.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: redirectTo
+        }
+      });
+
+      if (error || !data || !data.url) {
+        return res.status(500).json({
+          success: false,
+          error: error?.message || `Failed to generate OAuth URL for ${provider}.`
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        provider,
+        url: data.url
+      });
+    } catch (err) {
+      console.error('OAuth URL generation error:', err.message);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error generating OAuth redirect.'
+      });
+    }
   }
 
   /**
