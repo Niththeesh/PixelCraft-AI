@@ -262,12 +262,27 @@ class AuthController {
       const client = this.getClient(res);
       if (!client) return;
 
-      const redirectTo = req.headers.origin || 'https://pixelcraft-ai-seven.vercel.app';
+      const requestedRedirect = (req.query.redirect_to || req.headers.origin || 'https://pixelcraft-ai-seven.vercel.app').trim();
+      let redirectTo = 'https://pixelcraft-ai-seven.vercel.app';
+      try {
+        const parsed = new URL(requestedRedirect);
+        if (
+          parsed.hostname === 'pixelcraft-ai-seven.vercel.app' ||
+          parsed.hostname === 'localhost' ||
+          parsed.hostname === '127.0.0.1' ||
+          parsed.hostname.endsWith('.github.io') ||
+          parsed.hostname.endsWith('.vercel.app')
+        ) {
+          redirectTo = requestedRedirect;
+        }
+      } catch (_) {}
+
       const authClient = createIsolatedClient() || client;
       const { data, error } = await authClient.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: redirectTo
+          redirectTo: redirectTo,
+          scopes: provider === 'google' ? 'email profile' : 'email,public_profile'
         }
       });
 

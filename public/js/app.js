@@ -13,12 +13,20 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Resolve API Base URL (empty for localhost, Render URL for GitHub Pages / external hosts)
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const backendUrl = (window.PIXELCRAFT_CONFIG && window.PIXELCRAFT_CONFIG.RENDER_BACKEND_URL)
+  // Resolve API Base URL (empty for localhost and Vercel, production URL for external hosts like GitHub Pages)
+  const isLocal = window.location.hostname === 'localhost' || 
+                  window.location.hostname === '127.0.0.1' || 
+                  window.location.hostname === '0.0.0.0' ||
+                  window.location.hostname.endsWith('.local');
+
+  const configuredBackend = (window.PIXELCRAFT_CONFIG && window.PIXELCRAFT_CONFIG.RENDER_BACKEND_URL)
     ? window.PIXELCRAFT_CONFIG.RENDER_BACKEND_URL.replace(/\/$/, '')
     : '';
-  const API_BASE_URL = isLocal ? '' : backendUrl;
+
+  const DEFAULT_PRODUCTION_BACKEND = 'https://pixelcraft-ai-seven.vercel.app';
+  const API_BASE_URL = isLocal 
+    ? '' 
+    : (configuredBackend || (window.location.hostname.includes('vercel.app') ? '' : DEFAULT_PRODUCTION_BACKEND));
 
   // Transparent fetch interceptor for relative /api routes
   const nativeFetch = window.fetch;
@@ -31,8 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Application State
   const state = {
-    authToken: localStorage.getItem('supabase_access_token') || null,
-    authUser: null,
+    authToken: localStorage.getItem('supabase_access_token') || (function() {
+      try { return sessionStorage.getItem('supabase_access_token'); } catch(_) { return null; }
+    })(),
+    authUser: (function() {
+      try {
+        const stored = localStorage.getItem('supabase_user') || sessionStorage.getItem('supabase_user');
+        return stored ? JSON.parse(stored) : null;
+      } catch(_) { return null; }
+    })(),
     authMode: 'login', // 'login' | 'signup'
     supabaseClient: null,
     conversations: [],
@@ -1215,6 +1230,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function getOAuthRedirectUrl() {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return `${window.location.origin}${window.location.pathname}`;
+    }
+    if (window.location.hostname.includes('github.io')) {
+      return `${window.location.origin}/PixelCraft-AI/`;
+    }
+    return window.location.origin ? `${window.location.origin}${window.location.pathname}` : 'https://pixelcraft-ai-seven.vercel.app/';
+  }
+
   /**
    * Initiates Google or Facebook OAuth with Supabase Auth
    * Uses client-side browser SDK with public anon key first; falls back to server redirect
@@ -1235,14 +1260,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const origin = window.location.origin;
+      const redirectUrl = getOAuthRedirectUrl();
 
       // Primary Flow: Direct Browser Supabase OAuth (Client-Side with Public Anon Key)
       if (state.supabaseClient) {
         const { data, error } = await state.supabaseClient.auth.signInWithOAuth({
           provider: provider,
           options: {
-            redirectTo: origin
+            redirectTo: redirectUrl,
+            scopes: provider === 'google' ? 'email profile' : 'email,public_profile'
           }
         });
 
@@ -1262,7 +1288,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Fallback Flow: Server-Assisted OAuth Redirect URL Generator
-      const response = await fetch(`/api/auth/oauth/${provider}`);
+      const response = await fetch(`/api/auth/oauth/${provider}?redirect_to=${encodeURIComponent(redirectUrl)}`);
       const result = await response.json();
 
       if (response.ok && result.success && result.url) {
@@ -2214,6 +2240,16 @@ document.addEventListener('DOMContentLoaded', () => {
       elements.btnDismissStats.addEventListener('click', closeStatsModal);
     }
 
+    const btnSidebarStats = document.getElementById('btn-sidebar-stats');
+    if (btnSidebarStats) {
+      btnSidebarStats.addEventListener('click', () => {
+        closeSidebar();
+        if (elements.btnChatStats) {
+          elements.btnChatStats.click();
+        }
+      });
+    }
+
     elements.modalChatStats.addEventListener('click', (e) => {
       if (e.target === elements.modalChatStats) {
         closeStatsModal();
@@ -2418,6 +2454,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (elements.btnDismissPrompts) {
       elements.btnDismissPrompts.addEventListener('click', closePromptLibraryModal);
+    }
+
+    const btnSidebarPrompts = document.getElementById('btn-sidebar-prompts');
+    if (btnSidebarPrompts) {
+      btnSidebarPrompts.addEventListener('click', () => {
+        closeSidebar();
+        openPromptLibraryModal();
+      });
     }
 
     elements.modalPromptLibrary.addEventListener('click', (e) => {
