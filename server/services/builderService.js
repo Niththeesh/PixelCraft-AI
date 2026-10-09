@@ -446,7 +446,7 @@ Generate the complete project. Return STRICTLY a JSON object with this format:
    * Refines an existing project with natural language instructions (English, Tamil, Tanglish).
    * Preserves unrelated sections and user edits!
    */
-  async refineProject(deltaPrompt, currentProject, targetSectionId = null) {
+  async refineProject(deltaPrompt, currentProject, targetSectionId = null, targetElement = null) {
     if (!currentProject || !currentProject.html) {
       return this.generateProject(deltaPrompt);
     }
@@ -470,6 +470,7 @@ The user wants to refine an existing website design using natural language (Engl
 CRITICAL CONSTRAINT:
 - If the user requested a specific change (e.g. "${deltaPrompt}"), apply that modification accurately.
 ${detectedTarget ? `- Target section is specifically: '${detectedTarget}'. DO NOT change or regenerate other sections. KEEP all other sections, copywriting, and CSS untouched.` : ''}
+${targetElement ? `- Target element is: <${targetElement.tagName || 'element'}> (ID: "${targetElement.id || ''}", text: "${targetElement.textContent || ''}"). Apply change specifically to this element.` : ''}
 - If the user asked to change color (e.g. "electric blue"), update the corresponding CSS variables (--primary, --accent, etc.).
 - PRESERVE all unrelated sections, existing structure, copywriting, and custom changes.
 - Return the updated complete HTML, CSS, JS, and sections list.
@@ -596,6 +597,20 @@ Return JSON with:
       } else if (/green|emerald/i.test(p)) {
         updatedCss = updatedCss.replace(/--primary:\s*[^;]+;/, '--primary: #10b981;')
                                .replace(/--accent:\s*[^;]+;/, '--accent: #34d399;');
+      } else if (/gold|black and gold/i.test(p)) {
+        updatedCss = updatedCss.replace(/--primary:\s*[^;]+;/, '--primary: #d4af37; /* gold */')
+                               .replace(/--accent:\s*[^;]+;/, '--accent: #ffd700;')
+                               .replace(/--bg:\s*[^;]+;/, '--bg: #09090b;');
+      }
+
+      // Handle element-specific button enhancement if requested or targeted
+      if (/button|btn/i.test(p) && (/orange|glow|pop|gradient/i.test(p) || targetElement?.tagName === 'button' || targetElement?.tagName === 'a')) {
+        updatedCss += `\n.btn-primary, button.btn { background: linear-gradient(135deg, #ff6600, #ff8533) !important; box-shadow: 0 0 25px rgba(255,102,0,0.6) !important; color: #ffffff !important; }\n`;
+      }
+
+      // Handle heading bold/uppercase if requested
+      if (/heading|title/i.test(p) && (/bold|uppercase|capitalize/i.test(p) || targetElement?.tagName?.startsWith('h'))) {
+        updatedCss += `\nh1, h2, .hero-title { text-transform: uppercase !important; font-weight: 800 !important; letter-spacing: 0.02em !important; }\n`;
       }
 
       // Handle heading replacement if requested
@@ -701,6 +716,11 @@ Return JSON with:
       position: relative;
     }
 
+    /* Section Visibility Toggle */
+    .pixelcraft-section-hidden {
+      display: none !important;
+    }
+
     /* Selection Highlighting for Visual Editor */
     [data-pixelcraft-selected="true"] {
       outline: 2px solid #6366f1 !important;
@@ -710,6 +730,7 @@ Return JSON with:
     [data-pixelcraft-hover="true"] {
       outline: 1px dashed #38bdf8 !important;
       outline-offset: 2px !important;
+      cursor: pointer !important;
     }
 
     /* Generated Stylesheet */
@@ -725,15 +746,41 @@ Return JSON with:
       let isEditorMode = true;
       let selectedElement = null;
       let selectedSectionEl = null;
+      let hoveredElement = null;
+
+      // Hover Outline Listener (Design Mode only)
+      document.body.addEventListener('mouseover', function(e) {
+        if (!isEditorMode) return;
+        const target = e.target.closest('h1, h2, h3, h4, p, a, button, img, section, div.card, div.pricing-card, [data-section]');
+        if (!target || target === selectedElement) return;
+        if (hoveredElement && hoveredElement !== target) {
+          hoveredElement.removeAttribute('data-pixelcraft-hover');
+        }
+        hoveredElement = target;
+        target.setAttribute('data-pixelcraft-hover', 'true');
+      }, true);
+
+      document.body.addEventListener('mouseout', function(e) {
+        if (!isEditorMode) return;
+        if (hoveredElement) {
+          hoveredElement.removeAttribute('data-pixelcraft-hover');
+          hoveredElement = null;
+        }
+      }, true);
 
       // Handle element and section selection
       document.body.addEventListener('click', function(e) {
-        if (!isEditorMode) return;
+        if (!isEditorMode) return; // Allow normal links & interactive elements in Preview mode!
         const target = e.target.closest('h1, h2, h3, h4, p, a, button, img, section, div.card, div.pricing-card, [data-section]');
         if (!target) return;
 
         e.preventDefault();
         e.stopPropagation();
+
+        if (hoveredElement) {
+          hoveredElement.removeAttribute('data-pixelcraft-hover');
+          hoveredElement = null;
+        }
 
         if (selectedElement) {
           selectedElement.removeAttribute('data-pixelcraft-selected');
@@ -760,11 +807,15 @@ Return JSON with:
             styles: {
               color: computed.color,
               backgroundColor: computed.backgroundColor,
+              fontFamily: computed.fontFamily,
               fontSize: computed.fontSize,
               fontWeight: computed.fontWeight,
               borderRadius: computed.borderRadius,
               padding: computed.padding,
               margin: computed.margin,
+              width: computed.width,
+              borderWidth: computed.borderWidth,
+              borderColor: computed.borderColor,
               textAlign: computed.textAlign
             }
           }
@@ -896,6 +947,17 @@ Return JSON with:
               if (btn) btn.href = p.buttonLink;
             }
 
+            window.parent.postMessage({
+              type: 'PIXELCRAFT_HTML_UPDATED',
+              html: document.body.innerHTML
+            }, '*');
+          }
+        }
+
+        if (data.type === 'PIXELCRAFT_TOGGLE_SECTION_VISIBILITY' && data.sectionId) {
+          const sec = document.getElementById(data.sectionId) || document.querySelector('[data-section="' + data.sectionId + '"]');
+          if (sec) {
+            sec.classList.toggle('pixelcraft-section-hidden');
             window.parent.postMessage({
               type: 'PIXELCRAFT_HTML_UPDATED',
               html: document.body.innerHTML
@@ -1242,6 +1304,228 @@ Return JSON with:
     </div>
     <div class="footer-bottom">
       <p>© ${new Date().getFullYear()} ${spec.title || 'IronPulse Performance'}. All rights reserved. Created with PixelCraft AI Studio.</p>
+    </div>
+  </footer>
+        `,
+        css: this.getGuaranteedCss(primary, bg, surface, text, accent, spec.typography?.headingFont, spec.typography?.bodyFont),
+        js: this.getGuaranteedJs()
+      };
+    }
+
+    if (spec.projectType === 'portfolio') {
+      return {
+        title: spec.title || 'Alex Vance — Creative Technologist & UI Architect',
+        projectType: 'portfolio',
+        designSpec: spec,
+        sections: [
+          { id: 'navbar', name: 'Navigation', type: 'navbar' },
+          { id: 'hero', name: 'Hero', type: 'hero' },
+          { id: 'projects', name: 'Featured Projects', type: 'features' },
+          { id: 'skills', name: 'Technical Stack', type: 'features' },
+          { id: 'testimonials', name: 'Testimonials', type: 'testimonials' },
+          { id: 'contact', name: 'Contact', type: 'contact' },
+          { id: 'footer', name: 'Footer', type: 'footer' }
+        ],
+        html: `
+  <header class="site-header" id="navbar" data-section-name="Navigation">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-mark">⚡</span>
+        <span class="logo-text">${spec.title ? spec.title.split('—')[0].trim() : 'ALEX VANCE'}</span>
+      </div>
+      <nav class="nav-menu" id="nav-menu">
+        <a href="#hero" class="nav-link active">About</a>
+        <a href="#projects" class="nav-link">Projects</a>
+        <a href="#skills" class="nav-link">Skills</a>
+        <a href="#testimonials" class="nav-link">Testimonials</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="#contact" class="btn btn-primary">Let's Connect</a>
+        <button class="mobile-toggle-btn" id="mobile-toggle-btn" aria-label="Toggle navigation">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-section" id="hero" data-section-name="Hero">
+      <div class="hero-glow"></div>
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="badge">✦ Principal UI Architect & Creative Engineer</div>
+          <h1 class="hero-title">Engineering Digital Elegance & Scalable Systems</h1>
+          <p class="hero-description">Transforming ambitious product concepts into high-performance web applications, generative interfaces, and design systems built for global scale.</p>
+          <div class="hero-cta-group">
+            <a href="#projects" class="btn btn-primary btn-lg">Explore Selected Work</a>
+            <a href="#contact" class="btn btn-secondary btn-lg">Get in Touch ➔</a>
+          </div>
+          <div class="social-proof-strip">
+            <span class="stars">★★★★★</span>
+            <span class="proof-text">Trusted by hyper-growth startups & design agencies worldwide</span>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="visual-card">
+            <img src="${images[0] || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80'}" alt="Portfolio Visual" class="hero-image" style="border-radius: 16px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+            <div class="floating-stat">
+              <span class="stat-number">10+ Yrs</span>
+              <span class="stat-label">Production Craft</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section" id="projects" data-section-name="Featured Projects">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-badge">Production Showcase</span>
+          <h2 class="section-title">Selected Projects & Case Studies</h2>
+          <p class="section-sub">A curated collection of scalable SaaS platforms, design tools, and generative web experiences.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card project-card">
+            <img src="${images[1] || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80'}" alt="Hyperion Analytics" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 16px;">
+            <div class="badge" style="margin-bottom: 10px;">Enterprise AI</div>
+            <h3 class="feature-title">Hyperion Data Platform</h3>
+            <p class="feature-text">Autonomous data visualization dashboard with real-time streaming charts and distributed PostgreSQL aggregation.</p>
+            <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">React 19</span>
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">TypeScript</span>
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">WebGL</span>
+            </div>
+          </div>
+          <div class="feature-card project-card">
+            <img src="${images[2] || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80'}" alt="Synthetix Studio" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 16px;">
+            <div class="badge" style="margin-bottom: 10px;">Design Tools</div>
+            <h3 class="feature-title">Synthetix Studio Canvas</h3>
+            <p class="feature-text">Interactive visual builder featuring bidirectional postMessage iframe sandboxing, CSS token compilers, and live SVG exporters.</p>
+            <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">Vanilla JS</span>
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">Node.js</span>
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">Supabase</span>
+            </div>
+          </div>
+          <div class="feature-card project-card">
+            <img src="${images[3] || 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=600&q=80'}" alt="Aura Commerce" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 16px;">
+            <div class="badge" style="margin-bottom: 10px;">Fintech / Web</div>
+            <h3 class="feature-title">Aura Global Commerce</h3>
+            <p class="feature-text">High-conversion editorial digital storefront optimized for sub-100ms Core Web Vitals and frictionless global checkout flows.</p>
+            <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">Next.js</span>
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">Stripe API</span>
+              <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">Tailwind</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section" id="skills" data-section-name="Technical Stack">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-badge">Core Mastery</span>
+          <h2 class="section-title">Technical Stack & Capabilities</h2>
+          <p class="section-sub">Modern full-stack technologies and design engineering proficiencies.</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">Frontend Engineering</h3>
+            <p class="feature-text">Modern JavaScript/TypeScript, React 19, Next.js App Router, CSS Architecture, WebGL, Canvas API, and Web Performance Tuning.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3 class="feature-title">Backend & Cloud Systems</h3>
+            <p class="feature-text">Node.js, Express, PostgreSQL, Supabase RLS, Edge Functions, Redis Caching, RESTful APIs, and Docker deployments.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3 class="feature-title">Design Systems & UI/UX</h3>
+            <p class="feature-text">Figma token workflows, WCAG 2.1 AA Accessibility, fluid typography, responsive micro-interactions, and conversion-centered design.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonials-section" id="testimonials" data-section-name="Testimonials">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-badge">Social Proof</span>
+          <h2 class="section-title">What Founders & Teams Say</h2>
+          <p class="section-sub">Direct endorsements from cross-functional product partners.</p>
+        </div>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p class="quote">"Alex completely transformed our core platform UI. The speed, craftsmanship, and attention to micro-details resulted in an immediate 34% surge in conversion."</p>
+            <div class="author-meta">
+              <span class="author-name">Sarah Chen</span>
+              <span class="author-title">VP Product, Hyperion AI</span>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p class="quote">"One of the rare engineers who seamlessly bridges world-class visual design with bulletproof production systems architecture. Absolute top-tier execution."</p>
+            <div class="author-meta">
+              <span class="author-name">Marcus Bennett</span>
+              <span class="author-title">Founder, Synthetix Labs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-section" id="contact" data-section-name="Contact">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-badge">Let's Build Together</span>
+          <h2 class="section-title">Start a Project Conversation</h2>
+          <p class="section-sub">Available for select advisory roles, design system consultancies, and principal engineering contracts.</p>
+        </div>
+        <div class="contact-card">
+          <form class="contact-form" id="contact-form" onsubmit="event.preventDefault(); alert('Thank you! Your message has been sent.');">
+            <div class="form-row">
+              <input type="text" placeholder="Your Name" required class="form-input">
+              <input type="email" placeholder="Your Email Address" required class="form-input">
+            </div>
+            <input type="text" placeholder="Project Subject / Scope" required class="form-input">
+            <textarea placeholder="Describe your product goals, timeline, and vision..." rows="5" class="form-input" required></textarea>
+            <button type="submit" class="btn btn-primary btn-lg w-full">Send Inquiry Message ➔</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="footer" data-section-name="Footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-mark">⚡</span>
+          <span class="logo-text">${spec.title ? spec.title.split('—')[0].trim() : 'ALEX VANCE'}</span>
+        </div>
+        <p class="footer-desc">Crafting digital excellence at the intersection of aesthetic distinction and engineering precision.</p>
+      </div>
+      <div class="footer-links">
+        <div class="link-group">
+          <h4>Navigation</h4>
+          <a href="#hero">About</a>
+          <a href="#projects">Projects</a>
+          <a href="#skills">Skills</a>
+          <a href="#testimonials">Reviews</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="link-group">
+          <h4>Connect</h4>
+          <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://twitter.com" target="_blank" rel="noopener">X / Twitter</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© ${new Date().getFullYear()} ${spec.title ? spec.title.split('—')[0].trim() : 'Alex Vance'}. All rights reserved. Created with PixelCraft AI Studio.</p>
     </div>
   </footer>
         `,

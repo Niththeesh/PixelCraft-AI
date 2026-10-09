@@ -98,7 +98,7 @@ class BuilderController {
    */
   async refine(req, res) {
     try {
-      const { prompt, currentProject, targetSectionId } = req.body || {};
+      const { prompt, currentProject, targetSectionId, targetElement, scope } = req.body || {};
       if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
         return res.status(400).json({ success: false, error: 'Refinement instruction is required' });
       }
@@ -106,7 +106,7 @@ class BuilderController {
         return res.status(400).json({ success: false, error: 'Current project state is required for refinement' });
       }
 
-      const updatedProject = await builderService.refineProject(prompt.trim(), currentProject, targetSectionId || null);
+      const updatedProject = await builderService.refineProject(prompt.trim(), currentProject, targetSectionId || null, targetElement || null);
       const bundledHtml = builderService.bundleProjectDocument(updatedProject);
 
       return res.status(200).json({

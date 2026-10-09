@@ -5562,3 +5562,238 @@ button {
   background: #6366f1;
   color: #ffffff;
 }
+
+/* Brand Badge in Toolbar */
+.builder-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.tb-brand-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.tb-brand-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+/* Save Status Indicator */
+.builder-save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.save-status-dot {
+  font-size: 0.65rem;
+  color: #10b981; /* Green when saved */
+  transition: color 0.2s;
+}
+
+.builder-save-status.unsaved .save-status-dot {
+  color: #f59e0b; /* Amber when unsaved */
+}
+
+.builder-save-status.saving .save-status-dot {
+  color: #38bdf8; /* Blue when saving */
+  animation: pulse 1s infinite alternate;
+}
+
+/* Zoom Controls in Toolbar */
+.zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
+.zoom-icon {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.zoom-select {
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  font-size: 0.76rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.zoom-select option {
+  background: #111827;
+  color: #ffffff;
+}
+
+/* Design Mode vs Preview Mode distinction */
+.builder-mode-toggle.active-design {
+  background: rgba(99, 102, 241, 0.18) !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.builder-mode-toggle.active-preview {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+/* Left Panel Meta Bar */
+.panel-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.72rem;
+}
+
+.pages-badge {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.sections-count-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+/* Section Tree Visibility Toggle */
+.btn-sec-visibility {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+
+.btn-sec-visibility:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.section-tree-item.is-hidden {
+  opacity: 0.55;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.section-tree-item.is-hidden .sec-tree-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Scope Selector in Refine Bar */
+.refine-scope-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px;
+}
+
+.scope-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.scope-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.scope-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.scope-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+}
+
+.scope-btn.active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.25);
+}
+
+.scope-target-pill {
+  font-size: 0.65rem;
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #818cf8;
+}
+
+/* Element Badge and Parent Section Button */
+.elem-badge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.btn-elem-parent-sec {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 4px;
+  color: #818cf8;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-elem-parent-sec:hover {
+  background: #6366f1;
+  color: #ffffff;
+}

@@ -471,10 +471,18 @@
             <button type="button" class="builder-btn-back" id="btn-builder-back-chat" title="Return to Chat">
               ← <span class="btn-text-label">Chat</span>
             </button>
+            <div class="builder-brand-badge">
+              <img src="images/logo.png" alt="PixelCraft Logo" class="tb-brand-img">
+              <span class="tb-brand-text">PixelCraft Studio</span>
+            </div>
             <div class="builder-title-group">
               <input type="text" id="builder-project-title-input" class="builder-project-title-input" value="Untitled Project" title="Click to rename project" aria-label="Project Title" maxlength="60">
-              <span class="builder-status-pill" id="builder-status-pill">Ready</span>
-              <button type="button" class="builder-btn-prompt-toggle" id="btn-toggle-prompt-panel" title="View & Edit Prompt">
+              <span class="builder-status-pill" id="builder-status-pill">v1</span>
+              <span class="builder-save-status" id="builder-save-status" title="Project state status">
+                <span class="save-status-dot">●</span>
+                <span class="save-status-text" id="save-status-text">Saved</span>
+              </span>
+              <button type="button" class="builder-btn-prompt-toggle" id="btn-toggle-prompt-panel" title="View & Edit Master Prompt">
                 💬 <span class="btn-text-label">Edit Prompt</span>
               </button>
             </div>
@@ -492,12 +500,22 @@
                 📲 <span class="vp-label">Mobile</span>
               </button>
             </div>
+            <div class="zoom-controls" id="builder-zoom-controls">
+              <span class="zoom-icon" title="Canvas zoom scale">🔍</span>
+              <select id="builder-zoom-select" class="zoom-select" title="Canvas Zoom Level" aria-label="Zoom Level">
+                <option value="1">100%</option>
+                <option value="0.85">85%</option>
+                <option value="0.75">75%</option>
+                <option value="0.5">50%</option>
+                <option value="fit">Fit</option>
+              </select>
+            </div>
           </div>
 
           <div class="tb-right">
-            <button type="button" class="builder-mode-toggle" id="btn-builder-interactive-mode" title="Toggle between Element Edit and Live Interactive Preview">
+            <button type="button" class="builder-mode-toggle active-design" id="btn-builder-interactive-mode" title="Toggle between Design Editing (inspect elements) and Live Interactive Preview (click links and buttons)">
               <span id="builder-mode-icon">✏️</span>
-              <span id="builder-mode-label">Edit Mode</span>
+              <span id="builder-mode-label">Design Mode</span>
             </button>
             <div class="history-actions">
               <button type="button" class="builder-icon-btn" id="btn-builder-undo" title="Undo (Ctrl+Z)" disabled>↩</button>
@@ -539,8 +557,12 @@
                 <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh sections list">↻</button>
               </div>
             </div>
+            <div class="panel-meta-bar">
+              <span class="pages-badge">📄 Landing Page (1 Page)</span>
+              <span class="sections-count-badge" id="sections-count-badge">Sections</span>
+            </div>
             <div class="sections-tree-content">
-              <div class="tree-tip">Click a section to jump & edit • Reorder with ▲▼</div>
+              <div class="tree-tip">Click a section to jump & edit • Eye toggles visibility • Reorder with ▲▼</div>
               <ul class="sections-list" id="builder-sections-list">
                 <li class="section-tree-item empty">No sections loaded</li>
               </ul>
@@ -607,22 +629,40 @@
               </div>
             </div>
 
-            <!-- Natural Language Refinement Bar (Bottom of Canvas) -->
+            <!-- Natural Language Refinement Bar (Bottom of Canvas) with Multi-Scope Control -->
             <div class="builder-refine-bar" id="builder-refine-bar">
-              <div class="refine-chips-scroll">
-                <button type="button" class="refine-chip" data-prompt="Hero section ah blue gradient ah mathu">✨ Blue Gradient Hero</button>
-                <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing">➕ Add FAQ Accordion</button>
-                <button type="button" class="refine-chip" data-prompt="Make the design modern dark luxury with glassmorphism cards">🎨 Dark Glassmorphism</button>
-                <button type="button" class="refine-chip" data-prompt="Make the mobile layout and navigation super smooth and responsive">📱 Polish Mobile Layout</button>
-                <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects">⚡ Micro-Animations</button>
+              <!-- Explicit Scope Selector (Entire Project / Selected Section / Selected Element) -->
+              <div class="refine-scope-bar">
+                <span class="scope-label">Scope:</span>
+                <div class="scope-buttons" role="radiogroup" aria-label="Refinement Scope">
+                  <button type="button" class="scope-btn active" id="scope-btn-project" data-scope="project" title="Apply change across the entire website">
+                    🌐 Entire Project
+                  </button>
+                  <button type="button" class="scope-btn" id="scope-btn-section" data-scope="section" title="Apply change only to the selected section">
+                    📑 Selected Section <span class="scope-target-pill" id="scope-section-pill">#hero</span>
+                  </button>
+                  <button type="button" class="scope-btn" id="scope-btn-element" data-scope="element" title="Apply change only to the selected element">
+                    🎯 Selected Element <span class="scope-target-pill" id="scope-element-pill">&lt;element&gt;</span>
+                  </button>
+                </div>
               </div>
+
+              <div class="refine-chips-scroll" id="refine-chips-container">
+                <button type="button" class="refine-chip" data-prompt="Change the color palette to black and orange with athletic vibes">🎨 Black & Orange Theme</button>
+                <button type="button" class="refine-chip" data-prompt="Make the hero section more premium with athletic glow">⚡ Premium Hero</button>
+                <button type="button" class="refine-chip" data-prompt="Add three modern trainer cards to this section">🏋️ 3 Trainer Cards</button>
+                <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing">❓ Add FAQ Accordion</button>
+                <button type="button" class="refine-chip" data-prompt="Make this section responsive and polished on mobile">📱 Mobile Polish</button>
+                <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects">✨ Micro-Animations</button>
+              </div>
+
               <div class="refine-input-row">
                 <div class="refine-input-wrap">
                   <span class="refine-sparkle">✨</span>
                   <textarea 
                     id="builder-refine-input" 
                     class="builder-refine-input" 
-                    placeholder="Describe changes in English, Tamil, or Tanglish (e.g. 'Hero section ah blue gradient ah mathu', 'Add pricing table')..."
+                    placeholder="Describe changes in English, Tamil, or Tanglish (e.g. 'Make this hero section more premium', 'Change background to black')..."
                     rows="1"
                   ></textarea>
                 </div>
@@ -795,7 +835,12 @@
               <!-- Active Inspector Form -->
               <div class="inspector-form" id="inspector-form" style="display: none;">
                 <div class="inspector-elem-header">
-                  <span class="elem-badge" id="inspector-elem-badge">None</span>
+                  <div class="elem-badge-wrap">
+                    <span class="elem-badge" id="inspector-elem-badge">&lt;div&gt;</span>
+                    <button type="button" class="btn-elem-parent-sec" id="btn-elem-parent-sec" title="Select parent section">
+                      Jump to Section ➔
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Text Content Group -->
@@ -828,10 +873,22 @@
                 <!-- Typography Group -->
                 <div class="inspector-group">
                   <label class="group-label">Typography</label>
+                  <div class="prop-field" style="margin-bottom: 8px;">
+                    <span class="prop-sub-label">Font Family</span>
+                    <select id="prop-font-family" class="prop-select">
+                      <option value="inherit">Inherit / Default</option>
+                      <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
+                      <option value="'Inter', sans-serif">Inter</option>
+                      <option value="'Outfit', sans-serif">Outfit</option>
+                      <option value="'Playfair Display', serif">Playfair Display (Serif)</option>
+                      <option value="'Syne', sans-serif">Syne</option>
+                      <option value="monospace">Monospace</option>
+                    </select>
+                  </div>
                   <div class="prop-two-col">
                     <div>
                       <span class="prop-sub-label">Font Size</span>
-                      <input type="text" id="prop-font-size" class="prop-input" placeholder="e.g. 16px, 2rem">
+                      <input type="text" id="prop-font-size" class="prop-input" placeholder="e.g. 16px, 2.5rem">
                     </div>
                     <div>
                       <span class="prop-sub-label">Weight</span>
@@ -844,19 +901,55 @@
                       </select>
                     </div>
                   </div>
+                  <div style="margin-top: 8px;">
+                    <span class="prop-sub-label">Text Align</span>
+                    <div class="align-btn-group" id="elem-prop-align-group">
+                      <button type="button" class="align-btn active" data-align="left" title="Left Align">Left</button>
+                      <button type="button" class="align-btn" data-align="center" title="Center Align">Center</button>
+                      <button type="button" class="align-btn" data-align="right" title="Right Align">Right</button>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- Layout & Spacing -->
+                <!-- Spacing & Dimensions -->
                 <div class="inspector-group">
-                  <label class="group-label">Layout & Spacing</label>
+                  <label class="group-label">Spacing & Sizing</label>
                   <div class="prop-two-col">
                     <div>
                       <span class="prop-sub-label">Padding</span>
                       <input type="text" id="prop-padding" class="prop-input" placeholder="e.g. 12px 24px">
                     </div>
                     <div>
+                      <span class="prop-sub-label">Margin</span>
+                      <input type="text" id="prop-margin" class="prop-input" placeholder="e.g. 0 0 16px">
+                    </div>
+                  </div>
+                  <div class="prop-two-col" style="margin-top: 8px;">
+                    <div>
                       <span class="prop-sub-label">Radius</span>
                       <input type="text" id="prop-border-radius" class="prop-input" placeholder="e.g. 12px, 9999px">
+                    </div>
+                    <div>
+                      <span class="prop-sub-label">Width</span>
+                      <input type="text" id="prop-width" class="prop-input" placeholder="e.g. 100%, 320px">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Border & Outline -->
+                <div class="inspector-group">
+                  <label class="group-label">Border & Stroke</label>
+                  <div class="prop-two-col">
+                    <div>
+                      <span class="prop-sub-label">Border Width</span>
+                      <input type="text" id="prop-border-width" class="prop-input" placeholder="e.g. 1px, 2px">
+                    </div>
+                    <div>
+                      <span class="prop-sub-label">Border Color</span>
+                      <div class="color-picker-wrap">
+                        <input type="color" id="prop-border-color" class="color-input" value="#3b82f6">
+                        <span class="color-hex-label" id="label-border-color">#3b82f6</span>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -20,6 +20,9 @@
     historyIndex: -1,
     activeViewport: 'desktop', // 'desktop' | 'tablet' | 'mobile'
     editorMode: 'edit',        // 'edit' | 'preview'
+    saveStatus: 'saved',       // 'saved' | 'unsaved' | 'saving'
+    zoomScale: 1,
+    refinementScope: 'project',// 'project' | 'section' | 'element'
     selectedElementData: null,
     selectedSectionId: null,
     inViewSectionId: null,
@@ -47,10 +50,13 @@
       // Top Toolbar
       projectTitleInput: document.getElementById('builder-project-title-input'),
       statusPill: document.getElementById('builder-status-pill'),
+      saveStatusEl: document.getElementById('builder-save-status'),
+      saveStatusText: document.getElementById('save-status-text'),
       btnTogglePromptPanel: document.getElementById('btn-toggle-prompt-panel'),
       btnVpDesktop: document.getElementById('btn-vp-desktop'),
       btnVpTablet: document.getElementById('btn-vp-tablet'),
       btnVpMobile: document.getElementById('btn-vp-mobile'),
+      zoomSelect: document.getElementById('builder-zoom-select'),
       btnInteractiveMode: document.getElementById('btn-builder-interactive-mode'),
       modeIcon: document.getElementById('builder-mode-icon'),
       modeLabel: document.getElementById('builder-mode-label'),
@@ -75,10 +81,17 @@
 
       // Sections Panel
       sectionsList: document.getElementById('builder-sections-list'),
+      sectionsCountBadge: document.getElementById('sections-count-badge'),
       btnRefreshTree: document.getElementById('btn-builder-refresh-tree'),
       btnAddSectionOpen: document.getElementById('btn-add-section-open'),
 
-      // Refinement Bar
+      // Multi-Scope Refinement Bar
+      scopeBtnProject: document.getElementById('scope-btn-project'),
+      scopeBtnSection: document.getElementById('scope-btn-section'),
+      scopeBtnElement: document.getElementById('scope-btn-element'),
+      scopeSectionPill: document.getElementById('scope-section-pill'),
+      scopeElementPill: document.getElementById('scope-element-pill'),
+      refineChipsContainer: document.getElementById('refine-chips-container'),
       refineInput: document.getElementById('builder-refine-input'),
       btnRefineSubmit: document.getElementById('btn-refine-submit'),
       btnRefineRegen: document.getElementById('btn-refine-regen'),
@@ -129,6 +142,7 @@
 
       // Element Properties Inspector
       inspectorElemBadge: document.getElementById('inspector-elem-badge'),
+      btnElemParentSec: document.getElementById('btn-elem-parent-sec'),
       inspectorEmpty: document.getElementById('inspector-empty'),
       inspectorForm: document.getElementById('inspector-form'),
       propTextContent: document.getElementById('prop-text-content'),
@@ -136,10 +150,17 @@
       labelTextColor: document.getElementById('label-text-color'),
       propBgColor: document.getElementById('prop-bg-color'),
       labelBgColor: document.getElementById('label-bg-color'),
+      propFontFamily: document.getElementById('prop-font-family'),
       propFontSize: document.getElementById('prop-font-size'),
       propFontWeight: document.getElementById('prop-font-weight'),
+      elemAlignButtons: document.querySelectorAll('#elem-prop-align-group .align-btn'),
       propPadding: document.getElementById('prop-padding'),
+      propMargin: document.getElementById('prop-margin'),
       propBorderRadius: document.getElementById('prop-border-radius'),
+      propWidth: document.getElementById('prop-width'),
+      propBorderWidth: document.getElementById('prop-border-width'),
+      propBorderColor: document.getElementById('prop-border-color'),
+      labelBorderColor: document.getElementById('label-border-color'),
       groupImageSrc: document.getElementById('group-image-src'),
       propImgSrc: document.getElementById('prop-img-src'),
       groupLinkHref: document.getElementById('group-link-href'),
@@ -221,6 +242,91 @@
     }
   }
 
+  function setZoom(zoomVal) {
+    state.zoomScale = zoomVal;
+    if (!el.deviceFrame) return;
+
+    if (zoomVal === 'fit') {
+      const container = el.canvasWrapper;
+      if (container) {
+        const cWidth = container.clientWidth - 40;
+        const targetWidth = state.activeViewport === 'desktop' ? 1200 : (state.activeViewport === 'tablet' ? 768 : 375);
+        const fitScale = Math.min(1, Math.max(0.4, cWidth / targetWidth));
+        el.deviceFrame.style.transform = `scale(${fitScale.toFixed(2)})`;
+        el.deviceFrame.style.transformOrigin = 'top center';
+      }
+    } else {
+      const scaleNum = parseFloat(zoomVal) || 1;
+      el.deviceFrame.style.transform = scaleNum === 1 ? 'none' : `scale(${scaleNum})`;
+      el.deviceFrame.style.transformOrigin = 'top center';
+    }
+  }
+
+  function setSaveStatus(status) {
+    state.saveStatus = status;
+    if (!el.saveStatusEl || !el.saveStatusText) return;
+
+    el.saveStatusEl.classList.remove('saved', 'unsaved', 'saving');
+    el.saveStatusEl.classList.add(status);
+
+    if (status === 'saved') {
+      el.saveStatusText.textContent = 'Saved';
+    } else if (status === 'unsaved') {
+      el.saveStatusText.textContent = 'Unsaved';
+    } else if (status === 'saving') {
+      el.saveStatusText.textContent = 'Saving...';
+    }
+  }
+
+  function setRefinementScope(scope) {
+    state.refinementScope = scope;
+    if (el.scopeBtnProject) el.scopeBtnProject.classList.toggle('active', scope === 'project');
+    if (el.scopeBtnSection) el.scopeBtnSection.classList.toggle('active', scope === 'section');
+    if (el.scopeBtnElement) el.scopeBtnElement.classList.toggle('active', scope === 'element');
+
+    // Update chips based on scope
+    updateRefinementChips(scope);
+  }
+
+  function updateRefinementChips(scope) {
+    if (!el.refineChipsContainer) return;
+
+    let chipsHtml = '';
+    if (scope === 'section') {
+      const secName = state.currentProject?.sections?.find(s => s.id === state.selectedSectionId)?.name || 'this section';
+      chipsHtml = `
+        <button type="button" class="refine-chip" data-prompt="Make this section more premium and modern">✨ Make Premium</button>
+        <button type="button" class="refine-chip" data-prompt="Change the background of this section to black">🎨 Dark Background</button>
+        <button type="button" class="refine-chip" data-prompt="Add three modern cards to this section">🍱 Add 3 Cards</button>
+        <button type="button" class="refine-chip" data-prompt="Make this section responsive and polished on mobile">📱 Mobile Polish</button>
+      `;
+    } else if (scope === 'element') {
+      const tag = state.selectedElementData?.tagName?.toUpperCase() || 'ELEMENT';
+      chipsHtml = `
+        <button type="button" class="refine-chip" data-prompt="Make this ${tag.toLowerCase()} bolder with glowing orange highlight">✨ Glow & Pop</button>
+        <button type="button" class="refine-chip" data-prompt="Make this ${tag.toLowerCase()} uppercase with tracking">🔤 Bold Uppercase</button>
+        <button type="button" class="refine-chip" data-prompt="Add subtle smooth hover elevation animation">⚡ Hover Elevation</button>
+      `;
+    } else {
+      chipsHtml = `
+        <button type="button" class="refine-chip" data-prompt="Change the color palette to black and orange with athletic vibes">🎨 Black & Orange Theme</button>
+        <button type="button" class="refine-chip" data-prompt="Make the whole design modern dark luxury with glassmorphism cards">✨ Dark Luxury Glass</button>
+        <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing">❓ Add FAQ Accordion</button>
+        <button type="button" class="refine-chip" data-prompt="Make the mobile layout and navigation super smooth and responsive">📱 Polish Mobile Layout</button>
+        <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects">⚡ Micro-Animations</button>
+      `;
+    }
+
+    el.refineChipsContainer.innerHTML = chipsHtml;
+    // Rebind chips
+    el.refineChipsContainer.querySelectorAll('.refine-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const prompt = chip.getAttribute('data-prompt');
+        if (prompt) refineDesign(prompt);
+      });
+    });
+  }
+
   function toggleFullPageMode() {
     state.isFullPageMode = !state.isFullPageMode;
     if (el.btnFullpage) {
@@ -237,17 +343,18 @@
   }
 
   // ==========================================================================
-  // Interactive Mode Toggle (Edit vs Preview)
+  // Interactive Mode Toggle (Design vs Preview)
   // ==========================================================================
   function setEditorMode(mode) {
     state.editorMode = mode;
     const isEdit = mode === 'edit';
 
     if (el.btnInteractiveMode) {
+      el.btnInteractiveMode.classList.toggle('active-design', isEdit);
       el.btnInteractiveMode.classList.toggle('active-preview', !isEdit);
     }
     if (el.modeIcon) el.modeIcon.textContent = isEdit ? '✏️' : '👁️';
-    if (el.modeLabel) el.modeLabel.textContent = isEdit ? 'Edit Mode' : 'Preview Mode';
+    if (el.modeLabel) el.modeLabel.textContent = isEdit ? 'Design Mode' : 'Preview Mode';
 
     // Broadcast mode to sandboxed iframe
     if (el.iframe && el.iframe.contentWindow) {
@@ -259,6 +366,9 @@
 
     if (!isEdit) {
       hideInspector();
+      showToastNotification('👁️ Preview Mode: Direct interactions & links enabled');
+    } else {
+      showToastNotification('✏️ Design Mode: Click any element or section to inspect');
     }
   }
 
@@ -463,6 +573,9 @@
       outline: 1px dashed #38bdf8 !important;
       outline-offset: 2px !important;
     }
+    .pixelcraft-section-hidden {
+      display: none !important;
+    }
 
     /* Generated Stylesheet */
     ${project.css || ''}
@@ -477,6 +590,22 @@
       let isEditorMode = true;
       let selectedElement = null;
       let selectedSectionEl = null;
+
+      // Hover listener for preview outline
+      document.body.addEventListener('mouseover', function(e) {
+        if (!isEditorMode) return;
+        const target = e.target.closest('h1, h2, h3, h4, p, a, button, img, section, div.card, div.pricing-card, [data-section]');
+        if (target && target !== selectedElement) {
+          target.setAttribute('data-pixelcraft-hover', 'true');
+        }
+      }, true);
+
+      document.body.addEventListener('mouseout', function(e) {
+        const target = e.target.closest('[data-pixelcraft-hover="true"]');
+        if (target) {
+          target.removeAttribute('data-pixelcraft-hover');
+        }
+      }, true);
 
       // Handle element and section selection
       document.body.addEventListener('click', function(e) {
@@ -512,11 +641,15 @@
             styles: {
               color: computed.color,
               backgroundColor: computed.backgroundColor,
+              fontFamily: computed.fontFamily,
               fontSize: computed.fontSize,
               fontWeight: computed.fontWeight,
               borderRadius: computed.borderRadius,
               padding: computed.padding,
               margin: computed.margin,
+              width: computed.width,
+              borderWidth: computed.borderWidth,
+              borderColor: computed.borderColor,
               textAlign: computed.textAlign
             }
           }
@@ -583,6 +716,21 @@
             type: 'PIXELCRAFT_HTML_UPDATED',
             html: document.body.innerHTML
           }, '*');
+        }
+
+        if (data.type === 'PIXELCRAFT_TOGGLE_SECTION_VISIBILITY' && data.sectionId) {
+          const sec = document.getElementById(data.sectionId) || document.querySelector('[data-section="' + data.sectionId + '"]');
+          if (sec) {
+            if (data.visible === false || (data.visible === undefined && !sec.classList.contains('pixelcraft-section-hidden'))) {
+              sec.classList.add('pixelcraft-section-hidden');
+            } else {
+              sec.classList.remove('pixelcraft-section-hidden');
+            }
+            window.parent.postMessage({
+              type: 'PIXELCRAFT_HTML_UPDATED',
+              html: document.body.innerHTML
+            }, '*');
+          }
         }
 
         if (data.type === 'PIXELCRAFT_SELECT_SECTION' && data.sectionId) {
@@ -791,6 +939,10 @@
     if (!el.sectionsList) return;
     el.sectionsList.innerHTML = '';
 
+    if (el.sectionsCountBadge) {
+      el.sectionsCountBadge.textContent = `${(sections || []).length} ${(sections || []).length === 1 ? 'Section' : 'Sections'}`;
+    }
+
     if (!sections || sections.length === 0) {
       el.sectionsList.innerHTML = '<li class="section-tree-item empty">No sections loaded</li>';
       return;
@@ -821,6 +973,16 @@
         li.classList.add('active');
       }
 
+      // Check if section is hidden in project html
+      const isHidden = state.currentProject?.html ? (
+        new RegExp(`id=["']${sec.id}["'][^>]*class=["'][^"']*pixelcraft-section-hidden`, 'i').test(state.currentProject.html) ||
+        new RegExp(`class=["'][^"']*pixelcraft-section-hidden[^"']*["'][^>]*id=["']${sec.id}["']`, 'i').test(state.currentProject.html)
+      ) : false;
+
+      if (isHidden) {
+        li.classList.add('is-hidden');
+      }
+
       const icon = typeIcons[sec.type] || typeIcons.default;
       const isFirst = idx === 0;
       const isLast = idx === sections.length - 1;
@@ -832,6 +994,7 @@
         <span class="sec-tree-name" title="${escapeHtml(sec.name)}">${escapeHtml(sec.name)}</span>
         ${isInView ? '<span class="sec-in-view-badge" title="Currently visible in preview">👁️ In view</span>' : ''}
         <div class="sec-tree-actions">
+          <button type="button" class="sec-action-btn btn-sec-visibility" title="${isHidden ? 'Show Section' : 'Hide Section'}">${isHidden ? '👁️‍🗨️' : '👁️'}</button>
           <button type="button" class="sec-action-btn btn-sec-up" title="Move Section Up" ${isFirst ? 'disabled' : ''}>▲</button>
           <button type="button" class="sec-action-btn btn-sec-down" title="Move Section Down" ${isLast ? 'disabled' : ''}>▼</button>
           <button type="button" class="sec-action-btn btn-sec-rename" title="Rename Section">✏️</button>
@@ -844,6 +1007,15 @@
         if (e.target.closest('.sec-action-btn')) return;
         selectSection(sec.id);
       });
+
+      // Visibility Toggle
+      const btnVis = li.querySelector('.btn-sec-visibility');
+      if (btnVis) {
+        btnVis.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleSectionVisibility(sec.id, sec.name);
+        });
+      }
 
       // Move Up
       const btnUp = li.querySelector('.btn-sec-up');
@@ -885,6 +1057,47 @@
     });
   }
 
+  function toggleSectionVisibility(sectionId, secName) {
+    if (!state.currentProject || !state.currentProject.html) return;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(state.currentProject.html, 'text/html');
+    const targetEl = doc.getElementById(sectionId) || doc.querySelector(`[data-section="${sectionId}"]`);
+    if (!targetEl) return;
+
+    const isCurrentlyHidden = targetEl.classList.contains('pixelcraft-section-hidden');
+    let newlyHidden = false;
+    if (isCurrentlyHidden) {
+      targetEl.classList.remove('pixelcraft-section-hidden');
+      newlyHidden = false;
+    } else {
+      targetEl.classList.add('pixelcraft-section-hidden');
+      newlyHidden = true;
+    }
+
+    state.currentProject.html = doc.body.innerHTML;
+
+    // Notify iframe
+    if (el.iframe && el.iframe.contentWindow) {
+      el.iframe.contentWindow.postMessage({
+        type: 'PIXELCRAFT_TOGGLE_SECTION_VISIBILITY',
+        sectionId: sectionId,
+        visible: !newlyHidden
+      }, '*');
+    }
+
+    // Update section tree
+    renderSectionsTree(state.currentProject.sections || []);
+
+    setSaveStatus('unsaved');
+    try {
+      localStorage.setItem('pixelcraft_current_project', JSON.stringify(state.currentProject));
+      setSaveStatus('saved');
+    } catch (_) {}
+
+    showToastNotification(newlyHidden ? `👁️‍🗨️ Hidden "${secName || sectionId}" section` : `👁️ Shown "${secName || sectionId}" section`);
+  }
+
   // ==========================================================================
   // Section Selection & Inspector Synchronization (Requirement 3 & 4)
   // ==========================================================================
@@ -896,6 +1109,16 @@
     document.querySelectorAll('.section-tree-item').forEach(item => {
       item.classList.toggle('active', item.getAttribute('data-section-id') === sectionId);
     });
+
+    // Update scope section pill in Refinement bar
+    if (el.scopeSectionPill) {
+      el.scopeSectionPill.textContent = `#${sectionId}`;
+      el.scopeSectionPill.style.display = 'inline-flex';
+    }
+
+    if (state.refinementScope === 'section') {
+      updateRefinementChips('section');
+    }
 
     // Switch inspector to Section Tab
     switchInspectorTab('section');
@@ -1421,6 +1644,9 @@
   function handleElementSelected(elemData) {
     state.selectedElementData = elemData;
 
+    // Switch inspector to Element Tab
+    switchInspectorTab('element');
+
     if (el.inspectorEmpty) el.inspectorEmpty.style.display = 'none';
     if (el.inspectorForm) el.inspectorForm.style.display = 'block';
 
@@ -1428,12 +1654,30 @@
       el.inspectorElemBadge.textContent = elemData.tagName + (elemData.className ? '.' + elemData.className.split(' ')[0] : '');
     }
 
+    // Parent section jump button
+    if (el.btnElemParentSec) {
+      el.btnElemParentSec.style.display = elemData.parentSectionId ? 'inline-flex' : 'none';
+      if (elemData.parentSectionId) {
+        el.btnElemParentSec.title = `Jump to parent section (#${elemData.parentSectionId})`;
+      }
+    }
+
+    // Update element pill in refinement bar
+    if (el.scopeElementPill) {
+      el.scopeElementPill.textContent = `<${elemData.tagName.toLowerCase()}>`;
+      el.scopeElementPill.style.display = 'inline-flex';
+    }
+
+    if (state.refinementScope === 'element') {
+      updateRefinementChips('element');
+    }
+
     // Text content
     if (el.propTextContent) {
       el.propTextContent.value = elemData.textContent || '';
     }
 
-    // Colors
+    // Colors & Typography & Layout
     if (elemData.styles) {
       if (el.propTextColor && elemData.styles.color) {
         const hex = rgbToHex(elemData.styles.color);
@@ -1449,17 +1693,51 @@
           if (el.labelBgColor) el.labelBgColor.textContent = hex;
         }
       }
+      if (el.propFontFamily && elemData.styles.fontFamily) {
+        const cleanFont = elemData.styles.fontFamily.replace(/['"]/g, '').split(',')[0].trim();
+        let matched = false;
+        for (const opt of el.propFontFamily.options) {
+          if (opt.value && cleanFont.toLowerCase().includes(opt.value.toLowerCase())) {
+            el.propFontFamily.value = opt.value;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) el.propFontFamily.value = 'inherit';
+      }
       if (el.propFontSize) {
         el.propFontSize.value = elemData.styles.fontSize || '';
       }
       if (el.propFontWeight) {
         el.propFontWeight.value = elemData.styles.fontWeight || '400';
       }
+      if (el.elemAlignButtons) {
+        const align = elemData.styles.textAlign || 'left';
+        el.elemAlignButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-align') === align);
+        });
+      }
       if (el.propPadding) {
         el.propPadding.value = elemData.styles.padding || '';
       }
+      if (el.propMargin) {
+        el.propMargin.value = elemData.styles.margin || '';
+      }
       if (el.propBorderRadius) {
         el.propBorderRadius.value = elemData.styles.borderRadius || '';
+      }
+      if (el.propWidth) {
+        el.propWidth.value = elemData.styles.width || '';
+      }
+      if (el.propBorderWidth) {
+        el.propBorderWidth.value = elemData.styles.borderWidth || '';
+      }
+      if (el.propBorderColor && elemData.styles.borderColor) {
+        const hex = rgbToHex(elemData.styles.borderColor);
+        if (hex) {
+          el.propBorderColor.value = hex;
+          if (el.labelBorderColor) el.labelBorderColor.textContent = hex;
+        }
       }
     }
 
@@ -1503,6 +1781,7 @@
   async function generateDesign(userPrompt) {
     if (state.isGenerating || !userPrompt.trim()) return;
     state.isGenerating = true;
+    setSaveStatus('saving');
 
     if (el.originalPromptInput) {
       el.originalPromptInput.value = userPrompt;
@@ -1539,12 +1818,15 @@
       const data = await response.json();
       if (response.ok && data.success && data.project) {
         loadProject(data.project, true);
+        setSaveStatus('saved');
         showToastNotification('🎉 Design generated successfully!');
       } else {
+        setSaveStatus('saved');
         alert(data.error || 'Failed to generate design. Please try again.');
       }
     } catch (err) {
       console.error('Generation error:', err);
+      setSaveStatus('saved');
       alert('Network error connecting to design generator. Please verify connection.');
     } finally {
       state.isGenerating = false;
@@ -1559,6 +1841,7 @@
     }
 
     state.isGenerating = true;
+    setSaveStatus('saving');
     showLoadingOverlay(true, 'Applying modifications...', 'Interpreting instructions and refining components');
 
     try {
@@ -1566,25 +1849,40 @@
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
+      const payload = {
+        prompt: deltaPrompt.trim(),
+        currentProject: state.currentProject,
+        scope: state.refinementScope || 'project'
+      };
+
+      if (state.refinementScope === 'section' && state.selectedSectionId) {
+        payload.targetSectionId = state.selectedSectionId;
+      } else if (state.refinementScope === 'element' && state.selectedElementData) {
+        payload.targetElement = state.selectedElementData;
+        if (state.selectedElementData.parentSectionId) {
+          payload.targetSectionId = state.selectedElementData.parentSectionId;
+        }
+      }
+
       const response = await fetch('/api/builder/refine', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          prompt: deltaPrompt.trim(),
-          currentProject: state.currentProject
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
       if (response.ok && data.success && data.project) {
         loadProject(data.project, true);
         if (el.refineInput) el.refineInput.value = '';
+        setSaveStatus('saved');
         showToastNotification(data.project.lastChangeSummary || '✨ Design updated successfully!');
       } else {
+        setSaveStatus('saved');
         alert(data.error || 'Failed to apply design modification.');
       }
     } catch (err) {
       console.error('Refinement error:', err);
+      setSaveStatus('saved');
       alert('Network error updating design. Please retry.');
     } finally {
       state.isGenerating = false;
@@ -2274,6 +2572,16 @@ Generated with PixelCraft AI Studio.
     if (el.btnVpTablet) el.btnVpTablet.addEventListener('click', () => setViewport('tablet'));
     if (el.btnVpMobile) el.btnVpMobile.addEventListener('click', () => setViewport('mobile'));
     if (el.btnFullpage) el.btnFullpage.addEventListener('click', toggleFullPageMode);
+    if (el.zoomSelect) {
+      el.zoomSelect.addEventListener('change', () => {
+        setZoom(el.zoomSelect.value);
+      });
+    }
+
+    // Refinement Scope Selectors
+    if (el.scopeBtnProject) el.scopeBtnProject.addEventListener('click', () => setRefinementScope('project'));
+    if (el.scopeBtnSection) el.scopeBtnSection.addEventListener('click', () => setRefinementScope('section'));
+    if (el.scopeBtnElement) el.scopeBtnElement.addEventListener('click', () => setRefinementScope('element'));
 
     // Mode Toggle
     if (el.btnInteractiveMode) {
@@ -2572,6 +2880,61 @@ Generated with PixelCraft AI Studio.
     if (el.propLinkHref) {
       el.propLinkHref.addEventListener('change', () => {
         dispatchElementStyleUpdate({ href: el.propLinkHref.value });
+      });
+    }
+
+    // Parent Section Jump Button
+    if (el.btnElemParentSec) {
+      el.btnElemParentSec.addEventListener('click', () => {
+        if (state.selectedElementData?.parentSectionId) {
+          selectSection(state.selectedElementData.parentSectionId);
+        }
+      });
+    }
+
+    // Typography: Font Family
+    if (el.propFontFamily) {
+      el.propFontFamily.addEventListener('change', () => {
+        dispatchElementStyleUpdate({ styles: { fontFamily: el.propFontFamily.value } });
+      });
+    }
+
+    // Alignment Buttons
+    if (el.elemAlignButtons) {
+      el.elemAlignButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          el.elemAlignButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          dispatchElementStyleUpdate({ styles: { textAlign: btn.getAttribute('data-align') || 'left' } });
+        });
+      });
+    }
+
+    // Spacing & Dimensions
+    if (el.propMargin) {
+      el.propMargin.addEventListener('change', () => {
+        dispatchElementStyleUpdate({ styles: { margin: el.propMargin.value } });
+      });
+    }
+
+    if (el.propWidth) {
+      el.propWidth.addEventListener('change', () => {
+        dispatchElementStyleUpdate({ styles: { width: el.propWidth.value } });
+      });
+    }
+
+    // Borders & Outlines
+    if (el.propBorderWidth) {
+      el.propBorderWidth.addEventListener('change', () => {
+        dispatchElementStyleUpdate({ styles: { borderWidth: el.propBorderWidth.value, borderStyle: 'solid' } });
+      });
+    }
+
+    if (el.propBorderColor) {
+      el.propBorderColor.addEventListener('input', () => {
+        const val = el.propBorderColor.value;
+        if (el.labelBorderColor) el.labelBorderColor.textContent = val;
+        dispatchElementStyleUpdate({ styles: { borderColor: val } });
       });
     }
 
