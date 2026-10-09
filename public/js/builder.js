@@ -43,6 +43,7 @@
       // Top Toolbar
       projectTitleInput: document.getElementById('builder-project-title-input'),
       statusPill: document.getElementById('builder-status-pill'),
+      btnTogglePromptPanel: document.getElementById('btn-toggle-prompt-panel'),
       btnVpDesktop: document.getElementById('btn-vp-desktop'),
       btnVpTablet: document.getElementById('btn-vp-tablet'),
       btnVpMobile: document.getElementById('btn-vp-mobile'),
@@ -54,7 +55,12 @@
       btnCodeModal: document.getElementById('btn-builder-code'),
       btnExportModal: document.getElementById('btn-builder-export'),
 
-      // Canvas & Device Frame
+      // Canvas, Device Frame & Prompt Direction Card
+      promptCard: document.getElementById('builder-prompt-card'),
+      btnPromptToggle: document.getElementById('btn-prompt-toggle'),
+      originalPromptInput: document.getElementById('builder-original-prompt-input'),
+      btnPromptOptimize: document.getElementById('btn-prompt-optimize'),
+      btnPromptUpdate: document.getElementById('btn-prompt-update'),
       deviceFrame: document.getElementById('builder-device-frame'),
       viewportDimensionBadge: document.getElementById('viewport-dimension-badge'),
       iframe: document.getElementById('builder-iframe'),
@@ -265,6 +271,11 @@
 
     // Populate Layers tree
     renderSectionsTree(project.sections || []);
+
+    // Synchronize Original Prompt field
+    if (el.originalPromptInput && project.originalPrompt) {
+      el.originalPromptInput.value = project.originalPrompt;
+    }
 
     // Bundle HTML document & set iframe srcdoc
     const docHtml = bundleDocumentHtml(project);
@@ -581,6 +592,11 @@
   async function generateDesign(userPrompt) {
     if (state.isGenerating || !userPrompt.trim()) return;
     state.isGenerating = true;
+
+    if (el.originalPromptInput) {
+      el.originalPromptInput.value = userPrompt;
+    }
+
     showLoadingOverlay(true, 'Analysing your prompt...', 'Understanding requirements, style, and structure');
 
     try {
@@ -1051,9 +1067,89 @@ Generated with PixelCraft AI Studio.
   }
 
   // ==========================================================================
+  // Prompt Optimization Engine
+  // ==========================================================================
+  function optimizePromptText(rawPrompt) {
+    const p = (rawPrompt || '').toLowerCase();
+    let optimized = rawPrompt;
+
+    if (/gym|fitness|workout|crossfit|athlet/i.test(p)) {
+      optimized = "Create a premium athletic gym & performance fitness website with bold black and vibrant orange theme. Include a sticky navigation bar with trial pass CTA, high-converting hero section with headline 'Transform Your Ambitions Into Reality', interactive training programs bento grid (HIIT, Strength & Conditioning, Hydro-Recovery), elite trainer coach profiles, 3-tier membership pricing cards with monthly/annual billing switch, member transformations testimonials, interactive free trial pass booking form, and comprehensive footer. Mobile-first responsive with smooth micro-animations.";
+    } else if (/restaurant|cafe|food|dining|bistro|menu/i.test(p)) {
+      optimized = "Design an exquisite culinary restaurant & cocktail lounge website with dark obsidian and warm amber gold palette. Features: elegant sticky navbar, hero section with 'Artisanal Flavors & Culinary Mastery' and table booking CTA, chef's seasonal tasting menu showcase, private dining experience story, interactive table reservation form, guest reviews, and complete contact details. Fluid typography and luxury editorial aesthetic.";
+    } else if (/portfolio|developer|designer|resume/i.test(p)) {
+      optimized = "Craft a cutting-edge creative developer and designer portfolio with deep graphite background and luminous emerald accents. Features: sleek header with status pill, dynamic hero section with bio and resume download, interactive bento grid of featured production projects, interactive technical skills taxonomy, client testimonials carousel, and direct project inquiry contact form.";
+    } else if (/saas|cloud|software|analytics|startup/i.test(p)) {
+      optimized = "Build a high-converting, modern SaaS product landing page with deep space indigo surfaces and cyan glow. Features: sticky navbar with demo CTA, luminous hero with bento product mockup, interactive feature tabs, live platform metrics ticker, 3-tier pricing table with monthly/yearly discount switch, enterprise customer social proof, and smooth responsive hamburger navigation.";
+    } else if (/ecommerce|store|shop|fashion/i.test(p)) {
+      optimized = "Generate a luxury editorial e-commerce storefront with modern typography and clean minimalist layout. Features: category navigation with cart badge, hero promotion banner, curated product collection bento grid, craftsmanship highlights, customer reviews, and newsletter sign-up strip.";
+    } else {
+      optimized = `Create a state-of-the-art web application for "${rawPrompt}". Modern dark mode with luminous accents, clean bento grid layout, responsive navigation, interactive feature components, value pricing section, authentic testimonials, and accessible mobile-friendly UX.`;
+    }
+
+    if (el.originalPromptInput) {
+      el.originalPromptInput.value = optimized;
+      el.originalPromptInput.focus();
+    }
+    showToastNotification('✨ Prompt optimized with professional specifications!');
+  }
+
+  // ==========================================================================
   // Event Bindings
   // ==========================================================================
   function setupEvents() {
+    // Original Prompt Direction Panel Bindings
+    if (el.btnTogglePromptPanel) {
+      el.btnTogglePromptPanel.addEventListener('click', () => {
+        if (el.promptCard) {
+          el.promptCard.classList.toggle('collapsed');
+          if (!el.promptCard.classList.contains('collapsed')) {
+            el.originalPromptInput?.focus();
+          }
+        }
+      });
+    }
+
+    if (el.btnPromptToggle) {
+      el.btnPromptToggle.addEventListener('click', () => {
+        if (el.promptCard) {
+          const isCollapsed = el.promptCard.classList.toggle('collapsed');
+          el.btnPromptToggle.textContent = isCollapsed ? '▼ Show Prompt' : '▲ Hide';
+        }
+      });
+    }
+
+    if (el.btnPromptOptimize) {
+      el.btnPromptOptimize.addEventListener('click', () => {
+        const raw = el.originalPromptInput ? el.originalPromptInput.value.trim() : '';
+        if (raw) {
+          optimizePromptText(raw);
+        } else {
+          showToastNotification('Please enter a prompt to optimize');
+        }
+      });
+    }
+
+    if (el.btnPromptUpdate) {
+      el.btnPromptUpdate.addEventListener('click', () => {
+        const prompt = el.originalPromptInput ? el.originalPromptInput.value.trim() : '';
+        if (prompt) {
+          generateDesign(prompt);
+        } else {
+          alert('Prompt cannot be empty.');
+        }
+      });
+    }
+
+    if (el.originalPromptInput) {
+      el.originalPromptInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          const prompt = el.originalPromptInput.value.trim();
+          if (prompt) generateDesign(prompt);
+        }
+      });
+    }
     // Mode Switchers
     if (el.btnModeChat) el.btnModeChat.addEventListener('click', () => setWorkspaceMode('chat'));
     if (el.btnModeStudio) el.btnModeStudio.addEventListener('click', () => setWorkspaceMode('studio'));

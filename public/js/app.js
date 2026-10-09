@@ -3328,58 +3328,87 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // 2. Check if prompt is a website / UI design creation request (English, Tamil, Tanglish)
-      const lowerText = text.toLowerCase();
-      const designTriggers = [
-        'website', 'landing page', 'portfolio', 'dashboard', 'ecommerce', 'store',
-        'gym website', 'restaurant website', 'app ui', 'create website', 'build website',
-        'make website', 'design website', 'pannu', 'venum', 'mari design', 'hero section',
-        'pricing table', 'admin panel', 'saas page'
-      ];
-      const isDesignCreation = designTriggers.some(t => lowerText.includes(t));
+      function isDesignIntent(prompt) {
+        if (!prompt || typeof prompt !== 'string') return false;
+        const p = prompt.trim().toLowerCase();
+
+        // 1. Explicit negative exclusion: ordinary factual or general conversational questions
+        const nonDesignPatterns = [
+          /^explain\s+(?!how to (?:create|build|make|design)\b)/i,
+          /^(?:what|who|why|when|where)\s+is\b/i,
+          /^(?:what|who|why|when|where)\s+are\b/i,
+          /^define\s+/i,
+          /^tell me about\b/i,
+          /^summarize\b/i,
+          /^translate\b/i,
+          /^write (?:an essay|a poem|a letter|a story|an email)\b/i
+        ];
+
+        const isExplicitExclusion = nonDesignPatterns.some(pattern => pattern.test(p));
+        if (isExplicitExclusion && !p.includes('website') && !p.includes('landing page') && !p.includes('ui/ux') && !p.includes('dashboard')) {
+          return false;
+        }
+
+        // 2. English creation patterns:
+        const creationActionRegex = /\b(create|build|make|design|generate|develop|redesign|revamp|code|craft|need|want|setup)\b/i;
+        const webTargetRegex = /\b(website|web site|site|webpage|landing page|portfolio|dashboard|ecommerce|e-commerce|storefront|online store|app ui|ui\/ux|user interface|hero section|pricing table|pricing section|admin panel|saas page|web app|mockup)\b/i;
+
+        if (creationActionRegex.test(p) && webTargetRegex.test(p)) {
+          return true;
+        }
+
+        // 3. Direct domain website compounds:
+        const domainCompoundRegex = /\b(gym|fitness|workout|restaurant|cafe|bistro|portfolio|developer|saas|agency|ecommerce|store|shop|doctor|clinic|hotel|travel|real estate|crypto|finance|startup)\s+(website|web site|site|landing page|ui|page)\b/i;
+        if (domainCompoundRegex.test(p)) {
+          return true;
+        }
+
+        // 4. Tamil & Tanglish creation triggers:
+        const tanglishRegex = /\b(oru|indha|andha|enaku|namaku)\b.*\b(website|design|page|ui|portfolio|store)\b/i;
+        const tanglishActionRegex = /\b(website|landing page|design|hero|navbar|theme|portfolio|ui)\b.*\b(pannu|venum|mathu|kudu|thayaar|sey|mari)\b/i;
+        const tanglishThemeRegex = /\b(theme\s*la|theme\s*il|oda)\b/i;
+
+        if (tanglishRegex.test(p) || tanglishActionRegex.test(p) || (tanglishThemeRegex.test(p) && webTargetRegex.test(p))) {
+          return true;
+        }
+
+        // 5. Section / visual design refinement patterns:
+        const refinementRegex = /\b(only change|change|modify|update|improve|redesign|replace|make)\b.*\b(hero|navbar|section|colors?|theme|accent|font|button|pricing|header|footer|cards?|layout|bento)\b/i;
+        const tanglishRefineRegex = /\b(mattum|touch panna|mathu|change pannu)\b/i;
+        if (refinementRegex.test(p) || (tanglishRefineRegex.test(p) && (webTargetRegex.test(p) || /hero|navbar|section|color|theme/i.test(p)))) {
+          return true;
+        }
+
+        return false;
+      }
+
+      const isDesignCreation = isDesignIntent(text);
 
       if (isDesignCreation && window.PixelCraftBuilder) {
-        try {
-          const builderRes = await fetch('/api/builder/generate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${activeToken}`
-            },
-            body: JSON.stringify({ prompt: text })
-          });
+        showTypingIndicator(false);
 
-          if (builderRes.ok) {
-            const bData = await builderRes.json();
-            if (bData.success && bData.project) {
-              showTypingIndicator(false);
-
-              // Render interactive Studio Card in chat stream
-              const cardHtml = `<!-- PIXELCRAFT_STUDIO_CARD -->
-<div class="chat-builder-card" id="card-${bData.project.id}">
-  <span class="card-badge">🎨 Visual Design Generated</span>
-  <h3>${escapeHtml(bData.project.title)}</h3>
-  <p>${escapeHtml(bData.project.designSpec?.summary || 'Interactive website design generated based on your requirements.')}</p>
-  <button type="button" class="btn-open-in-studio" onclick="window.PixelCraftBuilder.loadProject(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(bData.project))}')))">
+        // Render interactive Studio Card in chat stream so user can return anytime
+        const cardHtml = `<!-- PIXELCRAFT_STUDIO_CARD -->
+<div class="chat-builder-card">
+  <span class="card-badge">🎨 Visual Website & Design Studio</span>
+  <h3>Visual Design Workspace Active</h3>
+  <p>${escapeHtml(text)}</p>
+  <button type="button" class="btn-open-in-studio" onclick="window.PixelCraftBuilder.openStudio()">
     🚀 Open in Visual Studio ➔
   </button>
 </div>`;
 
-              const assistantRow = appendMessage('assistant', cardHtml, null, state.activePersona);
-              state.messages.push({ role: 'assistant', content: cardHtml });
+        const assistantRow = appendMessage('assistant', cardHtml, null, state.activePersona);
+        state.messages.push({ role: 'assistant', content: cardHtml });
 
-              // Seamlessly open the visual studio workspace so the user sees the actual interactive website
-              window.PixelCraftBuilder.loadProject(bData.project);
+        // Seamlessly open the visual studio workspace immediately so user sees the live rendered preview
+        window.PixelCraftBuilder.generateFromPrompt(text);
 
-              state.isGenerating = false;
-              elements.chatTextarea.disabled = false;
-              elements.btnSend.disabled = false;
-              elements.chatTextarea.focus();
-              return;
-            }
-          }
-        } catch (builderErr) {
-          console.warn('Builder dispatch fallback to standard chat:', builderErr);
-        }
+        state.isGenerating = false;
+        elements.chatTextarea.disabled = false;
+        elements.btnSend.disabled = false;
+        elements.chatTextarea.focus();
+        return;
       }
 
       // 3. Dispatch standard chat to backend POST /api/chat with Bearer Token

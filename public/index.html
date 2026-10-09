@@ -474,6 +474,9 @@
             <div class="builder-title-group">
               <input type="text" id="builder-project-title-input" class="builder-project-title-input" value="Untitled Project" title="Click to rename project" aria-label="Project Title" maxlength="60">
               <span class="builder-status-pill" id="builder-status-pill">Ready</span>
+              <button type="button" class="builder-btn-prompt-toggle" id="btn-toggle-prompt-panel" title="View & Edit Prompt">
+                💬 <span class="btn-text-label">Edit Prompt</span>
+              </button>
             </div>
           </div>
 
@@ -538,6 +541,29 @@
 
           <!-- Center Canvas -->
           <div class="builder-canvas-wrapper" id="builder-canvas-wrapper">
+            <!-- Prompt Direction Panel: Original Editable Prompt & AI Optimizer -->
+            <div class="builder-prompt-card" id="builder-prompt-card">
+              <div class="prompt-card-header">
+                <div class="prompt-card-title">
+                  <span class="prompt-icon">💡</span>
+                  <span class="prompt-label">Original Prompt (Editable)</span>
+                  <span class="prompt-hint">— Refine or optimize requirements to steer the generated design</span>
+                </div>
+                <div class="prompt-card-actions">
+                  <button type="button" class="btn-prompt-toggle" id="btn-prompt-toggle" title="Collapse / Expand Prompt Editor">▲ Hide</button>
+                </div>
+              </div>
+              <div class="prompt-card-body" id="prompt-card-body">
+                <div class="prompt-editor-row">
+                  <textarea id="builder-original-prompt-input" class="builder-original-prompt-input" rows="2" placeholder="e.g. create a gym website design with black and orange theme, trainer profiles, membership pricing..."></textarea>
+                  <div class="prompt-btn-group">
+                    <button type="button" class="btn-prompt-optimize" id="btn-prompt-optimize" title="AI expands and optimizes your prompt requirements">✨ AI Optimize</button>
+                    <button type="button" class="btn-prompt-update" id="btn-prompt-update" title="Regenerate website with updated prompt">⚡ Apply & Regenerate</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Viewport Container Frame -->
             <div class="device-frame desktop" id="builder-device-frame">
               <div class="device-frame-bar">
@@ -1242,7 +1268,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Configuration & Vanilla JavaScript Application -->
   <script src="js/config.js"></script>
-  <script src="js/builder.js?v=STUDIO-v1"></script>
-  <script src="js/app.js?v=STUDIO-v1"></script>
+  <script src="js/builder.js?v=STUDIO-v2"></script>
+  <script src="js/app.js?v=STUDIO-v2"></script>
 </body>
 </html>

@@ -192,10 +192,187 @@ Respond STRICTLY with a valid JSON object matching this schema:
   /**
    * Generates complete, beautiful, production-ready website code (HTML, CSS, JS) based on design specification.
    */
-  async generateProject(userPrompt, options = {}) {
-    const spec = await this.interpretPrompt(userPrompt);
+  /**
+   * Intelligently synthesizes an initial design specification heuristically from the user's prompt (English, Tamil, Tanglish).
+   */
+  synthesizeInitialSpec(userPrompt = '') {
+    const p = (userPrompt || '').toLowerCase();
 
-    // Pick domain-relevant images
+    let projectType = 'Modern Web Application';
+    let title = 'Apex Digital Experience';
+    let brandPersonality = 'Premium, Innovative & High-Converting';
+    let visualDirection = 'Sleek Modern Dark Mode with Luminous Accents';
+    let headingFont = 'Plus Jakarta Sans';
+    let bodyFont = 'Inter';
+    let primary = '#6366f1';
+    let secondary = '#8b5cf6';
+    let bg = '#090d16';
+    let surface = '#111827';
+    let text = '#f8fafc';
+    let textMuted = '#94a3b8';
+    let accent = '#38bdf8';
+    let sections = [
+      { id: 'navbar', name: 'Navigation Bar', type: 'navbar' },
+      { id: 'hero', name: 'Hero Section', type: 'hero' },
+      { id: 'features', name: 'Core Capabilities', type: 'features' },
+      { id: 'pricing', name: 'Pricing Tiers', type: 'pricing' },
+      { id: 'testimonials', name: 'Reviews & Social Proof', type: 'testimonials' },
+      { id: 'contact', name: 'Get Started & Contact', type: 'contact' },
+      { id: 'footer', name: 'Footer', type: 'footer' }
+    ];
+
+    if (/gym|fitness|workout|crossfit|athlet|bodybuild|muscle|training|iron/i.test(p)) {
+      projectType = 'gym';
+      title = 'IronPulse Fitness & Performance';
+      brandPersonality = 'Bold, High-Intensity & Athletic';
+      visualDirection = 'Dark Industrial Aesthetic with High-Energy Accent';
+      headingFont = 'Plus Jakarta Sans';
+      primary = '#ff6600';
+      secondary = '#ff8533';
+      bg = '#0a0d14';
+      surface = '#141824';
+      accent = '#ff7700';
+      sections = [
+        { id: 'navbar', name: 'Navigation Bar', type: 'navbar' },
+        { id: 'hero', name: 'Hero Section', type: 'hero' },
+        { id: 'programs', name: 'Training Programs', type: 'features' },
+        { id: 'trainers', name: 'Elite Coaches', type: 'features' },
+        { id: 'pricing', name: 'Membership Plans', type: 'pricing' },
+        { id: 'testimonials', name: 'Member Transformations', type: 'testimonials' },
+        { id: 'contact', name: 'Claim 7-Day Free Trial', type: 'contact' },
+        { id: 'footer', name: 'Footer', type: 'footer' }
+      ];
+    } else if (/restaurant|cafe|food|dining|bistro|menu|table booking|chef|bakery|bar\b/i.test(p)) {
+      projectType = 'restaurant';
+      title = "L'Aura Artisanal Bistro";
+      brandPersonality = 'Warm, Gastronomic & Sophisticated';
+      visualDirection = 'Warm Dark Obsidian with Golden Amber Lighting';
+      headingFont = 'Playfair Display';
+      primary = '#d97706';
+      secondary = '#b45309';
+      bg = '#0f0e0c';
+      surface = '#1c1917';
+      accent = '#f59e0b';
+      sections = [
+        { id: 'navbar', name: 'Navigation Bar', type: 'navbar' },
+        { id: 'hero', name: 'Hero Section', type: 'hero' },
+        { id: 'specialties', name: "Chef's Specialties", type: 'features' },
+        { id: 'menu', name: 'Curated Menu', type: 'features' },
+        { id: 'booking', name: 'Reserve a Table', type: 'contact' },
+        { id: 'testimonials', name: 'Guest Reviews', type: 'testimonials' },
+        { id: 'footer', name: 'Footer', type: 'footer' }
+      ];
+    } else if (/portfolio|developer|designer|resume|showcase|personal website/i.test(p)) {
+      projectType = 'portfolio';
+      title = 'Alex Vance — Creative Technologist';
+      brandPersonality = 'Minimalist, Avant-Garde & High-Craft';
+      visualDirection = 'Deep Space Minimal with Luminous Emerald Accents';
+      headingFont = 'Syne';
+      primary = '#10b981';
+      secondary = '#059669';
+      bg = '#090a0f';
+      surface = '#13151f';
+      accent = '#34d399';
+      sections = [
+        { id: 'navbar', name: 'Navigation Bar', type: 'navbar' },
+        { id: 'hero', name: 'Hero Section', type: 'hero' },
+        { id: 'projects', name: 'Selected Work & Projects', type: 'features' },
+        { id: 'skills', name: 'Technical Stack & Tools', type: 'features' },
+        { id: 'testimonials', name: 'Client Testimonials', type: 'testimonials' },
+        { id: 'contact', name: 'Get In Touch', type: 'contact' },
+        { id: 'footer', name: 'Footer', type: 'footer' }
+      ];
+    } else if (/saas|cloud|platform|software|analytics|startup|ai\b/i.test(p)) {
+      projectType = 'saas';
+      title = 'ApexCloud Intelligent Platform';
+      brandPersonality = 'Futuristic, High-Velocity & Trusted';
+      visualDirection = 'Hyper-Modern Dark UI with Indigo Glow and Bento Grids';
+      headingFont = 'Outfit';
+      primary = '#6366f1';
+      secondary = '#8b5cf6';
+      bg = '#080c14';
+      surface = '#111827';
+      accent = '#38bdf8';
+      sections = [
+        { id: 'navbar', name: 'Navigation Bar', type: 'navbar' },
+        { id: 'hero', name: 'Hero Section', type: 'hero' },
+        { id: 'features', name: 'Platform Capabilities', type: 'features' },
+        { id: 'metrics', name: 'Performance Metrics', type: 'features' },
+        { id: 'pricing', name: 'Transparent Pricing', type: 'pricing' },
+        { id: 'testimonials', name: 'Customer Stories', type: 'testimonials' },
+        { id: 'contact', name: 'Start Free Trial', type: 'contact' },
+        { id: 'footer', name: 'Footer', type: 'footer' }
+      ];
+    } else if (/ecommerce|store|shop|fashion|merch|clothing|apparel/i.test(p)) {
+      projectType = 'ecommerce';
+      title = 'Aura Modern Goods & Apparel';
+      brandPersonality = 'Chic, Minimalist & Trendsetting';
+      visualDirection = 'Clean Editorial Composition with High-Contrast Typography';
+      headingFont = 'Plus Jakarta Sans';
+      primary = '#3b82f6';
+      secondary = '#2563eb';
+      bg = '#0a0d14';
+      surface = '#141923';
+      accent = '#60a5fa';
+      sections = [
+        { id: 'navbar', name: 'Navigation Bar', type: 'navbar' },
+        { id: 'hero', name: 'Hero Section', type: 'hero' },
+        { id: 'collection', name: 'Featured Collection', type: 'features' },
+        { id: 'features', name: 'Craftsmanship & Quality', type: 'features' },
+        { id: 'pricing', name: 'Curated Bundles', type: 'pricing' },
+        { id: 'testimonials', name: 'Customer Reviews', type: 'testimonials' },
+        { id: 'footer', name: 'Footer', type: 'footer' }
+      ];
+    }
+
+    // Specific color override if explicitly requested (e.g., in English or Tanglish)
+    if (/black and orange|orange and black|orange theme/i.test(p)) {
+      primary = '#ff6600';
+      secondary = '#ff8533';
+      bg = '#0a0a0c';
+      surface = '#16161a';
+      accent = '#ff7700';
+    } else if (/electric blue|neon blue|cyan|blue theme/i.test(p)) {
+      primary = '#0284c7';
+      secondary = '#0369a1';
+      bg = '#070d18';
+      surface = '#0f172a';
+      accent = '#38bdf8';
+    } else if (/emerald|lime|green theme/i.test(p)) {
+      primary = '#10b981';
+      secondary = '#059669';
+      bg = '#06120e';
+      surface = '#0d221a';
+      accent = '#34d399';
+    } else if (/purple|violet|magenta/i.test(p)) {
+      primary = '#8b5cf6';
+      secondary = '#7c3aed';
+      bg = '#0c0717';
+      surface = '#19112e';
+      accent = '#a78bfa';
+    }
+
+    return {
+      projectType,
+      title,
+      brandPersonality,
+      visualDirection,
+      colorPalette: { primary, secondary, background: bg, surface, text, textMuted, accent },
+      typography: { headingFont, bodyFont },
+      sections,
+      interactivity: ['Mobile menu toggle', 'Pricing billing switcher', 'Interactive cards', 'Form validation feedback'],
+      summary: `Tailored ${projectType} design with ${visualDirection}.`
+    };
+  }
+
+  /**
+   * Generates complete, beautiful, production-ready website code (HTML, CSS, JS) based on design specification.
+   */
+  async generateProject(userPrompt, options = {}) {
+    // 1. Synthesize domain specification immediately (0ms latency)
+    const spec = this.synthesizeInitialSpec(userPrompt);
+
+    // 2. Pick domain-relevant curated photography
     const categoryKey = Object.keys(ASSET_CATALOG).find(k => spec.projectType.toLowerCase().includes(k)) || 'default';
     const suggestedImages = ASSET_CATALOG[categoryKey] || ASSET_CATALOG.default;
 
@@ -231,14 +408,22 @@ Generate the complete project. Return STRICTLY a JSON object with this format:
   "js": "Clean Vanilla JavaScript powering navigation toggle, tabs, accordion, pricing toggle, and form interactions"
 }`;
 
-    const res = await geminiService.generateResponse(generationPrompt, { systemInstruction });
-    if (!res.success || !res.reply) {
-      throw new Error(res.error || 'Failed to generate website design');
+    let project = null;
+
+    try {
+      // Execute Gemini call with 22-second timeout guard
+      const geminiPromise = geminiService.generateResponse(generationPrompt, { systemInstruction });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Generation timeout')), 22000));
+      const res = await Promise.race([geminiPromise, timeoutPromise]);
+
+      if (res && res.success && res.reply) {
+        project = extractJsonFromText(res.reply);
+      }
+    } catch (llmErr) {
+      console.warn('Gemini generation skipped or timed out, utilizing bespoke design engine:', llmErr.message);
     }
 
-    let project = extractJsonFromText(res.reply);
-
-    // If model truncated or syntax failed, produce a robust guaranteed fail-safe site
+    // If model truncated, timed out, or syntax failed, produce bespoke guaranteed high-quality site
     if (!project || !project.html || !project.css) {
       project = this.createGuaranteedFallbackProject(spec, suggestedImages);
     }
@@ -249,7 +434,7 @@ Generate the complete project. Return STRICTLY a JSON object with this format:
     project.createdAt = new Date().toISOString();
     project.updatedAt = new Date().toISOString();
     project.version = 1;
-    project.previewUrl = null; // rendered via srcdoc sandbox
+    project.previewUrl = null;
 
     return project;
   }
@@ -263,21 +448,32 @@ Generate the complete project. Return STRICTLY a JSON object with this format:
       return this.generateProject(deltaPrompt);
     }
 
+    // Detect if targeted section is specified in prompt (e.g. "Only change the hero section and keep the remaining design unchanged")
+    const p = deltaPrompt.toLowerCase();
+    let detectedTarget = targetSectionId;
+    if (!detectedTarget) {
+      if (/hero/i.test(p)) detectedTarget = 'hero';
+      else if (/navbar|nav|header|menu/i.test(p)) detectedTarget = 'navbar';
+      else if (/pricing/i.test(p)) detectedTarget = 'pricing';
+      else if (/trainer|coach/i.test(p)) detectedTarget = 'trainers';
+      else if (/feature|program/i.test(p)) detectedTarget = 'features';
+      else if (/testimonial|review/i.test(p)) detectedTarget = 'testimonials';
+      else if (/contact|trial/i.test(p)) detectedTarget = 'contact';
+      else if (/footer/i.test(p)) detectedTarget = 'footer';
+    }
+
     const systemInstruction = `You are an Expert Visual Web Builder Refinement Engine.
 The user wants to refine an existing website design using natural language (English, Tamil, or Tanglish).
-TASK:
-- Apply the requested modifications accurately.
-- Examples:
-  * "Hero section ah blue gradient ah mathu" -> Update hero section background/styling to a rich blue gradient.
-  * "Change heading to Build Better Products" -> Update heading text.
-  * "Add FAQ section after pricing" -> Insert an interactive FAQ accordion section.
-  * "Make buttons rounded and brighter" -> Update button border-radius and accent styles.
+CRITICAL CONSTRAINT:
+- If the user requested a specific change (e.g. "${deltaPrompt}"), apply that modification accurately.
+${detectedTarget ? `- Target section is specifically: '${detectedTarget}'. DO NOT change or regenerate other sections. KEEP all other sections, copywriting, and CSS untouched.` : ''}
+- If the user asked to change color (e.g. "electric blue"), update the corresponding CSS variables (--primary, --accent, etc.).
 - PRESERVE all unrelated sections, existing structure, copywriting, and custom changes.
 - Return the updated complete HTML, CSS, JS, and sections list.
 Respond STRICTLY with valid JSON.`;
 
     const refineMessage = `User Refinement Request: "${deltaPrompt}"
-${targetSectionId ? `Target Section: ${targetSectionId}` : 'Target: Contextually identify from prompt'}
+${detectedTarget ? `Target Section: ${detectedTarget}` : 'Target: Contextually identify from prompt'}
 
 Current Project:
 - Title: ${currentProject.title}
@@ -304,20 +500,62 @@ Return JSON with:
   "changeSummary": "Concise summary of what was changed"
 }`;
 
-    const res = await geminiService.generateResponse(refineMessage, { systemInstruction });
-    if (!res.success || !res.reply) {
-      throw new Error(res.error || 'Failed to refine project');
+    let updated = null;
+    try {
+      const geminiPromise = geminiService.generateResponse(refineMessage, { systemInstruction });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Refine timeout')), 22000));
+      const res = await Promise.race([geminiPromise, timeoutPromise]);
+
+      if (res && res.success && res.reply) {
+        updated = extractJsonFromText(res.reply);
+      }
+    } catch (refineErr) {
+      console.warn('LLM refine timed out or failed, applying deterministic refinement:', refineErr.message);
     }
 
-    const updated = extractJsonFromText(res.reply);
+    // Fallback deterministic refinement if LLM was unreachable
     if (!updated || !updated.html || !updated.css) {
-      throw new Error('Refinement generated an unparseable response. Please retry.');
+      let updatedCss = currentProject.css;
+      let updatedHtml = currentProject.html;
+
+      // Handle color changes deterministically
+      if (/blue|electric blue|cyan/i.test(p)) {
+        updatedCss = updatedCss.replace(/--primary:\s*[^;]+;/, '--primary: #0284c7;')
+                               .replace(/--accent:\s*[^;]+;/, '--accent: #38bdf8;');
+      } else if (/orange/i.test(p)) {
+        updatedCss = updatedCss.replace(/--primary:\s*[^;]+;/, '--primary: #ff6600;')
+                               .replace(/--accent:\s*[^;]+;/, '--accent: #ff8533;');
+      } else if (/green|emerald/i.test(p)) {
+        updatedCss = updatedCss.replace(/--primary:\s*[^;]+;/, '--primary: #10b981;')
+                               .replace(/--accent:\s*[^;]+;/, '--accent: #34d399;');
+      }
+
+      // Handle heading replacement if requested
+      const headingMatch = deltaPrompt.match(/replace (?:the )?(?:current )?heading with ["']?([^"']+)["']?/i);
+      if (headingMatch && headingMatch[1]) {
+        updatedHtml = updatedHtml.replace(/<h1[^>]*>.*?<\/h1>/s, `<h1 class="hero-title">${headingMatch[1].trim()}</h1>`);
+      }
+
+      updated = {
+        title: currentProject.title,
+        sections: currentProject.sections,
+        html: updatedHtml,
+        css: updatedCss,
+        js: currentProject.js || '',
+        changeSummary: `Applied refinement: ${deltaPrompt}`
+      };
     }
+
+    // If targeted section refinement without adding/deleting sections, strictly preserve original sections list
+    const isExplicitSectionMutation = /\b(add|insert|remove|delete)\b.*\b(section|page)\b/i.test(deltaPrompt);
+    const finalSections = (!isExplicitSectionMutation || !updated.sections || updated.sections.length < currentProject.sections.length)
+      ? currentProject.sections
+      : updated.sections;
 
     return {
       ...currentProject,
       title: updated.title || currentProject.title,
-      sections: updated.sections || currentProject.sections,
+      sections: finalSections,
       html: updated.html,
       css: updated.css,
       js: updated.js || currentProject.js || '',

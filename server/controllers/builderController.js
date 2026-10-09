@@ -12,15 +12,46 @@ class BuilderController {
         return res.status(400).json({ success: false, error: 'Prompt is required' });
       }
 
-      // Quick keyword + semantic evaluation
-      const p = prompt.toLowerCase();
-      const creationTerms = [
-        'website', 'landing page', 'portfolio', 'dashboard', 'ecommerce', 'store',
-        'gym website', 'restaurant website', 'app ui', 'create website', 'build website',
-        'make website', 'design website', 'pannu', 'venum', 'mari design', 'hero section',
-        'pricing table', 'admin panel', 'saas page'
+      const p = prompt.trim().toLowerCase();
+
+      // Negative exclusion for ordinary conversational/informational questions
+      const nonDesignPatterns = [
+        /^explain\s+(?!how to (?:create|build|make|design)\b)/i,
+        /^(?:what|who|why|when|where)\s+is\b/i,
+        /^(?:what|who|why|when|where)\s+are\b/i,
+        /^define\s+/i,
+        /^tell me about\b/i,
+        /^summarize\b/i,
+        /^translate\b/i,
+        /^write (?:an essay|a poem|a letter|a story|an email)\b/i
       ];
-      const isDesign = creationTerms.some(term => p.includes(term));
+
+      const isExplicitExclusion = nonDesignPatterns.some(pattern => pattern.test(p));
+      if (isExplicitExclusion && !p.includes('website') && !p.includes('landing page') && !p.includes('ui/ux') && !p.includes('dashboard')) {
+        return res.status(200).json({ success: true, isDesignRequest: false, prompt });
+      }
+
+      // English creation triggers
+      const creationActionRegex = /\b(create|build|make|design|generate|develop|redesign|revamp|code|craft|need|want|setup)\b/i;
+      const webTargetRegex = /\b(website|web site|site|webpage|landing page|portfolio|dashboard|ecommerce|e-commerce|storefront|online store|app ui|ui\/ux|user interface|hero section|pricing table|pricing section|admin panel|saas page|web app|mockup)\b/i;
+      const domainCompoundRegex = /\b(gym|fitness|workout|restaurant|cafe|bistro|portfolio|developer|saas|agency|ecommerce|store|shop|doctor|clinic|hotel|travel|real estate|crypto|finance|startup)\s+(website|web site|site|landing page|ui|page)\b/i;
+
+      // Tamil & Tanglish creation triggers
+      const tanglishRegex = /\b(oru|indha|andha|enaku|namaku)\b.*\b(website|design|page|ui|portfolio|store)\b/i;
+      const tanglishActionRegex = /\b(website|landing page|design|hero|navbar|theme|portfolio|ui)\b.*\b(pannu|venum|mathu|kudu|thayaar|sey|mari)\b/i;
+      const tanglishThemeRegex = /\b(theme\s*la|theme\s*il|oda)\b/i;
+
+      // Refinement triggers
+      const refinementRegex = /\b(only change|change|modify|update|improve|redesign|replace|make)\b.*\b(hero|navbar|section|colors?|theme|accent|font|button|pricing|header|footer|cards?|layout|bento)\b/i;
+      const tanglishRefineRegex = /\b(mattum|touch panna|mathu|change pannu)\b/i;
+
+      const isDesign = (creationActionRegex.test(p) && webTargetRegex.test(p)) ||
+                       domainCompoundRegex.test(p) ||
+                       tanglishRegex.test(p) ||
+                       tanglishActionRegex.test(p) ||
+                       (tanglishThemeRegex.test(p) && webTargetRegex.test(p)) ||
+                       refinementRegex.test(p) ||
+                       (tanglishRefineRegex.test(p) && (webTargetRegex.test(p) || /hero|navbar|section|color|theme/i.test(p)));
 
       return res.status(200).json({
         success: true,
