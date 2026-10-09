@@ -464,12 +464,15 @@
       <!-- ========================================================================
            3. AI Website & UI/UX Studio Workspace
            ======================================================================== -->
-      <section class="builder-workspace" id="builder-workspace" style="display: none;">
-        <!-- Studio Top Toolbar -->
+       <section class="builder-workspace" id="builder-workspace" style="display: none;">
+        <!-- Studio Top Toolbar (Figma-inspired, compact, high-efficiency) -->
         <div class="builder-toolbar">
           <div class="tb-left">
             <button type="button" class="builder-btn-back" id="btn-builder-back-chat" title="Return to Chat">
               ← <span class="btn-text-label">Chat</span>
+            </button>
+            <button type="button" class="builder-panel-toggle-btn" id="btn-toggle-left-panel" title="Toggle Sections Sidebar" aria-label="Toggle Sections Sidebar">
+              📑
             </button>
             <div class="builder-brand-badge">
               <img src="images/logo.png" alt="PixelCraft Logo" class="tb-brand-img">
@@ -482,9 +485,6 @@
                 <span class="save-status-dot">●</span>
                 <span class="save-status-text" id="save-status-text">Saved</span>
               </span>
-              <button type="button" class="builder-btn-prompt-toggle" id="btn-toggle-prompt-panel" title="View & Edit Master Prompt">
-                💬 <span class="btn-text-label">Edit Prompt</span>
-              </button>
             </div>
           </div>
 
@@ -510,6 +510,9 @@
                 <option value="fit">Fit</option>
               </select>
             </div>
+            <button type="button" class="builder-btn-prompt-toggle" id="btn-toggle-prompt-panel" title="View & Edit Master Prompt">
+              💬 <span class="btn-text-label">Edit Prompt</span>
+            </button>
           </div>
 
           <div class="tb-right">
@@ -530,8 +533,42 @@
             <button type="button" class="builder-action-btn btn-export-highlight" id="btn-builder-export" title="Export Website Bundle">
               📥 <span class="btn-text-label">Export</span>
             </button>
+            <button type="button" class="builder-panel-toggle-btn" id="btn-toggle-right-panel" title="Toggle Properties Inspector" aria-label="Toggle Properties Inspector">
+              🎨
+            </button>
           </div>
         </div>
+
+        <!-- Floating Master Prompt Popover (Non-competing, drops down smoothly without reducing canvas space) -->
+        <div class="builder-prompt-popover" id="builder-prompt-card" style="display: none;">
+          <div class="prompt-card-header">
+            <div class="prompt-card-title">
+              <span class="prompt-icon">💡</span>
+              <span class="prompt-label">Original Prompt (Editable)</span>
+              <span class="prompt-hint">— Steer requirements to regenerate or refine the design</span>
+            </div>
+            <div class="prompt-card-actions">
+              <button type="button" class="btn-prompt-close" id="btn-prompt-close" title="Close Prompt Editor">✕</button>
+              <button type="button" class="btn-prompt-toggle" id="btn-prompt-toggle" style="display: none;" title="Collapse / Expand Prompt Editor">▲ Hide</button>
+            </div>
+          </div>
+          <div class="prompt-card-body" id="prompt-card-body">
+            <div class="prompt-editor-row">
+              <textarea id="builder-original-prompt-input" class="builder-original-prompt-input" rows="3" placeholder="e.g. create a gym website design with black and orange theme, trainer profiles, membership pricing..."></textarea>
+              <div class="prompt-btn-group">
+                <button type="button" class="btn-prompt-optimize" id="btn-prompt-optimize" title="AI expands and optimizes your prompt requirements">✨ AI Optimize</button>
+                <button type="button" class="btn-prompt-update" id="btn-prompt-update" title="Regenerate website with updated prompt">⚡ Apply & Regenerate</button>
+              </div>
+            </div>
+            <div class="prompt-popover-meta">
+              <span class="prompt-tip">Shortcut: Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to regenerate</span>
+              <span class="prompt-status-indicator" id="prompt-popover-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Drawer Backdrop Overlay -->
+        <div class="builder-mobile-backdrop" id="builder-mobile-backdrop" style="display: none;"></div>
 
         <!-- Studio Main Body (Left Panel, Center Canvas, Right Panel) -->
         <div class="builder-main-body">
@@ -539,11 +576,11 @@
           <div class="builder-mobile-tab-bar" id="builder-mobile-tab-bar">
             <button type="button" class="mob-tab-btn active" data-tab="canvas">👁️ Preview</button>
             <button type="button" class="mob-tab-btn" data-tab="layers">📑 Sections</button>
-            <button type="button" class="mob-tab-btn" data-tab="props">🎨 Properties</button>
+            <button type="button" class="mob-tab-btn" data-tab="props">🎨 Inspector</button>
             <button type="button" class="mob-tab-btn" data-tab="prompt">💬 Prompt</button>
           </div>
 
-          <!-- Left Panel: Sections / Layers -->
+          <!-- Left Panel: Sections / Layers (Collapsible) -->
           <aside class="builder-panel builder-left-panel" id="builder-left-panel">
             <div class="panel-header">
               <div class="panel-title-wrap">
@@ -555,6 +592,7 @@
                   ➕ <span class="btn-label-sm">Add</span>
                 </button>
                 <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh sections list">↻</button>
+                <button type="button" class="btn-panel-action btn-collapse-panel" id="btn-collapse-left-panel" title="Collapse sections sidebar">◀</button>
               </div>
             </div>
             <div class="panel-meta-bar">
@@ -569,133 +607,157 @@
             </div>
           </aside>
 
-          <!-- Center Canvas -->
+          <!-- Center Canvas Wrapper (Viewport + Docked Refine Bar) -->
           <div class="builder-canvas-wrapper" id="builder-canvas-wrapper">
-            <!-- Prompt Direction Panel: Original Editable Prompt & AI Optimizer -->
-            <div class="builder-prompt-card" id="builder-prompt-card">
-              <div class="prompt-card-header">
-                <div class="prompt-card-title">
-                  <span class="prompt-icon">💡</span>
-                  <span class="prompt-label">Original Prompt (Editable)</span>
-                  <span class="prompt-hint">— Refine or optimize requirements to steer the generated design</span>
+            <!-- Dedicated Scrollable Canvas Viewport (100% full-page vertical scrolling without obstruction) -->
+            <div class="builder-canvas-viewport" id="builder-canvas-viewport">
+              <!-- Viewport Container Frame -->
+              <div class="device-frame desktop" id="builder-device-frame">
+                <div class="device-frame-bar">
+                  <div class="device-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                  </div>
+                  <div class="device-address-bar" id="device-address-bar">
+                    <span class="lock-icon">🔒</span>
+                    <span class="address-text" id="device-address-text">https://preview.pixelcraft.ai</span>
+                  </div>
+                  <div class="device-meta">
+                    <span class="dimension-badge" id="viewport-dimension-badge">100% Fluid</span>
+                  </div>
                 </div>
-                <div class="prompt-card-actions">
-                  <button type="button" class="btn-prompt-toggle" id="btn-prompt-toggle" title="Collapse / Expand Prompt Editor">▲ Hide</button>
-                </div>
-              </div>
-              <div class="prompt-card-body" id="prompt-card-body">
-                <div class="prompt-editor-row">
-                  <textarea id="builder-original-prompt-input" class="builder-original-prompt-input" rows="2" placeholder="e.g. create a gym website design with black and orange theme, trainer profiles, membership pricing..."></textarea>
-                  <div class="prompt-btn-group">
-                    <button type="button" class="btn-prompt-optimize" id="btn-prompt-optimize" title="AI expands and optimizes your prompt requirements">✨ AI Optimize</button>
-                    <button type="button" class="btn-prompt-update" id="btn-prompt-update" title="Regenerate website with updated prompt">⚡ Apply & Regenerate</button>
+
+                <!-- Sandboxed Iframe Preview -->
+                <div class="iframe-container" id="builder-iframe-container">
+                  <iframe 
+                    id="builder-iframe" 
+                    class="builder-iframe" 
+                    sandbox="allow-scripts allow-modals allow-forms"
+                    title="PixelCraft AI Live Rendered Preview"
+                  ></iframe>
+                  
+                  <!-- Loading & Generating Overlay -->
+                  <div class="canvas-loading-overlay" id="canvas-loading-overlay" style="display: none;">
+                    <div class="canvas-spinner"></div>
+                    <h4 class="canvas-loading-title" id="canvas-loading-title">Creating your design...</h4>
+                    <p class="canvas-loading-sub" id="canvas-loading-sub">Analysing requirements and planning layout</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Viewport Container Frame -->
-            <div class="device-frame desktop" id="builder-device-frame">
-              <div class="device-frame-bar">
-                <div class="device-dots">
-                  <span class="dot red"></span>
-                  <span class="dot yellow"></span>
-                  <span class="dot green"></span>
+            <!-- Dedicated Docked Refinement Bar (Docked at bottom, NEVER covers the canvas or website preview) -->
+            <div class="builder-refine-dock" id="builder-refine-dock">
+              <div class="builder-refine-bar" id="builder-refine-bar">
+                <!-- Explicit Scope Selector (Entire Project / Selected Section / Selected Element) -->
+                <div class="refine-scope-bar">
+                  <span class="scope-label">Target Scope:</span>
+                  <div class="scope-buttons" role="radiogroup" aria-label="Refinement Scope">
+                    <button type="button" class="scope-btn active" id="scope-btn-project" data-scope="project" title="Apply change across the entire website">
+                      🌐 Entire Project
+                    </button>
+                    <button type="button" class="scope-btn" id="scope-btn-section" data-scope="section" title="Apply change only to the selected section">
+                      📑 Selected Section <span class="scope-target-pill" id="scope-section-pill">#hero</span>
+                    </button>
+                    <button type="button" class="scope-btn" id="scope-btn-element" data-scope="element" title="Apply change only to the selected element">
+                      🎯 Selected Element <span class="scope-target-pill" id="scope-element-pill">&lt;element&gt;</span>
+                    </button>
+                  </div>
                 </div>
-                <div class="device-address-bar" id="device-address-bar">
-                  <span class="lock-icon">🔒</span>
-                  <span class="address-text" id="device-address-text">https://preview.pixelcraft.ai</span>
-                </div>
-                <div class="device-meta">
-                  <span class="dimension-badge" id="viewport-dimension-badge">100% Fluid</span>
-                </div>
-              </div>
 
-              <!-- Sandboxed Iframe Preview -->
-              <div class="iframe-container" id="builder-iframe-container">
-                <iframe 
-                  id="builder-iframe" 
-                  class="builder-iframe" 
-                  sandbox="allow-scripts allow-modals allow-forms"
-                  title="PixelCraft AI Live Rendered Preview"
-                ></iframe>
-                
-                <!-- Loading & Generating Overlay -->
-                <div class="canvas-loading-overlay" id="canvas-loading-overlay" style="display: none;">
-                  <div class="canvas-spinner"></div>
-                  <h4 class="canvas-loading-title" id="canvas-loading-title">Creating your design...</h4>
-                  <p class="canvas-loading-sub" id="canvas-loading-sub">Analysing requirements and planning layout</p>
+                <div class="refine-chips-scroll" id="refine-chips-container">
+                  <button type="button" class="refine-chip" data-prompt="Change the color palette to black and orange with athletic vibes">🎨 Black & Orange Theme</button>
+                  <button type="button" class="refine-chip" data-prompt="Make the hero section more premium with athletic glow">⚡ Premium Hero</button>
+                  <button type="button" class="refine-chip" data-prompt="Add three modern trainer cards to this section">🏋️ 3 Trainer Cards</button>
+                  <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing">❓ Add FAQ Accordion</button>
+                  <button type="button" class="refine-chip" data-prompt="Make this section responsive and polished on mobile">📱 Mobile Polish</button>
+                  <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects">✨ Micro-Animations</button>
                 </div>
-              </div>
-            </div>
 
-            <!-- Natural Language Refinement Bar (Bottom of Canvas) with Multi-Scope Control -->
-            <div class="builder-refine-bar" id="builder-refine-bar">
-              <!-- Explicit Scope Selector (Entire Project / Selected Section / Selected Element) -->
-              <div class="refine-scope-bar">
-                <span class="scope-label">Scope:</span>
-                <div class="scope-buttons" role="radiogroup" aria-label="Refinement Scope">
-                  <button type="button" class="scope-btn active" id="scope-btn-project" data-scope="project" title="Apply change across the entire website">
-                    🌐 Entire Project
+                <div class="refine-input-row">
+                  <div class="refine-input-wrap">
+                    <span class="refine-sparkle">✨</span>
+                    <textarea 
+                      id="builder-refine-input" 
+                      class="builder-refine-input" 
+                      placeholder="Describe changes in English, Tamil, or Tanglish (e.g. 'Make this hero section more premium', 'Change button to orange')..."
+                      rows="1"
+                    ></textarea>
+                  </div>
+                  <button type="button" class="btn-refine-submit" id="btn-refine-submit" title="Apply Natural Language Modification">
+                    <span class="btn-icon">➔</span>
+                    <span class="btn-text">Update</span>
                   </button>
-                  <button type="button" class="scope-btn" id="scope-btn-section" data-scope="section" title="Apply change only to the selected section">
-                    📑 Selected Section <span class="scope-target-pill" id="scope-section-pill">#hero</span>
-                  </button>
-                  <button type="button" class="scope-btn" id="scope-btn-element" data-scope="element" title="Apply change only to the selected element">
-                    🎯 Selected Element <span class="scope-target-pill" id="scope-element-pill">&lt;element&gt;</span>
+                  <button type="button" class="btn-refine-regen" id="btn-refine-regen" title="Regenerate whole design">
+                    ↻
                   </button>
                 </div>
-              </div>
-
-              <div class="refine-chips-scroll" id="refine-chips-container">
-                <button type="button" class="refine-chip" data-prompt="Change the color palette to black and orange with athletic vibes">🎨 Black & Orange Theme</button>
-                <button type="button" class="refine-chip" data-prompt="Make the hero section more premium with athletic glow">⚡ Premium Hero</button>
-                <button type="button" class="refine-chip" data-prompt="Add three modern trainer cards to this section">🏋️ 3 Trainer Cards</button>
-                <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing">❓ Add FAQ Accordion</button>
-                <button type="button" class="refine-chip" data-prompt="Make this section responsive and polished on mobile">📱 Mobile Polish</button>
-                <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects">✨ Micro-Animations</button>
-              </div>
-
-              <div class="refine-input-row">
-                <div class="refine-input-wrap">
-                  <span class="refine-sparkle">✨</span>
-                  <textarea 
-                    id="builder-refine-input" 
-                    class="builder-refine-input" 
-                    placeholder="Describe changes in English, Tamil, or Tanglish (e.g. 'Make this hero section more premium', 'Change background to black')..."
-                    rows="1"
-                  ></textarea>
-                </div>
-                <button type="button" class="btn-refine-submit" id="btn-refine-submit" title="Apply Natural Language Modification">
-                  <span class="btn-icon">➔</span>
-                  <span class="btn-text">Update</span>
-                </button>
-                <button type="button" class="btn-refine-regen" id="btn-refine-regen" title="Regenerate whole design">
-                  ↻
-                </button>
               </div>
             </div>
           </div>
 
-          <!-- Right Panel: Section & Visual Properties Inspector -->
+          <!-- Right Panel: Section & Visual Properties Inspector (320px, Collapsible) -->
           <aside class="builder-panel builder-right-panel" id="builder-right-panel">
             <div class="panel-header">
               <div class="panel-title-wrap">
                 <span class="panel-icon">🎨</span>
                 <h3>Inspector</h3>
               </div>
-              <div class="inspector-tab-toggle" role="tablist">
-                <button type="button" class="insp-tab-btn active" id="tab-btn-section" data-tab="section" title="Edit selected section properties & AI refinement">Section</button>
-                <button type="button" class="insp-tab-btn" id="tab-btn-element" data-tab="element" title="Edit individual element properties">Element</button>
+              <div class="inspector-header-right">
+                <div class="inspector-tab-toggle" role="tablist">
+                  <button type="button" class="insp-tab-btn active" id="tab-btn-section" data-tab="section" title="Edit selected section properties & AI refinement">Section</button>
+                  <button type="button" class="insp-tab-btn" id="tab-btn-element" data-tab="element" title="Edit individual element properties">Element</button>
+                </div>
+                <button type="button" class="btn-panel-action btn-collapse-panel" id="btn-collapse-right-panel" title="Collapse inspector sidebar">▶</button>
               </div>
             </div>
 
-            <!-- TAB 1: SECTION INSPECTOR -->
+            <!-- TAB 1: SECTION INSPECTOR / PROJECT SETTINGS -->
             <div class="inspector-content" id="inspector-section-content">
-              <!-- Empty state when no section is loaded -->
+              <!-- Empty state: Project-level settings & overview when no specific section is focused -->
               <div class="inspector-empty" id="inspector-section-empty" style="display: none;">
-                <div class="empty-icon">📑</div>
-                <p>Select any section in the left panel or click within the preview to edit its properties, styling, and AI instructions.</p>
+                <div class="project-overview-panel" id="project-overview-panel">
+                  <div class="proj-overview-header">
+                    <span class="proj-badge-icon">🌐</span>
+                    <h4 class="proj-overview-title" id="proj-settings-title">Project Overview</h4>
+                  </div>
+                  <p class="proj-overview-desc">Select any section or element to inspect and edit its styles live, or manage global project configuration below.</p>
+                  
+                  <div class="proj-meta-card">
+                    <div class="proj-meta-row">
+                      <span class="proj-meta-label">Project Type</span>
+                      <span class="proj-meta-val" id="proj-settings-type">Landing Page</span>
+                    </div>
+                    <div class="proj-meta-row">
+                      <span class="proj-meta-label">Total Sections</span>
+                      <span class="proj-meta-val" id="proj-settings-sections-count">0</span>
+                    </div>
+                    <div class="proj-meta-row">
+                      <span class="proj-meta-label">Heading Font</span>
+                      <span class="proj-meta-val" id="proj-settings-heading-font">Plus Jakarta Sans</span>
+                    </div>
+                    <div class="proj-meta-row">
+                      <span class="proj-meta-label">Body Font</span>
+                      <span class="proj-meta-val" id="proj-settings-body-font">Inter</span>
+                    </div>
+                  </div>
+
+                  <div class="proj-palette-preview">
+                    <span class="prop-sub-label">Design Color Palette</span>
+                    <div class="palette-swatches" id="proj-settings-swatches">
+                      <div class="palette-swatch" id="swatch-primary" title="Primary Color" style="background: #6366f1;"></div>
+                      <div class="palette-swatch" id="swatch-secondary" title="Accent Color" style="background: #f97316;"></div>
+                      <div class="palette-swatch" id="swatch-bg" title="Background" style="background: #0b0f19;"></div>
+                      <div class="palette-swatch" id="swatch-text" title="Text" style="background: #ffffff;"></div>
+                    </div>
+                  </div>
+
+                  <div class="proj-quick-shortcuts">
+                    <button type="button" class="btn-proj-shortcut" id="btn-shortcut-add-sec">➕ Add New Section</button>
+                    <button type="button" class="btn-proj-shortcut" id="btn-shortcut-edit-code">💻 View Source Code</button>
+                  </div>
+                </div>
               </div>
 
               <!-- Active Section Inspector Form -->

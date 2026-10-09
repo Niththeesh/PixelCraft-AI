@@ -30,7 +30,10 @@
     activeInspectorTab: 'section', // 'section' | 'element'
     isGenerating: false,
     activeCodeTab: 'html',     // 'html' | 'css' | 'js'
-    exportFormat: 'zip'        // 'zip' | 'single'
+    exportFormat: 'zip',       // 'zip' | 'single'
+    isLeftPanelCollapsed: false,
+    isRightPanelCollapsed: false,
+    isPromptPopoverOpen: false
   };
 
   // DOM Elements cache
@@ -48,6 +51,10 @@
       btnBuilderBackChat: document.getElementById('btn-builder-back-chat'),
 
       // Top Toolbar
+      btnToggleLeftPanel: document.getElementById('btn-toggle-left-panel'),
+      btnToggleRightPanel: document.getElementById('btn-toggle-right-panel'),
+      btnCollapseLeftPanel: document.getElementById('btn-collapse-left-panel'),
+      btnCollapseRightPanel: document.getElementById('btn-collapse-right-panel'),
       projectTitleInput: document.getElementById('builder-project-title-input'),
       statusPill: document.getElementById('builder-status-pill'),
       saveStatusEl: document.getElementById('builder-save-status'),
@@ -66,12 +73,19 @@
       btnCodeModal: document.getElementById('btn-builder-code'),
       btnExportModal: document.getElementById('btn-builder-export'),
 
-      // Canvas, Device Frame & Prompt Direction Card
+      // Floating Master Prompt Popover
       promptCard: document.getElementById('builder-prompt-card'),
       btnPromptToggle: document.getElementById('btn-prompt-toggle'),
+      btnPromptClose: document.getElementById('btn-prompt-close'),
       originalPromptInput: document.getElementById('builder-original-prompt-input'),
       btnPromptOptimize: document.getElementById('btn-prompt-optimize'),
       btnPromptUpdate: document.getElementById('btn-prompt-update'),
+      promptPopoverStatus: document.getElementById('prompt-popover-status'),
+
+      // Canvas, Viewport, Device Frame & Docked Refine Bar
+      canvasWrapper: document.getElementById('builder-canvas-wrapper'),
+      canvasViewport: document.getElementById('builder-canvas-viewport'),
+      refineDock: document.getElementById('builder-refine-dock'),
       deviceFrame: document.getElementById('builder-device-frame'),
       viewportDimensionBadge: document.getElementById('viewport-dimension-badge'),
       iframe: document.getElementById('builder-iframe'),
@@ -80,12 +94,14 @@
       loadingSub: document.getElementById('canvas-loading-sub'),
 
       // Sections Panel
+      leftPanel: document.getElementById('builder-left-panel'),
       sectionsList: document.getElementById('builder-sections-list'),
       sectionsCountBadge: document.getElementById('sections-count-badge'),
       btnRefreshTree: document.getElementById('btn-builder-refresh-tree'),
       btnAddSectionOpen: document.getElementById('btn-add-section-open'),
 
       // Multi-Scope Refinement Bar
+      refineBar: document.getElementById('builder-refine-bar'),
       scopeBtnProject: document.getElementById('scope-btn-project'),
       scopeBtnSection: document.getElementById('scope-btn-section'),
       scopeBtnElement: document.getElementById('scope-btn-element'),
@@ -97,20 +113,32 @@
       btnRefineRegen: document.getElementById('btn-refine-regen'),
       refineChips: document.querySelectorAll('.refine-chip'),
 
-      // Mobile Tabs
+      // Mobile Tabs & Backdrop
       mobTabButtons: document.querySelectorAll('.mob-tab-btn'),
-      leftPanel: document.getElementById('builder-left-panel'),
-      canvasWrapper: document.getElementById('builder-canvas-wrapper'),
-      rightPanel: document.getElementById('builder-right-panel'),
-      refineBar: document.getElementById('builder-refine-bar'),
+      mobileBackdrop: document.getElementById('builder-mobile-backdrop'),
 
-      // Inspector Tabs & Views
+      // Right Panel / Inspector Tabs & Views
+      rightPanel: document.getElementById('builder-right-panel'),
       tabBtnSection: document.getElementById('tab-btn-section'),
       tabBtnElement: document.getElementById('tab-btn-element'),
       inspectorSectionContent: document.getElementById('inspector-section-content'),
       inspectorElementContent: document.getElementById('inspector-element-content'),
       inspectorSectionEmpty: document.getElementById('inspector-section-empty'),
       inspectorSectionForm: document.getElementById('inspector-section-form'),
+
+      // Project Settings Overview (shown when nothing is selected)
+      projectOverviewPanel: document.getElementById('project-overview-panel'),
+      projSettingsTitle: document.getElementById('proj-settings-title'),
+      projSettingsType: document.getElementById('proj-settings-type'),
+      projSettingsSectionsCount: document.getElementById('proj-settings-sections-count'),
+      projSettingsHeadingFont: document.getElementById('proj-settings-heading-font'),
+      projSettingsBodyFont: document.getElementById('proj-settings-body-font'),
+      swatchPrimary: document.getElementById('swatch-primary'),
+      swatchSecondary: document.getElementById('swatch-secondary'),
+      swatchBg: document.getElementById('swatch-bg'),
+      swatchText: document.getElementById('swatch-text'),
+      btnShortcutAddSec: document.getElementById('btn-shortcut-add-sec'),
+      btnShortcutEditCode: document.getElementById('btn-shortcut-edit-code'),
 
       // Section Inspector Controls
       secPropIdBadge: document.getElementById('sec-prop-id-badge'),
@@ -1148,12 +1176,77 @@
     }
   }
 
+  function toggleLeftPanel(forceState) {
+    state.isLeftPanelCollapsed = typeof forceState === 'boolean' ? forceState : !state.isLeftPanelCollapsed;
+    if (el.leftPanel) {
+      el.leftPanel.classList.toggle('is-collapsed', state.isLeftPanelCollapsed);
+    }
+    if (el.btnToggleLeftPanel) {
+      el.btnToggleLeftPanel.classList.toggle('is-active', !state.isLeftPanelCollapsed);
+    }
+  }
+
+  function toggleRightPanel(forceState) {
+    state.isRightPanelCollapsed = typeof forceState === 'boolean' ? forceState : !state.isRightPanelCollapsed;
+    if (el.rightPanel) {
+      el.rightPanel.classList.toggle('is-collapsed', state.isRightPanelCollapsed);
+    }
+    if (el.btnToggleRightPanel) {
+      el.btnToggleRightPanel.classList.toggle('is-active', !state.isRightPanelCollapsed);
+    }
+  }
+
+  function togglePromptPopover(forceState) {
+    state.isPromptPopoverOpen = typeof forceState === 'boolean' ? forceState : !state.isPromptPopoverOpen;
+    if (el.promptCard) {
+      el.promptCard.style.display = state.isPromptPopoverOpen ? 'flex' : 'none';
+      if (state.isPromptPopoverOpen) {
+        el.originalPromptInput?.focus();
+      }
+    }
+    if (el.btnTogglePromptPanel) {
+      el.btnTogglePromptPanel.classList.toggle('active', state.isPromptPopoverOpen);
+    }
+  }
+
+  function closeMobileSheets() {
+    if (el.leftPanel) el.leftPanel.classList.remove('mob-visible');
+    if (el.rightPanel) el.rightPanel.classList.remove('mob-visible');
+    if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'none';
+    if (el.promptCard) el.promptCard.style.display = 'none';
+    state.isPromptPopoverOpen = false;
+    if (el.mobTabButtons) {
+      el.mobTabButtons.forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-tab') === 'canvas');
+      });
+    }
+  }
+
+  function populateProjectOverview() {
+    const proj = state.currentProject;
+    if (!proj) return;
+    if (el.projSettingsTitle) el.projSettingsTitle.textContent = proj.title || 'Untitled Project';
+    if (el.projSettingsType) el.projSettingsType.textContent = proj.projectType || 'Landing Page';
+    if (el.projSettingsSectionsCount) el.projSettingsSectionsCount.textContent = (proj.sections || []).length;
+    if (el.projSettingsHeadingFont) el.projSettingsHeadingFont.textContent = proj.designSpec?.typography?.headingFont || 'Plus Jakarta Sans';
+    if (el.projSettingsBodyFont) el.projSettingsBodyFont.textContent = proj.designSpec?.typography?.bodyFont || 'Inter';
+
+    const p = proj.designSpec?.palette || {};
+    if (el.swatchPrimary) el.swatchPrimary.style.background = p.primary || '#6366f1';
+    if (el.swatchSecondary) el.swatchSecondary.style.background = p.accent || '#f97316';
+    if (el.swatchBg) el.swatchBg.style.background = p.background || '#0b0f19';
+    if (el.swatchText) el.swatchText.style.background = p.text || '#ffffff';
+  }
+
   function populateSectionInspector(sectionId) {
     const sections = state.currentProject?.sections || [];
     const sec = sections.find(s => s.id === sectionId);
 
     if (!sec) {
-      if (el.inspectorSectionEmpty) el.inspectorSectionEmpty.style.display = 'block';
+      if (el.inspectorSectionEmpty) {
+        el.inspectorSectionEmpty.style.display = 'block';
+        populateProjectOverview();
+      }
       if (el.inspectorSectionForm) el.inspectorSectionForm.style.display = 'none';
       return;
     }
@@ -2509,24 +2602,40 @@ Generated with PixelCraft AI Studio.
   // Event Bindings
   // ==========================================================================
   function setupEvents() {
-    // Original Prompt Direction Panel Bindings
+    // Top Toolbar Panel Toggles & Floating Prompt Popover
+    if (el.btnToggleLeftPanel) {
+      el.btnToggleLeftPanel.addEventListener('click', () => toggleLeftPanel());
+    }
+    if (el.btnCollapseLeftPanel) {
+      el.btnCollapseLeftPanel.addEventListener('click', () => toggleLeftPanel(true));
+    }
+    if (el.btnToggleRightPanel) {
+      el.btnToggleRightPanel.addEventListener('click', () => toggleRightPanel());
+    }
+    if (el.btnCollapseRightPanel) {
+      el.btnCollapseRightPanel.addEventListener('click', () => toggleRightPanel(true));
+    }
     if (el.btnTogglePromptPanel) {
-      el.btnTogglePromptPanel.addEventListener('click', () => {
-        if (el.promptCard) {
-          el.promptCard.classList.toggle('collapsed');
-          if (!el.promptCard.classList.contains('collapsed')) {
-            el.originalPromptInput?.focus();
-          }
-        }
+      el.btnTogglePromptPanel.addEventListener('click', () => togglePromptPopover());
+    }
+    if (el.btnPromptClose) {
+      el.btnPromptClose.addEventListener('click', () => togglePromptPopover(false));
+    }
+    if (el.mobileBackdrop) {
+      el.mobileBackdrop.addEventListener('click', () => closeMobileSheets());
+    }
+    if (el.btnShortcutAddSec) {
+      el.btnShortcutAddSec.addEventListener('click', openAddSectionModal);
+    }
+    if (el.btnShortcutEditCode) {
+      el.btnShortcutEditCode.addEventListener('click', () => {
+        if (el.btnCodeModal) el.btnCodeModal.click();
       });
     }
 
     if (el.btnPromptToggle) {
       el.btnPromptToggle.addEventListener('click', () => {
-        if (el.promptCard) {
-          const isCollapsed = el.promptCard.classList.toggle('collapsed');
-          el.btnPromptToggle.textContent = isCollapsed ? '▼ Show Prompt' : '▲ Hide';
-        }
+        togglePromptPopover();
       });
     }
 
@@ -2663,17 +2772,33 @@ Generated with PixelCraft AI Studio.
       });
     }
 
-    // Mobile tabs switcher
+    // Mobile tabs switcher (touch-friendly sheets & drawers)
     el.mobTabButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         el.mobTabButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const tab = btn.getAttribute('data-tab');
 
-        if (el.leftPanel) el.leftPanel.classList.toggle('mob-visible', tab === 'layers');
-        if (el.rightPanel) el.rightPanel.classList.toggle('mob-visible', tab === 'props');
-        if (el.refineBar) el.refineBar.classList.toggle('mob-visible', tab === 'prompt');
-        if (el.canvasWrapper) el.canvasWrapper.classList.toggle('mob-visible', tab === 'canvas');
+        if (tab === 'canvas') {
+          closeMobileSheets();
+        } else if (tab === 'layers') {
+          if (el.leftPanel) el.leftPanel.classList.add('mob-visible');
+          if (el.rightPanel) el.rightPanel.classList.remove('mob-visible');
+          if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'block';
+          if (el.promptCard) el.promptCard.style.display = 'none';
+          state.isPromptPopoverOpen = false;
+        } else if (tab === 'props') {
+          if (el.rightPanel) el.rightPanel.classList.add('mob-visible');
+          if (el.leftPanel) el.leftPanel.classList.remove('mob-visible');
+          if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'block';
+          if (el.promptCard) el.promptCard.style.display = 'none';
+          state.isPromptPopoverOpen = false;
+        } else if (tab === 'prompt') {
+          togglePromptPopover(true);
+          if (el.leftPanel) el.leftPanel.classList.remove('mob-visible');
+          if (el.rightPanel) el.rightPanel.classList.remove('mob-visible');
+          if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'block';
+        }
       });
     });
 

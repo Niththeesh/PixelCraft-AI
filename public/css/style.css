@@ -3900,25 +3900,74 @@ button {
   position: relative;
 }
 
-/* Studio Top Toolbar */
+/* Studio Top Toolbar (Figma-inspired, compact, high-efficiency) */
 .builder-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 54px;
+  height: 48px;
   padding: 0 16px;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(14px);
+  background: rgba(13, 18, 28, 0.95);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
   gap: 12px;
-  z-index: 20;
+  z-index: 30;
 }
 
 .tb-left, .tb-center, .tb-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.builder-panel-toggle-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-color);
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.builder-panel-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.builder-panel-toggle-btn.is-active,
+.builder-panel-toggle-btn:active {
+  background: rgba(99, 102, 241, 0.22);
+  border-color: #6366f1;
+  color: #818cf8;
+}
+
+.btn-collapse-panel {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-collapse-panel:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .builder-btn-back {
@@ -4179,10 +4228,27 @@ button {
   color: var(--text-color);
 }
 
-/* Left Panel: Sections / Layers */
+/* Left Panel: Sections / Layers (Collapsible) */
 .builder-left-panel {
-  width: 240px;
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
   border-right: 1px solid var(--border-color);
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              min-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.2s ease;
+}
+
+.builder-left-panel.is-collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  border-right: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .sections-tree-content {
@@ -4255,21 +4321,7 @@ button {
   opacity: 1;
 }
 
-/* Center Canvas Wrapper */
-.builder-canvas-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  background: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 20px 20px;
-  background-color: #080b11;
-  overflow: hidden;
-  padding: 16px 20px 100px; /* bottom padding leaves space for refine bar */
-}
-
-/* Prompt Direction Card */
+/* Floating Prompt Direction Popover (Figma-inspired, non-competing dropdown) */
 .builder-btn-prompt-toggle {
   display: inline-flex;
   align-items: center;
@@ -4290,33 +4342,34 @@ button {
   color: #ffffff;
 }
 
-.builder-prompt-card {
-  width: 100%;
-  max-width: 100%;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: 12px;
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  flex-shrink: 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  transition: all 0.25s ease;
+.builder-prompt-popover {
+  position: absolute;
+  top: 54px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(780px, 94vw);
+  background: rgba(13, 18, 28, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  border-radius: 14px;
+  padding: 14px 18px;
+  z-index: 100;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 25px rgba(99, 102, 241, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: popoverDrop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.builder-prompt-card.collapsed .prompt-card-body {
-  display: none;
+@keyframes popoverDrop {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 .prompt-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.builder-prompt-card.collapsed .prompt-card-header {
-  margin-bottom: 0;
 }
 
 .prompt-card-title {
@@ -4334,21 +4387,20 @@ button {
   color: var(--text-muted);
 }
 
-.btn-prompt-toggle {
+.btn-prompt-close {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 0.74rem;
-  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
   transition: all 0.2s;
 }
 
-.btn-prompt-toggle:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
+.btn-prompt-close:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .prompt-editor-row {
@@ -4359,16 +4411,16 @@ button {
 
 .builder-original-prompt-input {
   flex: 1;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   color: var(--text-color);
-  font-size: 0.86rem;
-  line-height: 1.45;
+  font-size: 0.88rem;
+  line-height: 1.5;
   outline: none;
   resize: vertical;
-  min-height: 48px;
+  min-height: 60px;
   transition: border-color 0.2s;
 }
 
@@ -4387,7 +4439,7 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 12px;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -4408,12 +4460,12 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 14px;
+  padding: 8px 14px;
   background: var(--accent-primary);
   border: none;
   border-radius: 6px;
   color: #ffffff;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
@@ -4425,25 +4477,84 @@ button {
   transform: translateY(-1px);
 }
 
+.prompt-popover-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.prompt-tip {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.prompt-tip kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 0.68rem;
+}
+
+/* Center Canvas Wrapper: 2 Non-Overlapping Regions (Viewport + Docked Bar) */
+.builder-canvas-wrapper {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: #080b11;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* 1. Scrollable Canvas Viewport (100% full-page vertical scrolling) */
+.builder-canvas-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 24px 32px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.builder-canvas-viewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.builder-canvas-viewport::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
 /* Device Frame Container */
 .device-frame {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
   width: 100%;
   height: 100%;
+  min-height: 100%;
   background: #111827;
   border: 1px solid var(--border-color);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.55);
-  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.35s;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
 }
 
 .device-frame.desktop {
   width: 100%;
-  max-width: 100%;
+  max-width: 1360px;
 }
 
 .device-frame.tablet {
@@ -4507,6 +4618,8 @@ button {
 /* Iframe Container & Canvas Loading */
 .iframe-container {
   flex: 1;
+  min-height: 800px;
+  height: 100%;
   position: relative;
   background: #ffffff;
 }
@@ -4514,6 +4627,7 @@ button {
 .builder-iframe {
   width: 100%;
   height: 100%;
+  min-height: 800px;
   border: none;
   display: block;
 }
@@ -4558,21 +4672,31 @@ button {
   max-width: 400px;
 }
 
-/* Natural-Language Refinement Bar (Floating at bottom) */
-.builder-refine-bar {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 48px);
-  max-width: 820px;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: 18px;
-  padding: 10px 14px;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.65), 0 0 20px rgba(99, 102, 241, 0.15);
+/* 2. Docked Refinement Region (Permanently below viewport, zero overlap with canvas!) */
+.builder-refine-dock {
+  flex-shrink: 0;
   z-index: 30;
+  width: 100%;
+  background: rgba(13, 18, 28, 0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-color);
+  padding: 10px 24px;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.builder-refine-bar {
+  position: static;
+  transform: none;
+  width: 100%;
+  max-width: 920px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  z-index: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -4620,10 +4744,15 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 6px 12px;
+  padding: 8px 14px;
+  transition: border-color 0.2s;
+}
+
+.refine-input-wrap:focus-within {
+  border-color: #6366f1;
 }
 
 .refine-sparkle {
@@ -4646,7 +4775,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 8px 18px;
   background: var(--accent-primary);
   border: none;
   border-radius: 12px;
@@ -4682,10 +4811,33 @@ button {
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* Right Panel: Visual Inspector */
+/* Right Panel: Visual Inspector (320px, Collapsible) */
 .builder-right-panel {
-  width: 280px;
+  width: 320px;
+  min-width: 320px;
+  max-width: 320px;
   border-left: 1px solid var(--border-color);
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              min-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.2s ease;
+}
+
+.builder-right-panel.is-collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  border-left: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.inspector-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .elem-badge {
@@ -4705,8 +4857,106 @@ button {
 
 .inspector-empty {
   text-align: center;
-  padding: 40px 10px;
+  padding: 20px 10px;
   color: var(--text-muted);
+}
+
+/* Project Settings & Styles Overview Panel */
+.project-overview-panel {
+  padding: 4px;
+  text-align: left;
+}
+
+.proj-overview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.proj-badge-icon {
+  font-size: 1.2rem;
+}
+
+.proj-overview-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.proj-overview-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.proj-meta-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.proj-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+}
+
+.proj-meta-label {
+  color: var(--text-muted);
+}
+
+.proj-meta-val {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.palette-swatches {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 16px;
+}
+
+.palette-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.proj-quick-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-proj-shortcut {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.btn-proj-shortcut:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #6366f1;
+  color: #818cf8;
 }
 
 .empty-icon {
@@ -5063,55 +5313,124 @@ button {
 /* ==========================================================================
    Responsive Adaptations for Studio Workspace
    ========================================================================== */
+/* Responsive Adaptations for Studio Workspace */
 @media (max-width: 1024px) {
   .builder-left-panel {
-    width: 200px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
   }
   .builder-right-panel {
-    width: 240px;
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
   }
   .builder-project-title-input {
-    width: 130px;
+    width: 140px;
+  }
+  .device-frame.desktop {
+    max-width: 100%;
   }
 }
 
 @media (max-width: 768px) {
   .builder-mobile-tab-bar {
     display: flex;
+    background: #0d121c;
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 10px;
+    gap: 6px;
+    z-index: 40;
+  }
+
+  .mob-tab-btn {
+    padding: 8px 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
   }
 
   .builder-main-body {
     flex-direction: column;
+    position: relative;
   }
 
+  /* Secondary Panels open as slide-over / sheet drawers on Mobile */
   .builder-panel {
     width: 100% !important;
-    height: 100% !important;
-    position: absolute;
-    top: 36px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: none;
-    z-index: 25;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    position: fixed !important;
+    top: 92px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: none !important;
+    z-index: 90 !important;
+    background: #0d121c !important;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.7);
   }
 
   .builder-panel.mob-visible {
     display: flex !important;
   }
 
+  .builder-mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 85;
+  }
+
+  /* Canvas is primary content on Mobile */
   .builder-canvas-wrapper {
-    padding: 10px 10px 90px;
+    flex: 1;
     height: 100%;
+    padding: 0;
   }
 
-  .builder-canvas-wrapper.mob-visible {
-    display: flex !important;
+  .builder-canvas-viewport {
+    padding: 12px 10px 20px;
   }
 
-  .builder-refine-bar {
+  .device-frame.desktop,
+  .device-frame.tablet,
+  .device-frame.mobile {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .iframe-container {
+    min-height: 600px;
+  }
+
+  .builder-iframe {
+    min-height: 600px;
+  }
+
+  /* Docked Refine Bar on Mobile */
+  .builder-refine-dock {
+    padding: 8px 12px max(10px, env(safe-area-inset-bottom, 10px));
+  }
+
+  .refine-chips-scroll {
+    gap: 4px;
+  }
+
+  .refine-chip {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+
+  .builder-refine-input {
+    font-size: 0.84rem;
+  }
+
+  /* Floating Prompt Popover on Mobile */
+  .builder-prompt-popover {
     width: calc(100% - 20px);
-    bottom: 10px;
+    top: 54px;
+    padding: 12px 14px;
   }
 
   .tb-center {
@@ -5120,6 +5439,7 @@ button {
 
   .builder-toolbar {
     padding: 0 10px;
+    height: 44px;
   }
 
   .builder-btn-back .btn-text-label,
