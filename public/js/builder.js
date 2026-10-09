@@ -466,10 +466,10 @@
 
     // DYNAMIC SECTION PARSER: Extract actual sections from HTML DOM
     const detected = detectProjectSections(project.html);
-    state.currentProject.sections = detected;
+    state.currentProject.sections = (detected && detected.length > 0) ? detected : (project.sections || []);
 
     // Populate Sections tree
-    renderSectionsTree(detected);
+    renderSectionsTree(state.currentProject.sections);
 
     // Synchronize selected section
     if (state.selectedSectionId && detected.some(s => s.id === state.selectedSectionId)) {
@@ -1130,7 +1130,15 @@
   // Section Selection & Inspector Synchronization (Requirement 3 & 4)
   // ==========================================================================
   function selectSection(sectionId) {
-    if (!sectionId) return;
+    if (!sectionId) {
+      state.selectedSectionId = null;
+      document.querySelectorAll('.section-tree-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      if (el.scopeSectionPill) el.scopeSectionPill.style.display = 'none';
+      populateSectionInspector(null);
+      return;
+    }
     state.selectedSectionId = sectionId;
 
     // Highlight in Left Panel
@@ -3172,6 +3180,18 @@ Generated with PixelCraft AI Studio.
     },
     getCurrentProject: function() {
       return state.currentProject;
+    },
+    selectSection: function(secId) {
+      selectSection(secId);
+    },
+    toggleLeftPanel: function(force) {
+      toggleLeftPanel(force);
+    },
+    toggleRightPanel: function(force) {
+      toggleRightPanel(force);
+    },
+    togglePromptPopover: function(force) {
+      togglePromptPopover(force);
     }
   };
 
