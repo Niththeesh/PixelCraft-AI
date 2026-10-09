@@ -19,6 +19,15 @@
     historyStack: [],
     historyIndex: -1,
     activeViewport: 'desktop', // 'desktop' | 'tablet' | 'mobile'
+    activeCreativeMode: 'website', // 'website' | 'uiux' | 'logo' | 'image'
+    logoData: null,
+    activeLogoVariant: 'primary', // 'primary' | 'light' | 'dark' | 'icon' | 'wordmark'
+    isLogoDarkBg: false,
+    uiuxData: null,
+    activeUiUxScreenId: null,
+    imageData: null,
+    activeImageAspect: '1:1',
+    projectAssets: [],
     editorMode: 'edit',        // 'edit' | 'preview'
     saveStatus: 'saved',       // 'saved' | 'unsaved' | 'saving'
     zoomScale: 1,
@@ -50,6 +59,13 @@
       btnSidebarStudio: document.getElementById('btn-sidebar-studio'),
       btnBuilderBackChat: document.getElementById('btn-builder-back-chat'),
 
+      // Creative Mode Selector Pills
+      creativeModePills: document.querySelectorAll('.creative-mode-pill'),
+      btnModeWebsite: document.getElementById('btn-mode-website'),
+      btnModeUiux: document.getElementById('btn-mode-uiux'),
+      btnModeLogo: document.getElementById('btn-mode-logo'),
+      btnModeImage: document.getElementById('btn-mode-image'),
+
       // Top Toolbar
       btnToggleLeftPanel: document.getElementById('btn-toggle-left-panel'),
       btnToggleRightPanel: document.getElementById('btn-toggle-right-panel'),
@@ -73,7 +89,7 @@
       btnCodeModal: document.getElementById('btn-builder-code'),
       btnExportModal: document.getElementById('btn-builder-export'),
 
-      // Floating Master Prompt Popover
+      // Floating Master Prompt Popover & Quick Inspiration Chips
       promptCard: document.getElementById('builder-prompt-card'),
       btnPromptToggle: document.getElementById('btn-prompt-toggle'),
       btnPromptClose: document.getElementById('btn-prompt-close'),
@@ -81,8 +97,9 @@
       btnPromptOptimize: document.getElementById('btn-prompt-optimize'),
       btnPromptUpdate: document.getElementById('btn-prompt-update'),
       promptPopoverStatus: document.getElementById('prompt-popover-status'),
+      quickChips: document.querySelectorAll('.quick-chip'),
 
-      // Canvas, Viewport, Device Frame & Docked Refine Bar
+      // Canvas, Viewports & Creative Containers
       canvasWrapper: document.getElementById('builder-canvas-wrapper'),
       canvasViewport: document.getElementById('builder-canvas-viewport'),
       refineDock: document.getElementById('builder-refine-dock'),
@@ -93,12 +110,50 @@
       loadingTitle: document.getElementById('canvas-loading-title'),
       loadingSub: document.getElementById('canvas-loading-sub'),
 
-      // Sections Panel
+      // Multimodal Creative Canvases
+      uiuxCanvasContainer: document.getElementById('uiux-canvas-container'),
+      uiuxScreenTabs: document.getElementById('uiux-screen-tabs'),
+      uiuxScreenTitle: document.getElementById('uiux-screen-title'),
+      uiuxScreenSubtitle: document.getElementById('uiux-screen-subtitle'),
+      uiuxPhoneMockup: document.getElementById('uiux-phone-mockup'),
+      uiuxAppViewport: document.getElementById('uiux-app-viewport'),
+
+      logoCanvasContainer: document.getElementById('logo-canvas-container'),
+      logoArtboard: document.getElementById('logo-artboard'),
+      logoSvgContainer: document.getElementById('logo-svg-container'),
+      logoBrandName: document.getElementById('logo-brand-name'),
+      logoBrandCategory: document.getElementById('logo-brand-category'),
+      logoColorSwatches: document.getElementById('logo-color-swatches'),
+      logoFontHeading: document.getElementById('logo-font-heading'),
+      logoFontBody: document.getElementById('logo-font-body'),
+      logoCardBrand: document.getElementById('logo-card-brand'),
+      logoCardSlogan: document.getElementById('logo-card-slogan'),
+      logoCardIcon: document.getElementById('logo-card-icon'),
+      logoCardAvatar: document.getElementById('logo-card-avatar'),
+      btnDownloadSvg: document.getElementById('btn-download-svg'),
+      btnDownloadPng: document.getElementById('btn-download-png'),
+      btnToggleLogoBg: document.getElementById('btn-toggle-logo-bg'),
+      logoVarBtns: document.querySelectorAll('.logo-var-btn'),
+
+      imageCanvasContainer: document.getElementById('image-canvas-container'),
+      imageRenderedPreview: document.getElementById('image-rendered-preview'),
+      imagePromptBadge: document.getElementById('image-prompt-badge'),
+      imageAspectPills: document.querySelectorAll('.aspect-pill'),
+      btnDownloadImageAsset: document.getElementById('btn-download-image-asset'),
+
+      // Left Panel Tabs (Layers vs Assets)
       leftPanel: document.getElementById('builder-left-panel'),
+      tabLeftLayers: document.getElementById('tab-left-layers'),
+      tabLeftAssets: document.getElementById('tab-left-assets'),
+      panelLayersView: document.getElementById('panel-layers-view'),
+      panelAssetsView: document.getElementById('panel-assets-view'),
       sectionsList: document.getElementById('builder-sections-list'),
       sectionsCountBadge: document.getElementById('sections-count-badge'),
       btnRefreshTree: document.getElementById('btn-builder-refresh-tree'),
       btnAddSectionOpen: document.getElementById('btn-add-section-open'),
+      builderAssetsList: document.getElementById('builder-assets-list'),
+      assetsCountBadge: document.getElementById('assets-count-badge'),
+      btnNewAssetUpload: document.getElementById('btn-new-asset-upload'),
 
       // Multi-Scope Refinement Bar
       refineBar: document.getElementById('builder-refine-bar'),
@@ -121,10 +176,34 @@
       rightPanel: document.getElementById('builder-right-panel'),
       tabBtnSection: document.getElementById('tab-btn-section'),
       tabBtnElement: document.getElementById('tab-btn-element'),
+      tabBtnLogo: document.getElementById('tab-btn-logo'),
+      tabBtnImage: document.getElementById('tab-btn-image'),
+      tabBtnUiux: document.getElementById('tab-btn-uiux'),
       inspectorSectionContent: document.getElementById('inspector-section-content'),
       inspectorElementContent: document.getElementById('inspector-element-content'),
+      inspectorLogoContent: document.getElementById('inspector-logo-content'),
+      inspectorImageContent: document.getElementById('inspector-image-content'),
+      inspectorUiuxContent: document.getElementById('inspector-uiux-content'),
       inspectorSectionEmpty: document.getElementById('inspector-section-empty'),
       inspectorSectionForm: document.getElementById('inspector-section-form'),
+
+      // Logo Inspector Form Elements
+      logoBrandNameInput: document.getElementById('logo-brand-name-input'),
+      logoSloganInput: document.getElementById('logo-slogan-input'),
+      logoPrimaryColor: document.getElementById('logo-primary-color'),
+      logoSecondaryColor: document.getElementById('logo-secondary-color'),
+      logoAccentColor: document.getElementById('logo-accent-color'),
+      logoAiPrompt: document.getElementById('logo-ai-prompt'),
+      btnLogoAiApply: document.getElementById('btn-logo-ai-apply'),
+
+      // Image Inspector Form Elements
+      imagePromptInput: document.getElementById('image-prompt-input'),
+      imageRefinePrompt: document.getElementById('image-refine-prompt'),
+      btnImageVariationApply: document.getElementById('btn-image-variation-apply'),
+
+      // UI/UX Inspector Form Elements
+      uiuxAiPrompt: document.getElementById('uiux-ai-prompt'),
+      btnUiuxAiApply: document.getElementById('btn-uiux-ai-apply'),
 
       // Project Settings Overview (shown when nothing is selected)
       projectOverviewPanel: document.getElementById('project-overview-panel'),
@@ -244,6 +323,448 @@
 
       if (el.btnModeChat) el.btnModeChat.classList.add('active');
       if (el.btnModeStudio) el.btnModeStudio.classList.remove('active');
+    }
+  }
+
+  // ==========================================================================
+  // Creative Mode Switching (Website vs UI/UX vs Logo vs Image)
+  // ==========================================================================
+  function setCreativeMode(mode) {
+    state.activeCreativeMode = mode;
+
+    // 1. Update Mode Pill Buttons
+    if (el.creativeModePills) {
+      el.creativeModePills.forEach(pill => {
+        pill.classList.toggle('active', pill.getAttribute('data-mode') === mode);
+      });
+    }
+
+    // 2. Switch Canvas Viewports
+    const isWeb = mode === 'website';
+    const isUiUx = mode === 'uiux';
+    const isLogo = mode === 'logo';
+    const isImage = mode === 'image';
+
+    if (el.deviceFrame) el.deviceFrame.style.display = isWeb ? 'block' : 'none';
+    if (el.uiuxCanvasContainer) el.uiuxCanvasContainer.style.display = isUiUx ? 'flex' : 'none';
+    if (el.logoCanvasContainer) el.logoCanvasContainer.style.display = isLogo ? 'flex' : 'none';
+    if (el.imageCanvasContainer) el.imageCanvasContainer.style.display = isImage ? 'flex' : 'none';
+
+    // 3. Switch Right Inspector Forms & Inspector Tabs
+    if (isWeb) {
+      if (el.tabBtnSection) el.tabBtnSection.style.display = 'inline-flex';
+      if (el.tabBtnElement) el.tabBtnElement.style.display = 'inline-flex';
+      if (el.tabBtnLogo) el.tabBtnLogo.style.display = 'none';
+      if (el.tabBtnImage) el.tabBtnImage.style.display = 'none';
+      if (el.tabBtnUiux) el.tabBtnUiux.style.display = 'none';
+
+      if (el.inspectorLogoContent) el.inspectorLogoContent.style.display = 'none';
+      if (el.inspectorImageContent) el.inspectorImageContent.style.display = 'none';
+      if (el.inspectorUiuxContent) el.inspectorUiuxContent.style.display = 'none';
+      switchInspectorTab(state.activeInspectorTab || 'section');
+    } else if (isLogo) {
+      if (el.tabBtnSection) el.tabBtnSection.style.display = 'none';
+      if (el.tabBtnElement) el.tabBtnElement.style.display = 'none';
+      if (el.tabBtnImage) el.tabBtnImage.style.display = 'none';
+      if (el.tabBtnUiux) el.tabBtnUiux.style.display = 'none';
+      if (el.tabBtnLogo) {
+        el.tabBtnLogo.style.display = 'inline-flex';
+        el.tabBtnLogo.classList.add('active');
+      }
+
+      if (el.inspectorSectionContent) el.inspectorSectionContent.style.display = 'none';
+      if (el.inspectorElementContent) el.inspectorElementContent.style.display = 'none';
+      if (el.inspectorImageContent) el.inspectorImageContent.style.display = 'none';
+      if (el.inspectorUiuxContent) el.inspectorUiuxContent.style.display = 'none';
+      if (el.inspectorLogoContent) el.inspectorLogoContent.style.display = 'block';
+    } else if (isImage) {
+      if (el.tabBtnSection) el.tabBtnSection.style.display = 'none';
+      if (el.tabBtnElement) el.tabBtnElement.style.display = 'none';
+      if (el.tabBtnLogo) el.tabBtnLogo.style.display = 'none';
+      if (el.tabBtnUiux) el.tabBtnUiux.style.display = 'none';
+      if (el.tabBtnImage) {
+        el.tabBtnImage.style.display = 'inline-flex';
+        el.tabBtnImage.classList.add('active');
+      }
+
+      if (el.inspectorSectionContent) el.inspectorSectionContent.style.display = 'none';
+      if (el.inspectorElementContent) el.inspectorElementContent.style.display = 'none';
+      if (el.inspectorLogoContent) el.inspectorLogoContent.style.display = 'none';
+      if (el.inspectorUiuxContent) el.inspectorUiuxContent.style.display = 'none';
+      if (el.inspectorImageContent) el.inspectorImageContent.style.display = 'block';
+    } else if (isUiUx) {
+      if (el.tabBtnSection) el.tabBtnSection.style.display = 'none';
+      if (el.tabBtnElement) el.tabBtnElement.style.display = 'none';
+      if (el.tabBtnLogo) el.tabBtnLogo.style.display = 'none';
+      if (el.tabBtnImage) el.tabBtnImage.style.display = 'none';
+      if (el.tabBtnUiux) {
+        el.tabBtnUiux.style.display = 'inline-flex';
+        el.tabBtnUiux.classList.add('active');
+      }
+
+      if (el.inspectorSectionContent) el.inspectorSectionContent.style.display = 'none';
+      if (el.inspectorElementContent) el.inspectorElementContent.style.display = 'none';
+      if (el.inspectorLogoContent) el.inspectorLogoContent.style.display = 'none';
+      if (el.inspectorImageContent) el.inspectorImageContent.style.display = 'none';
+      if (el.inspectorUiuxContent) el.inspectorUiuxContent.style.display = 'block';
+    }
+
+    // 4. Update Docked Refine Input Placeholder & Chips
+    updateRefinementChips(state.refinementScope);
+    if (el.refineInput) {
+      if (isLogo) el.refineInput.placeholder = 'Refine logo (e.g., Make it pastel pink & cream, transparent background)...';
+      else if (isImage) el.refineInput.placeholder = 'Refine image (e.g., Change lighting to neon sunset, add vintage grain)...';
+      else if (isUiUx) el.refineInput.placeholder = 'Refine UI/UX (e.g., Add dark mode toggle, customize checkout screen)...';
+      else el.refineInput.placeholder = 'Refine website (e.g., Change hero to black and orange, add pricing table)...';
+    }
+
+    if (el.originalPromptInput) {
+      if (isLogo) el.originalPromptInput.placeholder = 'Describe your brand or logo (e.g., Bubble Cafe ku modern luxury logo create pannu)...';
+      else if (isImage) el.originalPromptInput.placeholder = 'Describe the visual or poster (e.g., Create a premium restaurant poster)...';
+      else if (isUiUx) el.originalPromptInput.placeholder = 'Describe the app screens (e.g., Oru modern mobile banking app UI design pannu)...';
+      else el.originalPromptInput.placeholder = 'Describe the website you want to build (e.g., Design a complete gym website with black and orange theme)...';
+    }
+  }
+
+  // ==========================================================================
+  // Left Panel Switching (Layers vs Assets)
+  // ==========================================================================
+  function setLeftPanelTab(tab) {
+    if (el.tabLeftLayers) el.tabLeftLayers.classList.toggle('active', tab === 'layers');
+    if (el.tabLeftAssets) el.tabLeftAssets.classList.toggle('active', tab === 'assets');
+    if (el.panelLayersView) el.panelLayersView.style.display = tab === 'layers' ? 'flex' : 'none';
+    if (el.panelAssetsView) el.panelAssetsView.style.display = tab === 'assets' ? 'flex' : 'none';
+  }
+
+  // ==========================================================================
+  // Multimodal Studio: Logo & Brand Identity Renderer
+  // ==========================================================================
+  function renderLogoStudio(logoData) {
+    if (!logoData) return;
+    state.logoData = logoData;
+    state.activeLogoVariant = 'primary';
+    setCreativeMode('logo');
+
+    // 1. Artboard SVG Container
+    if (el.logoSvgContainer) {
+      el.logoSvgContainer.innerHTML = logoData.svgPrimary || logoData.svg || '';
+    }
+
+    // 2. Brand Identity Header
+    if (el.logoBrandName) el.logoBrandName.textContent = logoData.brandName || 'PixelCraft Brand';
+    if (el.logoBrandCategory) el.logoBrandCategory.textContent = `${logoData.category || 'Creative'} • ${logoData.style || 'Modern Geometric'}`;
+
+    // 3. Color Swatches
+    if (el.logoColorSwatches && logoData.brandKit?.colors) {
+      el.logoColorSwatches.innerHTML = logoData.brandKit.colors.map(c => `
+        <div class="logo-color-swatch-item" onclick="navigator.clipboard.writeText('${c.hex}'); window.PixelCraftBuilder.showToast('Copied ${c.hex}')" title="Click to copy ${c.hex}">
+          <div class="logo-color-swatch-circle" style="background:${c.hex}"></div>
+          <span class="logo-color-swatch-name">${c.name}</span>
+          <span class="logo-color-swatch-hex">${c.hex}</span>
+        </div>
+      `).join('');
+    }
+
+    // 4. Typography
+    if (el.logoFontHeading) el.logoFontHeading.textContent = logoData.brandKit?.typography?.primaryFont || 'Outfit, sans-serif';
+    if (el.logoFontBody) el.logoFontBody.textContent = logoData.brandKit?.typography?.secondaryFont || 'Inter, sans-serif';
+
+    // 5. Business Card Mockup
+    if (el.logoCardBrand) el.logoCardBrand.textContent = logoData.brandName || 'Brand';
+    if (el.logoCardSlogan) el.logoCardSlogan.textContent = logoData.slogan || 'Crafted with PixelCraft AI';
+    if (el.logoCardIcon) el.logoCardIcon.innerHTML = logoData.svgIcon || logoData.svgPrimary || '';
+    if (el.logoCardAvatar) el.logoCardAvatar.innerHTML = logoData.svgIcon || logoData.svgPrimary || '';
+
+    // 6. Populate Inspector Form
+    if (el.logoBrandNameInput) el.logoBrandNameInput.value = logoData.brandName || '';
+    if (el.logoSloganInput) el.logoSloganInput.value = logoData.slogan || '';
+    if (logoData.brandKit?.colors) {
+      const p = logoData.brandKit.colors.find(c => /primary/i.test(c.name)) || logoData.brandKit.colors[0];
+      const s = logoData.brandKit.colors.find(c => /secondary/i.test(c.name)) || logoData.brandKit.colors[1];
+      const a = logoData.brandKit.colors.find(c => /accent/i.test(c.name)) || logoData.brandKit.colors[2];
+      if (p && el.logoPrimaryColor) el.logoPrimaryColor.value = p.hex;
+      if (s && el.logoSecondaryColor) el.logoSecondaryColor.value = s.hex;
+      if (a && el.logoAccentColor) el.logoAccentColor.value = a.hex;
+    }
+
+    // 7. Track Asset in Project Assets
+    addProjectAsset({
+      id: `logo-${Date.now()}`,
+      title: `${logoData.brandName || 'Brand'} Vector Logo`,
+      type: 'logo',
+      format: 'SVG / Vector',
+      data: logoData,
+      preview: logoData.svgPrimary
+    });
+  }
+
+  function setLogoVariant(variantKey) {
+    if (!state.logoData) return;
+    state.activeLogoVariant = variantKey;
+    if (el.logoVarBtns) {
+      el.logoVarBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-variant') === variantKey));
+    }
+    let targetSvg = state.logoData.svgPrimary;
+    if (variantKey === 'light') targetSvg = state.logoData.svgLight || targetSvg;
+    else if (variantKey === 'dark') targetSvg = state.logoData.svgDark || targetSvg;
+    else if (variantKey === 'icon') targetSvg = state.logoData.svgIcon || targetSvg;
+    else if (variantKey === 'wordmark') targetSvg = state.logoData.svgWordmark || targetSvg;
+
+    if (el.logoSvgContainer) {
+      el.logoSvgContainer.innerHTML = targetSvg;
+    }
+    showToastNotification(`Switched to ${variantKey} logo variant`);
+  }
+
+  function toggleLogoBackground() {
+    state.isLogoDarkBg = !state.isLogoDarkBg;
+    if (el.logoArtboard) {
+      el.logoArtboard.classList.toggle('dark-artboard', state.isLogoDarkBg);
+    }
+    if (el.btnToggleLogoBg) {
+      el.btnToggleLogoBg.classList.toggle('active', state.isLogoDarkBg);
+    }
+    showToastNotification(state.isLogoDarkBg ? 'Artboard switched to Dark Mode' : 'Artboard switched to Light Grid');
+  }
+
+  function downloadSvgLogo() {
+    if (!state.logoData) return;
+    const svgCode = el.logoSvgContainer ? el.logoSvgContainer.innerHTML : state.logoData.svgPrimary;
+    const blob = new Blob([svgCode], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const filename = `${(state.logoData.brandName || 'pixelcraft').toLowerCase().replace(/\s+/g, '-')}-${state.activeLogoVariant || 'logo'}.svg`;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToastNotification(`Downloaded real vector SVG: ${filename}`);
+  }
+
+  function downloadPngLogo() {
+    if (!state.logoData) return;
+    const svgCode = el.logoSvgContainer ? el.logoSvgContainer.innerHTML : state.logoData.svgPrimary;
+    const img = new Image();
+    const svgBlob = new Blob([svgCode], { type: 'image/svg+xml;charset=utf-8' });
+    const URLObj = window.URL || window.webkitURL || window;
+    const blobURL = URLObj.createObjectURL(svgBlob);
+
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 2000;
+      canvas.height = 2000;
+      const ctx = canvas.getContext('2d');
+      if (state.isLogoDarkBg) {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, 2000, 2000);
+      }
+      ctx.drawImage(img, 0, 0, 2000, 2000);
+      canvas.toBlob(blob => {
+        const url = URLObj.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const filename = `${(state.logoData.brandName || 'pixelcraft').toLowerCase().replace(/\s+/g, '-')}-${state.activeLogoVariant || 'logo'}-2000px.png`;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URLObj.revokeObjectURL(url);
+        URLObj.revokeObjectURL(blobURL);
+        showToastNotification(`Downloaded high-res PNG: ${filename}`);
+      }, 'image/png');
+    };
+    img.src = blobURL;
+  }
+
+  // ==========================================================================
+  // Multimodal Studio: UI/UX App Designer Renderer
+  // ==========================================================================
+  function renderUiUxStudio(uiuxData) {
+    if (!uiuxData) return;
+    state.uiuxData = uiuxData;
+    setCreativeMode('uiux');
+
+    // 1. Build Screen Switcher Tabs
+    if (el.uiuxScreenTabs && uiuxData.screens && uiuxData.screens.length > 0) {
+      el.uiuxScreenTabs.innerHTML = uiuxData.screens.map((scr, idx) => `
+        <button type="button" class="uiux-screen-tab-btn ${idx === 0 ? 'active' : ''}" data-screen-id="${scr.id}">
+          <span class="tab-icon">📱</span>
+          <span class="tab-text">${scr.title}</span>
+        </button>
+      `).join('');
+
+      // Bind click events
+      el.uiuxScreenTabs.querySelectorAll('.uiux-screen-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sId = btn.getAttribute('data-screen-id');
+          switchUiUxScreen(sId);
+        });
+      });
+
+      // Show first screen
+      switchUiUxScreen(uiuxData.screens[0].id);
+    }
+
+    // 2. Track in Project Assets
+    addProjectAsset({
+      id: `uiux-${Date.now()}`,
+      title: `${uiuxData.appName || 'Mobile App'} Prototype (${uiuxData.screens?.length || 0} screens)`,
+      type: 'uiux',
+      format: 'Interactive App',
+      data: uiuxData
+    });
+  }
+
+  function switchUiUxScreen(screenId) {
+    if (!state.uiuxData || !state.uiuxData.screens) return;
+    const screen = state.uiuxData.screens.find(s => s.id === screenId) || state.uiuxData.screens[0];
+    if (!screen) return;
+    state.activeUiUxScreenId = screen.id;
+
+    // Update screen tab button states
+    if (el.uiuxScreenTabs) {
+      el.uiuxScreenTabs.querySelectorAll('.uiux-screen-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-screen-id') === screen.id);
+      });
+    }
+
+    if (el.uiuxScreenTitle) el.uiuxScreenTitle.textContent = screen.title || 'Screen View';
+    if (el.uiuxScreenSubtitle) el.uiuxScreenSubtitle.textContent = `${state.uiuxData.appName || 'App'} • ${screen.description || 'Interactive prototype'}`;
+
+    // Render screen inside mockup container
+    if (el.uiuxAppViewport) {
+      el.uiuxAppViewport.innerHTML = screen.html || '<div style="padding:24px;text-align:center;">No screen markup</div>';
+    }
+  }
+
+  // ==========================================================================
+  // Multimodal Studio: AI Image Generator Renderer
+  // ==========================================================================
+  function renderImageStudio(imageData) {
+    if (!imageData) return;
+    state.imageData = imageData;
+    setCreativeMode('image');
+
+    if (el.imageRenderedPreview) {
+      el.imageRenderedPreview.src = imageData.url;
+    }
+    if (el.imagePromptBadge) {
+      el.imagePromptBadge.textContent = imageData.prompt || 'Generated AI Visual';
+    }
+    if (el.imagePromptInput) {
+      el.imagePromptInput.value = imageData.prompt || '';
+    }
+
+    // Track in Project Assets
+    addProjectAsset({
+      id: `image-${Date.now()}`,
+      title: imageData.prompt ? imageData.prompt.substring(0, 36) + '...' : 'Generated Creative Visual',
+      type: 'image',
+      format: `${imageData.aspectRatio || '1:1'} ${imageData.format || 'JPEG'}`,
+      url: imageData.url,
+      preview: imageData.url
+    });
+  }
+
+  function downloadImageAsset() {
+    if (!state.imageData || !state.imageData.url) return;
+    const a = document.createElement('a');
+    a.href = state.imageData.url;
+    a.download = `pixelcraft-visual-${Date.now()}.${state.imageData.format || 'jpg'}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToastNotification('Downloaded generated image asset');
+  }
+
+  // ==========================================================================
+  // Integrated Project Assets Management
+  // ==========================================================================
+  function addProjectAsset(asset) {
+    if (!asset || !asset.id) return;
+    // Prevent duplicate entries
+    const existingIdx = state.projectAssets.findIndex(a => a.id === asset.id || (a.title === asset.title && a.type === asset.type));
+    if (existingIdx >= 0) {
+      state.projectAssets[existingIdx] = asset;
+    } else {
+      state.projectAssets.unshift(asset);
+    }
+    renderAssetsList();
+  }
+
+  function renderAssetsList() {
+    if (!el.builderAssetsList) return;
+    if (el.assetsCountBadge) {
+      el.assetsCountBadge.textContent = state.projectAssets.length;
+    }
+
+    if (state.projectAssets.length === 0) {
+      el.builderAssetsList.innerHTML = `
+        <div class="empty-assets-state" style="padding:32px 16px;text-align:center;">
+          <span style="font-size:32px;display:block;margin-bottom:8px;">🎨</span>
+          <p style="font-size:13px; color:var(--text-muted); margin:0;">No assets generated yet.</p>
+          <p style="font-size:11px; color:var(--text-dim); margin-top:4px;">Generate a logo, poster, or UI to populate your asset kit.</p>
+        </div>
+      `;
+      return;
+    }
+
+    el.builderAssetsList.innerHTML = state.projectAssets.map(asset => {
+      let icon = '🎨';
+      let previewHtml = '';
+      if (asset.type === 'logo') {
+        icon = '✨';
+        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;">${asset.preview || '<span>SVG</span>'}</div>`;
+      } else if (asset.type === 'image') {
+        icon = '🖼️';
+        previewHtml = `<img class="asset-preview-thumb-img" src="${asset.url || asset.preview}" alt="${asset.title}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" />`;
+      } else if (asset.type === 'uiux') {
+        icon = '📱';
+        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">📱</div>`;
+      } else {
+        icon = '🌐';
+        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">🌐</div>`;
+      }
+
+      return `
+        <div class="project-asset-card" data-asset-id="${asset.id}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:6px;background:var(--surface-color);border:1px solid var(--border-color);border-radius:8px;">
+          <div class="asset-card-thumb" style="width:40px;height:40px;border-radius:6px;background:var(--bg-card);flex-shrink:0;overflow:hidden;">${previewHtml}</div>
+          <div class="asset-card-info" style="flex:1;min-width:0;">
+            <div class="asset-card-title" style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-main);">${asset.title}</div>
+            <div class="asset-card-meta" style="font-size:10px;color:var(--text-dim);">${icon} ${asset.format || asset.type}</div>
+          </div>
+          <div class="asset-card-actions" style="display:flex;gap:4px;flex-shrink:0;">
+            <button type="button" class="btn-icon-subtle" onclick="window.PixelCraftBuilder.previewAsset('${asset.id}')" title="Preview on canvas" style="padding:4px 6px;font-size:12px;background:transparent;border:1px solid var(--border-color);border-radius:4px;cursor:pointer;">👁️</button>
+            <button type="button" class="btn-icon-subtle" onclick="window.PixelCraftBuilder.downloadAsset('${asset.id}')" title="Download" style="padding:4px 6px;font-size:12px;background:transparent;border:1px solid var(--border-color);border-radius:4px;cursor:pointer;">⬇️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function previewAssetById(assetId) {
+    const asset = state.projectAssets.find(a => a.id === assetId);
+    if (!asset) return;
+    if (asset.type === 'logo' && asset.data) {
+      renderLogoStudio(asset.data);
+    } else if (asset.type === 'image' && asset.url) {
+      renderImageStudio({ url: asset.url, prompt: asset.title });
+    } else if (asset.type === 'uiux' && asset.data) {
+      renderUiUxStudio(asset.data);
+    }
+  }
+
+  function downloadAssetById(assetId) {
+    const asset = state.projectAssets.find(a => a.id === assetId);
+    if (!asset) return;
+    if (asset.type === 'logo') {
+      downloadSvgLogo();
+    } else if (asset.type === 'image') {
+      downloadImageAsset();
+    } else {
+      showToastNotification(`Asset ready: ${asset.title}`);
     }
   }
 
@@ -1888,7 +2409,21 @@
       el.originalPromptInput.value = userPrompt;
     }
 
-    showLoadingOverlay(true, 'Analysing your prompt...', 'Understanding requirements, style, and structure');
+    const currentMode = state.activeCreativeMode || 'website';
+    let progressTitle = 'Analysing your prompt...';
+    let progressSub = 'Understanding requirements, style, and structure';
+    if (currentMode === 'logo') {
+      progressTitle = 'Designing Brand Identity & Logo...';
+      progressSub = 'Crafting precision vector geometry, typography, and palette';
+    } else if (currentMode === 'image') {
+      progressTitle = 'Synthesizing visual asset...';
+      progressSub = 'Generating real binary artwork via high-resolution neural engine';
+    } else if (currentMode === 'uiux') {
+      progressTitle = 'Prototyping mobile application...';
+      progressSub = 'Architecting screens, components, layout, and user flows';
+    }
+
+    showLoadingOverlay(true, progressTitle, progressSub);
 
     try {
       const token = localStorage.getItem('supabase_access_token');
@@ -1897,19 +2432,22 @@
 
       // Progressive progress updates
       const t1 = setTimeout(() => {
-        updateLoadingProgress('Planning layout & sections...', 'Structuring semantic HTML, responsive grids, and components');
+        updateLoadingProgress('Planning layout & visual geometry...', 'Structuring semantic elements, color harmony, and composition');
       }, 5000);
       const t2 = setTimeout(() => {
-        updateLoadingProgress('Crafting aesthetics & visuals...', 'Applying typography, colors, animations, and micro-interactions');
+        updateLoadingProgress('Crafting aesthetics & fine details...', 'Applying typography, luxury styling, and vector polish');
       }, 15000);
       const t3 = setTimeout(() => {
-        updateLoadingProgress('Rendering live interactive preview...', 'Mounting sandboxed application canvas');
+        updateLoadingProgress('Rendering live interactive artboard...', 'Mounting design on creative studio canvas');
       }, 25000);
 
       const response = await fetch('/api/builder/generate', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ prompt: userPrompt.trim() })
+        body: JSON.stringify({
+          prompt: userPrompt.trim(),
+          mode: state.activeCreativeMode
+        })
       });
 
       clearTimeout(t1);
@@ -1917,10 +2455,25 @@
       clearTimeout(t3);
 
       const data = await response.json();
-      if (response.ok && data.success && data.project) {
-        loadProject(data.project, true);
-        setSaveStatus('saved');
-        showToastNotification('🎉 Design generated successfully!');
+      if (response.ok && data.success) {
+        if (data.mode === 'logo' || data.logo) {
+          renderLogoStudio(data.logo);
+          setSaveStatus('saved');
+          showToastNotification('✨ Logo & Brand Kit generated successfully!');
+        } else if (data.mode === 'image' || data.image) {
+          renderImageStudio(data.image);
+          setSaveStatus('saved');
+          showToastNotification('🎨 Real visual asset generated!');
+        } else if (data.mode === 'uiux' || data.uiux) {
+          renderUiUxStudio(data.uiux);
+          setSaveStatus('saved');
+          showToastNotification('📱 UI/UX prototype created!');
+        } else if (data.project) {
+          setCreativeMode('website');
+          loadProject(data.project, true);
+          setSaveStatus('saved');
+          showToastNotification('🎉 Website generated successfully!');
+        }
       } else {
         setSaveStatus('saved');
         alert(data.error || 'Failed to generate design. Please try again.');
@@ -1937,6 +2490,17 @@
 
   async function refineDesign(deltaPrompt) {
     if (state.isGenerating || !deltaPrompt.trim()) return;
+
+    if (state.activeCreativeMode === 'logo' && state.logoData) {
+      return refineLogoStudio(deltaPrompt);
+    }
+    if (state.activeCreativeMode === 'image' && state.imageData) {
+      return refineImageStudio(deltaPrompt);
+    }
+    if (state.activeCreativeMode === 'uiux' && state.uiuxData) {
+      return refineUiUxStudio(deltaPrompt);
+    }
+
     if (!state.currentProject) {
       return generateDesign(deltaPrompt);
     }
@@ -1985,6 +2549,123 @@
       console.error('Refinement error:', err);
       setSaveStatus('saved');
       alert('Network error updating design. Please retry.');
+    } finally {
+      state.isGenerating = false;
+      showLoadingOverlay(false);
+    }
+  }
+
+  async function refineLogoStudio(deltaPrompt) {
+    state.isGenerating = true;
+    setSaveStatus('saving');
+    showLoadingOverlay(true, 'Refining Logo & Brand Kit...', 'Updating colors, typography, and vectors');
+    try {
+      const token = localStorage.getItem('supabase_access_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch('/api/builder/refine', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          prompt: deltaPrompt.trim(),
+          mode: 'logo',
+          currentAsset: state.logoData
+        })
+      });
+      const data = await response.json();
+      if (response.ok && data.success && data.logo) {
+        renderLogoStudio(data.logo);
+        if (el.refineInput) el.refineInput.value = '';
+        if (el.logoAiPrompt) el.logoAiPrompt.value = '';
+        setSaveStatus('saved');
+        showToastNotification(data.summary || '✨ Logo updated successfully!');
+      } else {
+        setSaveStatus('saved');
+        alert(data.error || 'Failed to refine logo.');
+      }
+    } catch (err) {
+      console.error('Logo refine error:', err);
+      setSaveStatus('saved');
+      alert('Network error updating logo.');
+    } finally {
+      state.isGenerating = false;
+      showLoadingOverlay(false);
+    }
+  }
+
+  async function refineImageStudio(deltaPrompt) {
+    state.isGenerating = true;
+    setSaveStatus('saving');
+    showLoadingOverlay(true, 'Synthesizing image variation...', 'Applying prompt modifications with neural engine');
+    try {
+      const token = localStorage.getItem('supabase_access_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch('/api/builder/refine', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          prompt: deltaPrompt.trim(),
+          mode: 'image',
+          currentAsset: state.imageData
+        })
+      });
+      const data = await response.json();
+      if (response.ok && data.success && data.image) {
+        renderImageStudio(data.image);
+        if (el.refineInput) el.refineInput.value = '';
+        if (el.imageRefinePrompt) el.imageRefinePrompt.value = '';
+        setSaveStatus('saved');
+        showToastNotification(data.summary || '🎨 Generated new image variation!');
+      } else {
+        setSaveStatus('saved');
+        alert(data.error || 'Failed to refine image.');
+      }
+    } catch (err) {
+      console.error('Image refine error:', err);
+      setSaveStatus('saved');
+      alert('Network error updating image.');
+    } finally {
+      state.isGenerating = false;
+      showLoadingOverlay(false);
+    }
+  }
+
+  async function refineUiUxStudio(deltaPrompt) {
+    state.isGenerating = true;
+    setSaveStatus('saving');
+    showLoadingOverlay(true, 'Updating UI screens...', 'Refining layout, styles, and interactive screens');
+    try {
+      const token = localStorage.getItem('supabase_access_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch('/api/builder/refine', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          prompt: deltaPrompt.trim(),
+          mode: 'uiux',
+          currentAsset: state.uiuxData
+        })
+      });
+      const data = await response.json();
+      if (response.ok && data.success && data.uiux) {
+        renderUiUxStudio(data.uiux);
+        if (el.refineInput) el.refineInput.value = '';
+        if (el.uiuxAiPrompt) el.uiuxAiPrompt.value = '';
+        setSaveStatus('saved');
+        showToastNotification(data.summary || '📱 UI prototype updated!');
+      } else {
+        setSaveStatus('saved');
+        alert(data.error || 'Failed to refine UI/UX.');
+      }
+    } catch (err) {
+      console.error('UI/UX refine error:', err);
+      setSaveStatus('saved');
+      alert('Network error updating UI/UX.');
     } finally {
       state.isGenerating = false;
       showLoadingOverlay(false);
@@ -3082,6 +3763,80 @@ Generated with PixelCraft AI Studio.
       });
     }
 
+    // Creative Mode Pills
+    if (el.creativeModePills) {
+      el.creativeModePills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          const mode = pill.getAttribute('data-mode');
+          if (mode) setCreativeMode(mode);
+        });
+      });
+    }
+
+    // Quick Inspiration Chips
+    if (el.quickChips) {
+      el.quickChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          const mode = chip.getAttribute('data-mode');
+          const prompt = chip.getAttribute('data-prompt');
+          if (mode) setCreativeMode(mode);
+          if (el.originalPromptInput && prompt) {
+            el.originalPromptInput.value = prompt;
+          }
+          if (prompt) generateDesign(prompt);
+        });
+      });
+    }
+
+    // Left Panel Tabs (Layers vs Assets)
+    if (el.tabLeftLayers) el.tabLeftLayers.addEventListener('click', () => setLeftPanelTab('layers'));
+    if (el.tabLeftAssets) el.tabLeftAssets.addEventListener('click', () => setLeftPanelTab('assets'));
+
+    // Logo Studio Controls
+    if (el.btnDownloadSvg) el.btnDownloadSvg.addEventListener('click', downloadSvgLogo);
+    if (el.btnDownloadPng) el.btnDownloadPng.addEventListener('click', downloadPngLogo);
+    if (el.btnToggleLogoBg) el.btnToggleLogoBg.addEventListener('click', toggleLogoBackground);
+    if (el.logoVarBtns) {
+      el.logoVarBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const v = btn.getAttribute('data-variant');
+          if (v) setLogoVariant(v);
+        });
+      });
+    }
+    if (el.btnLogoAiApply && el.logoAiPrompt) {
+      el.btnLogoAiApply.addEventListener('click', () => {
+        const p = el.logoAiPrompt.value.trim();
+        if (p) refineLogoStudio(p);
+      });
+    }
+
+    // Image Studio Controls
+    if (el.imageAspectPills) {
+      el.imageAspectPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          el.imageAspectPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          state.activeImageAspect = pill.getAttribute('data-aspect') || '1:1';
+        });
+      });
+    }
+    if (el.btnDownloadImageAsset) el.btnDownloadImageAsset.addEventListener('click', downloadImageAsset);
+    if (el.btnImageVariationApply && el.imageRefinePrompt) {
+      el.btnImageVariationApply.addEventListener('click', () => {
+        const p = el.imageRefinePrompt.value.trim();
+        if (p) refineImageStudio(p);
+      });
+    }
+
+    // UI/UX Studio Controls
+    if (el.btnUiuxAiApply && el.uiuxAiPrompt) {
+      el.btnUiuxAiApply.addEventListener('click', () => {
+        const p = el.uiuxAiPrompt.value.trim();
+        if (p) refineUiUxStudio(p);
+      });
+    }
+
     // Code Modal
     if (el.btnCodeModal) el.btnCodeModal.addEventListener('click', openCodeModal);
     if (el.btnCloseCodeModal) el.btnCloseCodeModal.addEventListener('click', closeCodeModal);
@@ -3170,6 +3925,9 @@ Generated with PixelCraft AI Studio.
     openChat: function() {
       setWorkspaceMode('chat');
     },
+    setCreativeMode: function(mode) {
+      setCreativeMode(mode);
+    },
     generateFromPrompt: function(prompt) {
       setWorkspaceMode('studio');
       generateDesign(prompt);
@@ -3192,6 +3950,15 @@ Generated with PixelCraft AI Studio.
     },
     togglePromptPopover: function(force) {
       togglePromptPopover(force);
+    },
+    previewAsset: function(assetId) {
+      previewAssetById(assetId);
+    },
+    downloadAsset: function(assetId) {
+      downloadAssetById(assetId);
+    },
+    showToast: function(msg) {
+      showToastNotification(msg);
     }
   };
 

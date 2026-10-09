@@ -489,7 +489,23 @@
           </div>
 
           <div class="tb-center">
-            <div class="viewport-switcher" role="radiogroup" aria-label="Viewport Switcher">
+            <!-- Multimodal Creative Studio Mode Selector (Website, UI/UX, Logo, Image) -->
+            <div class="creative-mode-selector" id="creative-mode-selector" role="radiogroup" aria-label="Creative Studio Mode">
+              <button type="button" class="mode-pill active" id="btn-mode-website" data-mode="website" title="Website Design Studio">
+                🌐 <span class="mode-pill-label">Website</span>
+              </button>
+              <button type="button" class="mode-pill" id="btn-mode-uiux" data-mode="uiux" title="UI/UX Mobile & Web App Studio">
+                📱 <span class="mode-pill-label">UI/UX App</span>
+              </button>
+              <button type="button" class="mode-pill" id="btn-mode-logo" data-mode="logo" title="Logo & Brand Identity Studio">
+                🏷️ <span class="mode-pill-label">Logo & Brand</span>
+              </button>
+              <button type="button" class="mode-pill" id="btn-mode-image" data-mode="image" title="AI Image & Poster Studio">
+                🎨 <span class="mode-pill-label">AI Image</span>
+              </button>
+            </div>
+
+            <div class="viewport-switcher" id="viewport-switcher" role="radiogroup" aria-label="Viewport Switcher">
               <button type="button" class="vp-btn active" id="btn-vp-desktop" data-vp="desktop" title="Desktop Viewport (1440px)">
                 🖥️ <span class="vp-label">Desktop</span>
               </button>
@@ -561,8 +577,16 @@
               </div>
             </div>
             <div class="prompt-popover-meta">
-              <span class="prompt-tip">Shortcut: Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to regenerate</span>
+              <span class="prompt-tip">Shortcut: Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to generate</span>
               <span class="prompt-status-indicator" id="prompt-popover-status"></span>
+            </div>
+            <!-- Intuitive Quick Inspiration Chips (English & Tanglish Friendly) -->
+            <div class="prompt-quick-chips" id="prompt-quick-chips">
+              <span class="quick-chip-label">Quick Ideas:</span>
+              <button type="button" class="quick-chip" data-mode="logo" data-prompt="Bubble Cafe ku professional modern logo create pannu">☕ Bubble Cafe Logo</button>
+              <button type="button" class="quick-chip" data-mode="uiux" data-prompt="Oru modern mobile banking app UI design pannu">💳 Mobile Banking App</button>
+              <button type="button" class="quick-chip" data-mode="image" data-prompt="Create a premium Bubble Cafe Instagram poster with warm lighting">🎨 Coffee Poster</button>
+              <button type="button" class="quick-chip" data-mode="website" data-prompt="Create a modern fitness gym website with black and orange colors">🏋️ Gym Website</button>
             </div>
           </div>
         </div>
@@ -580,30 +604,49 @@
             <button type="button" class="mob-tab-btn" data-tab="prompt">💬 Prompt</button>
           </div>
 
-          <!-- Left Panel: Sections / Layers (Collapsible) -->
+          <!-- Left Panel: Sections, Screens & Assets (Collapsible) -->
           <aside class="builder-panel builder-left-panel" id="builder-left-panel">
             <div class="panel-header">
               <div class="panel-title-wrap">
                 <span class="panel-icon">📑</span>
-                <h3>Sections</h3>
+                <h3 id="panel-main-title">Layers</h3>
               </div>
               <div class="panel-header-actions">
                 <button type="button" class="btn-panel-action btn-add-section-trigger" id="btn-add-section-open" title="Add New Section">
                   ➕ <span class="btn-label-sm">Add</span>
                 </button>
-                <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh sections list">↻</button>
-                <button type="button" class="btn-panel-action btn-collapse-panel" id="btn-collapse-left-panel" title="Collapse sections sidebar">◀</button>
+                <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh list">↻</button>
+                <button type="button" class="btn-panel-action btn-collapse-panel" id="btn-collapse-left-panel" title="Collapse sidebar">◀</button>
               </div>
             </div>
-            <div class="panel-meta-bar">
-              <span class="pages-badge">📄 Landing Page (1 Page)</span>
-              <span class="sections-count-badge" id="sections-count-badge">Sections</span>
+
+            <!-- Left Panel Tabs: Layers vs Assets -->
+            <div class="left-panel-tab-bar" id="left-panel-tab-bar">
+              <button type="button" class="panel-tab-btn active" id="tab-left-layers" data-panel-tab="layers">📑 Layers</button>
+              <button type="button" class="panel-tab-btn" id="tab-left-assets" data-panel-tab="assets">🗂️ Assets</button>
             </div>
-            <div class="sections-tree-content">
-              <div class="tree-tip">Click a section to jump & edit • Eye toggles visibility • Reorder with ▲▼</div>
+
+            <div class="panel-meta-bar" id="panel-meta-bar">
+              <span class="pages-badge" id="panel-pages-badge">📄 Project Canvas</span>
+              <span class="sections-count-badge" id="sections-count-badge">Items</span>
+            </div>
+
+            <!-- Layers View -->
+            <div class="sections-tree-content" id="panel-layers-view">
+              <div class="tree-tip">Click any item to inspect & edit • Eye toggles visibility</div>
               <ul class="sections-list" id="builder-sections-list">
-                <li class="section-tree-item empty">No sections loaded</li>
+                <li class="section-tree-item empty">No items loaded</li>
               </ul>
+            </div>
+
+            <!-- Assets View -->
+            <div class="assets-panel-content" id="panel-assets-view" style="display: none;">
+              <div class="assets-panel-header">
+                <span class="assets-hint">Generated brand logos, images, and visual assets</span>
+              </div>
+              <div class="assets-grid" id="builder-assets-list">
+                <div class="asset-item-empty">No assets generated yet</div>
+              </div>
             </div>
           </aside>
 
@@ -611,7 +654,7 @@
           <div class="builder-canvas-wrapper" id="builder-canvas-wrapper">
             <!-- Dedicated Scrollable Canvas Viewport (100% full-page vertical scrolling without obstruction) -->
             <div class="builder-canvas-viewport" id="builder-canvas-viewport">
-              <!-- Viewport Container Frame -->
+              <!-- Viewport Container Frame 1: Full-Page Website (Website Mode) -->
               <div class="device-frame desktop" id="builder-device-frame">
                 <div class="device-frame-bar">
                   <div class="device-dots">
@@ -642,6 +685,91 @@
                     <div class="canvas-spinner"></div>
                     <h4 class="canvas-loading-title" id="canvas-loading-title">Creating your design...</h4>
                     <p class="canvas-loading-sub" id="canvas-loading-sub">Analysing requirements and planning layout</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Viewport Container 2: Multi-Screen UI/UX Interactive Studio (UI/UX Mode) -->
+              <div class="uiux-canvas-container" id="uiux-canvas-container" style="display: none;">
+                <div class="uiux-canvas-header">
+                  <div class="uiux-screen-switcher-bar" id="uiux-screen-tabs">
+                    <!-- Dynamic screen tabs injected here: [ 📱 1. Login ] [ 📱 2. Dashboard ] [ 📱 3. Action ] -->
+                  </div>
+                  <div class="uiux-canvas-meta">
+                    <span class="uiux-device-label">📱 Interactive Mobile App Viewport (375x812)</span>
+                  </div>
+                </div>
+                <div class="uiux-phone-mockup" id="uiux-phone-mockup">
+                  <div class="phone-speaker-notch"></div>
+                  <div class="uiux-rendered-screen-wrap" id="uiux-rendered-screen-wrap">
+                    <!-- Active screen HTML rendered here -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Viewport Container 3: Logo & Brand Identity Studio (Logo Mode) -->
+              <div class="logo-canvas-container" id="logo-canvas-container" style="display: none;">
+                <div class="logo-studio-toolbar" id="logo-studio-toolbar">
+                  <div class="logo-variant-toggles">
+                    <button type="button" class="logo-var-btn active" data-variant="primary" title="Full Primary Logo">📐 Full Logo</button>
+                    <button type="button" class="logo-var-btn" data-variant="iconOnly" title="Icon / Monogram Only">📦 Icon Only</button>
+                    <button type="button" class="logo-var-btn" data-variant="wordmark" title="Wordmark Typography Only">📝 Wordmark</button>
+                    <button type="button" class="logo-bg-btn" id="btn-toggle-logo-bg" data-mode="dark" title="Toggle Light / Dark Background">☀️ Light Mode</button>
+                  </div>
+                  <div class="logo-export-quick">
+                    <button type="button" class="logo-quick-export-btn" id="btn-download-svg" title="Download mathematical vector SVG">📥 Download SVG</button>
+                    <button type="button" class="logo-quick-export-btn" id="btn-download-png" title="Download high resolution PNG">🖼️ Download PNG</button>
+                  </div>
+                </div>
+
+                <div class="logo-artboard-wrap" id="logo-artboard-wrap">
+                  <div class="logo-artboard" id="logo-artboard">
+                    <!-- Active vector SVG rendered here -->
+                  </div>
+                </div>
+
+                <!-- Complete Brand Identity Kit Showcase -->
+                <div class="brand-kit-showcase" id="brand-kit-showcase">
+                  <h4 class="brand-kit-heading">🎨 Brand Identity System</h4>
+                  <div class="brand-kit-grid">
+                    <!-- Palette Cards -->
+                    <div class="brand-kit-card palette-card">
+                      <h5>Signature Color Palette</h5>
+                      <div class="palette-swatches-row" id="brand-palette-swatches"></div>
+                    </div>
+                    <!-- Typography Spec -->
+                    <div class="brand-kit-card typography-card">
+                      <h5>Typography Hierarchy</h5>
+                      <div class="typography-preview" id="brand-typography-preview"></div>
+                    </div>
+                    <!-- Business Card Mockup -->
+                    <div class="brand-kit-card bizcard-card">
+                      <h5>Business Card Mockup</h5>
+                      <div class="bizcard-mockup" id="brand-bizcard-mockup"></div>
+                    </div>
+                    <!-- App Icon / Social Squircle -->
+                    <div class="brand-kit-card avatar-card">
+                      <h5>App Icon / Social Avatar</h5>
+                      <div class="squircle-avatar-wrap" id="brand-squircle-avatar"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Viewport Container 4: Dedicated AI Image Artboard (Image Mode) -->
+              <div class="image-canvas-container" id="image-canvas-container" style="display: none;">
+                <div class="image-studio-toolbar">
+                  <div class="image-aspect-pills">
+                    <button type="button" class="aspect-pill active" data-aspect="1:1">1:1 Square</button>
+                    <button type="button" class="aspect-pill" data-aspect="9:16">9:16 Story</button>
+                    <button type="button" class="aspect-pill" data-aspect="16:9">16:9 Banner</button>
+                    <button type="button" class="aspect-pill" data-aspect="4:5">4:5 Portrait</button>
+                  </div>
+                  <button type="button" class="image-download-btn" id="btn-download-image-asset">📥 Download Image</button>
+                </div>
+                <div class="image-artboard-wrap" id="image-artboard-wrap">
+                  <div class="image-frame-container" id="image-frame-container">
+                    <img id="image-rendered-preview" class="image-rendered-preview" src="" alt="AI Generated Asset">
                   </div>
                 </div>
               </div>
@@ -1033,6 +1161,154 @@
                   <label class="group-label">✨ AI Element Assistant</label>
                   <input type="text" id="prop-ai-instruction" class="prop-input" placeholder="e.g. Make this button pop with orange glow">
                   <button type="button" class="btn-prop-ai" id="btn-prop-ai">Enhance with AI</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 3: LOGO & BRAND IDENTITY INSPECTOR -->
+            <div class="inspector-content" id="inspector-logo-content" style="display: none;">
+              <div class="inspector-form" style="display: block;">
+                <div class="inspector-elem-header">
+                  <div class="elem-badge-wrap">
+                    <span class="elem-badge">🏷️ Logo & Brand System</span>
+                  </div>
+                </div>
+
+                <div class="inspector-group">
+                  <label class="group-label">Brand Identity</label>
+                  <div class="prop-field">
+                    <span class="prop-sub-label">Brand Name</span>
+                    <input type="text" id="logo-prop-brand-name" class="prop-input" placeholder="e.g. Bubble Cafe">
+                  </div>
+                  <div class="prop-field" style="margin-top: 10px;">
+                    <span class="prop-sub-label">Typography Style</span>
+                    <select id="logo-prop-font-family" class="prop-input select-input">
+                      <option value="Plus Jakarta Sans">Plus Jakarta Sans (Modern Geometric)</option>
+                      <option value="Cinzel">Cinzel (Luxury / Serif)</option>
+                      <option value="Inter">Inter (Clean / Tech)</option>
+                      <option value="Outfit">Outfit (Friendly / Bold)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="inspector-group">
+                  <label class="group-label">Brand Color Tokens</label>
+                  <div class="color-props-row">
+                    <div class="color-prop-item">
+                      <span class="prop-sub-label">Primary Color</span>
+                      <div class="color-picker-wrap">
+                        <input type="color" id="logo-prop-primary-color" class="color-input" value="#6366f1">
+                        <span class="color-hex-label" id="label-logo-primary-color">#6366f1</span>
+                      </div>
+                    </div>
+                    <div class="color-prop-item">
+                      <span class="prop-sub-label">Accent / Glow</span>
+                      <div class="color-picker-wrap">
+                        <input type="color" id="logo-prop-accent-color" class="color-input" value="#f97316">
+                        <span class="color-hex-label" id="label-logo-accent-color">#f97316</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AI Brand Refiner -->
+                <div class="inspector-group sec-ai-box">
+                  <div class="sec-ai-header">
+                    <span class="sec-ai-icon">✨</span>
+                    <span class="sec-ai-title">AI Brand Refiner</span>
+                  </div>
+                  <textarea id="logo-ai-prompt" class="prop-input-textarea sec-ai-textarea" rows="2" placeholder="e.g. Make it more luxury with gold accents, or pastel pink and cream..."></textarea>
+                  <div class="sec-ai-chips">
+                    <button type="button" class="sec-ai-chip" data-prompt="Make this design more premium with cream and pastel pink colors">🌸 Pastel Pink & Cream</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Make it black and gold luxury style">👑 Black & Gold</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Make it minimalist monochrome">⚡ Minimalist</button>
+                  </div>
+                  <button type="button" class="btn-sec-ai-apply" id="btn-logo-ai-apply">
+                    <span class="btn-sec-ai-text">Refine Logo & Identity</span>
+                    <span class="btn-sec-ai-icon">➔</span>
+                  </button>
+                </div>
+
+                <!-- Export Actions -->
+                <div class="inspector-group">
+                  <label class="group-label">Export Vector & Assets</label>
+                  <div style="display: flex; gap: 8px; flex-direction: column;">
+                    <button type="button" class="action-btn btn-modal-primary" id="btn-inspector-download-svg" style="width: 100%; justify-content: center;">📥 Download SVG Vector</button>
+                    <button type="button" class="action-btn" id="btn-inspector-download-png" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.06);">🖼️ Download PNG Image</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 4: AI IMAGE INSPECTOR -->
+            <div class="inspector-content" id="inspector-image-content" style="display: none;">
+              <div class="inspector-form" style="display: block;">
+                <div class="inspector-elem-header">
+                  <div class="elem-badge-wrap">
+                    <span class="elem-badge">🎨 AI Visual Asset</span>
+                  </div>
+                </div>
+
+                <div class="inspector-group">
+                  <label class="group-label">Asset Details</label>
+                  <div class="proj-meta-card">
+                    <div class="proj-meta-row">
+                      <span class="proj-meta-label">Provider</span>
+                      <span class="proj-meta-val" id="img-meta-provider">Flux AI / Pollinations</span>
+                    </div>
+                    <div class="proj-meta-row">
+                      <span class="proj-meta-label">Format</span>
+                      <span class="proj-meta-val" id="img-meta-aspect">1:1 High-Res</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AI Image Variation Prompt -->
+                <div class="inspector-group sec-ai-box">
+                  <div class="sec-ai-header">
+                    <span class="sec-ai-icon">✨</span>
+                    <span class="sec-ai-title">Generate Variation</span>
+                  </div>
+                  <textarea id="image-variation-prompt" class="prop-input-textarea sec-ai-textarea" rows="2" placeholder="Describe changes or new lighting, style, background..."></textarea>
+                  <button type="button" class="btn-sec-ai-apply" id="btn-image-variation-apply">
+                    <span class="btn-sec-ai-text">Generate Variation</span>
+                    <span class="btn-sec-ai-icon">➔</span>
+                  </button>
+                </div>
+
+                <div class="inspector-group">
+                  <button type="button" class="action-btn btn-modal-primary" id="btn-inspector-download-image" style="width: 100%; justify-content: center;">📥 Download Generated Image</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 5: UI/UX APP INSPECTOR -->
+            <div class="inspector-content" id="inspector-uiux-content" style="display: none;">
+              <div class="inspector-form" style="display: block;">
+                <div class="inspector-elem-header">
+                  <div class="elem-badge-wrap">
+                    <span class="elem-badge">📱 UI/UX App Screens</span>
+                  </div>
+                </div>
+
+                <div class="inspector-group">
+                  <label class="group-label">App Information</label>
+                  <div class="prop-field">
+                    <span class="prop-sub-label">App Title</span>
+                    <input type="text" id="uiux-prop-title" class="prop-input" placeholder="e.g. NovaPay">
+                  </div>
+                </div>
+
+                <div class="inspector-group sec-ai-box">
+                  <div class="sec-ai-header">
+                    <span class="sec-ai-icon">✨</span>
+                    <span class="sec-ai-title">AI Screen Refiner</span>
+                  </div>
+                  <textarea id="uiux-ai-prompt" class="prop-input-textarea sec-ai-textarea" rows="2" placeholder="e.g. Make this screen dark mode with neon accents, add modern rounded cards..."></textarea>
+                  <button type="button" class="btn-sec-ai-apply" id="btn-uiux-ai-apply">
+                    <span class="btn-sec-ai-text">Refine App Screen</span>
+                    <span class="btn-sec-ai-icon">➔</span>
+                  </button>
                 </div>
               </div>
             </div>

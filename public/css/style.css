@@ -6117,3 +6117,588 @@ button {
   background: #6366f1;
   color: #ffffff;
 }
+
+/* ==========================================================================
+   MULTIMODAL CREATIVE STUDIO (Website, UI/UX, Logo, Image, Assets)
+   ========================================================================== */
+
+/* 1. Creative Studio Mode Selector Toolbar */
+.creative-mode-selector {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.85);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 2px;
+}
+
+.mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.mode-pill:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mode-pill.active {
+  background: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+/* 2. Quick Inspiration Chips */
+.prompt-quick-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.quick-chip-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.quick-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quick-chip:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* 3. Left Panel Tabs & Assets Panel */
+.left-panel-tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(11, 15, 25, 0.6);
+}
+
+.panel-tab-btn {
+  flex: 1;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.panel-tab-btn:hover {
+  color: #ffffff;
+}
+
+.panel-tab-btn.active {
+  color: #818cf8;
+  border-bottom-color: #6366f1;
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.assets-panel-content {
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.assets-panel-header {
+  margin-bottom: 12px;
+}
+
+.assets-hint {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.assets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.asset-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.asset-card:hover {
+  border-color: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.asset-card-thumb {
+  height: 90px;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 6px;
+}
+
+.asset-card-thumb svg, .asset-card-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.asset-card-meta {
+  padding: 6px 8px;
+  background: rgba(15, 23, 42, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.asset-card-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.asset-card-tag {
+  font-size: 0.62rem;
+  color: #818cf8;
+  text-transform: uppercase;
+}
+
+.asset-item-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px 10px;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+/* 4. UI/UX Interactive Studio Canvas */
+.uiux-canvas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.uiux-canvas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.uiux-screen-switcher-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+}
+
+.uiux-tab-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #94a3b8;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.uiux-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.uiux-tab-btn.active {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+}
+
+.uiux-device-label {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.uiux-phone-mockup {
+  width: 375px;
+  min-height: 680px;
+  max-height: 760px;
+  background: #090d16;
+  border: 10px solid #1e293b;
+  border-radius: 40px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.phone-speaker-notch {
+  width: 120px;
+  height: 20px;
+  background: #1e293b;
+  border-radius: 0 0 14px 14px;
+  margin: 0 auto;
+  z-index: 10;
+}
+
+.uiux-rendered-screen-wrap {
+  flex: 1;
+  overflow-y: auto;
+  background: #090d16;
+}
+
+/* 5. Logo & Brand Identity Canvas */
+.logo-canvas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.logo-studio-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.logo-variant-toggles {
+  display: flex;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.8);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logo-var-btn, .logo-bg-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.logo-var-btn:hover, .logo-bg-btn:hover {
+  color: #ffffff;
+}
+
+.logo-var-btn.active {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.logo-export-quick {
+  display: flex;
+  gap: 8px;
+}
+
+.logo-quick-export-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.logo-quick-export-btn:hover {
+  background: #6366f1;
+  border-color: #6366f1;
+}
+
+.logo-artboard-wrap {
+  width: 100%;
+  background: radial-gradient(circle at center, #131b2e 0%, #0b0f19 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+  transition: background 0.3s;
+}
+
+.logo-artboard-wrap.light-mode {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.logo-artboard {
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-artboard svg {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
+}
+
+/* Brand Identity Kit Showcase */
+.brand-kit-showcase {
+  width: 100%;
+  margin-top: 32px;
+}
+
+.brand-kit-heading {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.brand-kit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.brand-kit-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.brand-kit-card h5 {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.palette-swatches-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.brand-swatch-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.brand-swatch-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brand-swatch-hex {
+  font-size: 0.68rem;
+  font-family: monospace;
+  color: #cbd5e1;
+}
+
+.bizcard-mockup {
+  display: flex;
+  gap: 12px;
+}
+
+.bizcard-face {
+  flex: 1;
+  height: 90px;
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+}
+
+.squircle-avatar-wrap {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.squircle-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* 6. AI Image Canvas */
+.image-canvas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.image-studio-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image-aspect-pills {
+  display: flex;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.8);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.aspect-pill {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.aspect-pill:hover {
+  color: #ffffff;
+}
+
+.aspect-pill.active {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.image-download-btn {
+  background: #6366f1;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.image-download-btn:hover {
+  background: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.image-artboard-wrap {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  justify-content: center;
+}
+
+.image-frame-container {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: #000000;
+  max-width: 100%;
+}
+
+.image-rendered-preview {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .creative-mode-selector {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .brand-kit-grid {
+    grid-template-columns: 1fr;
+  }
+  .uiux-phone-mockup {
+    width: 100%;
+    max-width: 375px;
+  }
+}
