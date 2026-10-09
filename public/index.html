@@ -503,6 +503,9 @@
               <button type="button" class="builder-icon-btn" id="btn-builder-undo" title="Undo (Ctrl+Z)" disabled>↩</button>
               <button type="button" class="builder-icon-btn" id="btn-builder-redo" title="Redo (Ctrl+Y)" disabled>↪</button>
             </div>
+            <button type="button" class="builder-action-btn" id="btn-builder-fullpage" title="Toggle Full-Page Inspection Mode">
+              🔍 <span class="btn-text-label">Full Page</span>
+            </button>
             <button type="button" class="builder-action-btn" id="btn-builder-code" title="View and Edit Source Code">
               💻 <span class="btn-text-label">Code</span>
             </button>
@@ -517,22 +520,27 @@
           <!-- Mobile Tab Bar for Studio (shows on small screens to toggle between Canvas, Layers, Properties, Prompts) -->
           <div class="builder-mobile-tab-bar" id="builder-mobile-tab-bar">
             <button type="button" class="mob-tab-btn active" data-tab="canvas">👁️ Preview</button>
-            <button type="button" class="mob-tab-btn" data-tab="layers">📑 Layers</button>
+            <button type="button" class="mob-tab-btn" data-tab="layers">📑 Sections</button>
             <button type="button" class="mob-tab-btn" data-tab="props">🎨 Properties</button>
             <button type="button" class="mob-tab-btn" data-tab="prompt">💬 Prompt</button>
           </div>
 
-          <!-- Left Panel: Layers / Sections Tree -->
+          <!-- Left Panel: Sections / Layers -->
           <aside class="builder-panel builder-left-panel" id="builder-left-panel">
             <div class="panel-header">
               <div class="panel-title-wrap">
                 <span class="panel-icon">📑</span>
-                <h3>Sections & Layers</h3>
+                <h3>Sections</h3>
               </div>
-              <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh tree">↻</button>
+              <div class="panel-header-actions">
+                <button type="button" class="btn-panel-action btn-add-section-trigger" id="btn-add-section-open" title="Add New Section">
+                  ➕ <span class="btn-label-sm">Add</span>
+                </button>
+                <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh sections list">↻</button>
+              </div>
             </div>
             <div class="sections-tree-content">
-              <div class="tree-tip">Click a section to scroll and highlight it in preview.</div>
+              <div class="tree-tip">Click a section to jump & edit • Reorder with ▲▼</div>
               <ul class="sections-list" id="builder-sections-list">
                 <li class="section-tree-item empty">No sections loaded</li>
               </ul>
@@ -629,17 +637,155 @@
             </div>
           </div>
 
-          <!-- Right Panel: Visual Properties Inspector -->
+          <!-- Right Panel: Section & Visual Properties Inspector -->
           <aside class="builder-panel builder-right-panel" id="builder-right-panel">
             <div class="panel-header">
               <div class="panel-title-wrap">
                 <span class="panel-icon">🎨</span>
-                <h3>Visual Inspector</h3>
+                <h3>Inspector</h3>
               </div>
-              <span class="elem-badge" id="inspector-elem-badge">None</span>
+              <div class="inspector-tab-toggle" role="tablist">
+                <button type="button" class="insp-tab-btn active" id="tab-btn-section" data-tab="section" title="Edit selected section properties & AI refinement">Section</button>
+                <button type="button" class="insp-tab-btn" id="tab-btn-element" data-tab="element" title="Edit individual element properties">Element</button>
+              </div>
             </div>
-            
-            <div class="inspector-content" id="inspector-content">
+
+            <!-- TAB 1: SECTION INSPECTOR -->
+            <div class="inspector-content" id="inspector-section-content">
+              <!-- Empty state when no section is loaded -->
+              <div class="inspector-empty" id="inspector-section-empty" style="display: none;">
+                <div class="empty-icon">📑</div>
+                <p>Select any section in the left panel or click within the preview to edit its properties, styling, and AI instructions.</p>
+              </div>
+
+              <!-- Active Section Inspector Form -->
+              <div class="inspector-form" id="inspector-section-form">
+                <!-- Section ID, Name & Quick Actions Header -->
+                <div class="sec-overview-card">
+                  <div class="sec-overview-top">
+                    <span class="sec-id-pill" id="sec-prop-id-badge">#hero</span>
+                    <div class="sec-quick-actions">
+                      <button type="button" class="sec-btn-act" id="btn-sec-move-up" title="Move Section Up">▲</button>
+                      <button type="button" class="sec-btn-act" id="btn-sec-move-down" title="Move Section Down">▼</button>
+                      <button type="button" class="sec-btn-act sec-btn-del" id="btn-sec-delete" title="Delete Section">🗑️</button>
+                    </div>
+                  </div>
+                  <div class="sec-name-wrap">
+                    <label class="prop-sub-label" for="sec-prop-name">Section Name</label>
+                    <input type="text" id="sec-prop-name" class="prop-input" placeholder="Section Name">
+                  </div>
+                </div>
+
+                <!-- DEDICATED AI SECTION REFINEMENT (Requirement 4) -->
+                <div class="inspector-group sec-ai-box">
+                  <div class="sec-ai-header">
+                    <span class="sec-ai-icon">✨</span>
+                    <span class="sec-ai-title">AI Section Refiner</span>
+                  </div>
+                  <p class="sec-ai-desc">Prompt Gemini to modify ONLY this section (e.g. "Make this hero section more premium", "Change background to black", "Add three modern trainer cards").</p>
+                  <textarea id="section-ai-prompt" class="prop-input-textarea sec-ai-textarea" rows="2" placeholder="Describe changes for this section only..."></textarea>
+                  <div class="sec-ai-chips">
+                    <button type="button" class="sec-ai-chip" data-prompt="Make this section more premium and modern">✨ Make Premium</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Change the background of this section to black">🎨 Dark Background</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Add three modern cards to this section">🍱 Add Cards</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Make this section responsive and polished on mobile">📱 Mobile Polish</button>
+                  </div>
+                  <button type="button" class="btn-sec-ai-apply" id="btn-section-ai-apply">
+                    <span class="btn-sec-ai-text">Apply to This Section</span>
+                    <span class="btn-sec-ai-icon">➔</span>
+                  </button>
+                </div>
+
+                <!-- SECTION HEADING & COPY -->
+                <div class="inspector-group">
+                  <label class="group-label">Heading & Content</label>
+                  <div class="prop-field">
+                    <span class="prop-sub-label">Section Heading</span>
+                    <textarea id="sec-prop-heading" class="prop-input-textarea" rows="2" placeholder="Section Heading..."></textarea>
+                  </div>
+                  <div class="prop-field" style="margin-top: 8px;">
+                    <span class="prop-sub-label">Subheading / Description</span>
+                    <textarea id="sec-prop-paragraph" class="prop-input-textarea" rows="2" placeholder="Subtitle or paragraph text..."></textarea>
+                  </div>
+                </div>
+
+                <!-- SECTION COLORS & BACKGROUND -->
+                <div class="inspector-group">
+                  <label class="group-label">Colors & Background</label>
+                  <div class="color-props-row">
+                    <div class="color-prop-item">
+                      <span class="prop-sub-label">Background</span>
+                      <div class="color-picker-wrap">
+                        <input type="color" id="sec-prop-bg-color" class="color-input" value="#0f1117">
+                        <span class="color-hex-label" id="label-sec-bg-color">#0f1117</span>
+                      </div>
+                    </div>
+                    <div class="color-prop-item">
+                      <span class="prop-sub-label">Text Color</span>
+                      <div class="color-picker-wrap">
+                        <input type="color" id="sec-prop-text-color" class="color-input" value="#ffffff">
+                        <span class="color-hex-label" id="label-sec-text-color">#ffffff</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SECTION TYPOGRAPHY & ALIGNMENT -->
+                <div class="inspector-group">
+                  <label class="group-label">Typography & Alignment</label>
+                  <div class="prop-two-col">
+                    <div>
+                      <span class="prop-sub-label">Heading Size</span>
+                      <input type="text" id="sec-prop-font-size" class="prop-input" placeholder="e.g. 2.5rem, 36px">
+                    </div>
+                    <div>
+                      <span class="prop-sub-label">Text Align</span>
+                      <div class="align-btn-group" id="sec-prop-align-group">
+                        <button type="button" class="align-btn active" data-align="left" title="Left Align">Left</button>
+                        <button type="button" class="align-btn" data-align="center" title="Center Align">Center</button>
+                        <button type="button" class="align-btn" data-align="right" title="Right Align">Right</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SECTION LAYOUT & SPACING -->
+                <div class="inspector-group">
+                  <label class="group-label">Layout & Spacing</label>
+                  <div class="prop-field">
+                    <span class="prop-sub-label">Padding (Vertical & Horizontal)</span>
+                    <input type="text" id="sec-prop-padding" class="prop-input" placeholder="e.g. 80px 24px">
+                  </div>
+                </div>
+
+                <!-- SECTION IMAGES & MEDIA -->
+                <div class="inspector-group" id="group-sec-image">
+                  <label class="group-label">Section Image</label>
+                  <div class="prop-field">
+                    <span class="prop-sub-label">Image URL</span>
+                    <input type="url" id="sec-prop-img-url" class="prop-input" placeholder="https://images.unsplash.com/...">
+                  </div>
+                </div>
+
+                <!-- SECTION BUTTON & CTA -->
+                <div class="inspector-group" id="group-sec-button">
+                  <label class="group-label">Button / CTA Action</label>
+                  <div class="prop-two-col">
+                    <div>
+                      <span class="prop-sub-label">Button Text</span>
+                      <input type="text" id="sec-prop-btn-text" class="prop-input" placeholder="e.g. Get Started">
+                    </div>
+                    <div>
+                      <span class="prop-sub-label">Link (href)</span>
+                      <input type="text" id="sec-prop-btn-link" class="prop-input" placeholder="#pricing or https://...">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: ELEMENT INSPECTOR -->
+            <div class="inspector-content" id="inspector-element-content" style="display: none;">
               <!-- Empty State -->
               <div class="inspector-empty" id="inspector-empty">
                 <div class="empty-icon">👆</div>
@@ -648,6 +794,10 @@
 
               <!-- Active Inspector Form -->
               <div class="inspector-form" id="inspector-form" style="display: none;">
+                <div class="inspector-elem-header">
+                  <span class="elem-badge" id="inspector-elem-badge">None</span>
+                </div>
+
                 <!-- Text Content Group -->
                 <div class="inspector-group" id="group-text-content">
                   <label class="group-label" for="prop-text-content">Text Content</label>
@@ -1258,6 +1408,98 @@
       <div class="modal-footer">
         <button type="button" class="btn-modal-secondary" id="btn-dismiss-export">Cancel</button>
         <button type="button" class="btn-modal-primary" id="btn-trigger-download">Download Package ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Studio Add Section Modal -->
+  <div class="modal-backdrop" id="modal-add-section" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-add-section-title">
+    <div class="modal-card modal-add-section-card">
+      <div class="modal-header">
+        <div>
+          <h3 id="modal-add-section-title">➕ Add New Section</h3>
+          <p class="modal-subtitle">Choose a pre-built section component to insert into your website:</p>
+        </div>
+        <button class="modal-close" id="btn-close-add-section-modal" aria-label="Close add section modal">✕</button>
+      </div>
+      <div class="modal-body add-section-modal-body">
+        <div class="section-presets-grid">
+          <div class="preset-card" data-preset="hero">
+            <div class="preset-icon">⚡</div>
+            <div class="preset-info">
+              <h4>Hero & Value Proposition</h4>
+              <p>Bold headline, badge pill, dual CTA buttons, and featured showcase image.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+          <div class="preset-card" data-preset="features">
+            <div class="preset-icon">🍱</div>
+            <div class="preset-info">
+              <h4>Features / Bento Grid</h4>
+              <p>3-column bento cards with glowing icons, metric tags, and benefit copy.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+          <div class="preset-card" data-preset="trainers">
+            <div class="preset-icon">🏋️</div>
+            <div class="preset-info">
+              <h4>Team / Coaches & Trainers</h4>
+              <p>Expert profiles with portrait photo, specialty badges, and credentials.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+          <div class="preset-card" data-preset="pricing">
+            <div class="preset-icon">💳</div>
+            <div class="preset-info">
+              <h4>Membership & Pricing Tiers</h4>
+              <p>3-tier value cards with Popular ribbon, perk checklist, and checkout CTAs.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+          <div class="preset-card" data-preset="testimonials">
+            <div class="preset-icon">💬</div>
+            <div class="preset-info">
+              <h4>Testimonials & Reviews</h4>
+              <p>Customer social proof cards with quote, 5-star rating, and member avatar.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+          <div class="preset-card" data-preset="faq">
+            <div class="preset-icon">❓</div>
+            <div class="preset-info">
+              <h4>FAQ Accordion</h4>
+              <p>Interactive questions with animated expandable answers.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+          <div class="preset-card" data-preset="gallery">
+            <div class="preset-icon">🖼️</div>
+            <div class="preset-info">
+              <h4>Gallery & Media Showcase</h4>
+              <p>4-item responsive image grid with hover zoom and captions.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+          <div class="preset-card" data-preset="cta">
+            <div class="preset-icon">📣</div>
+            <div class="preset-info">
+              <h4>Call To Action Banner</h4>
+              <p>High-converting conversion banner with urgency copy and action button.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+          <div class="preset-card" data-preset="contact">
+            <div class="preset-icon">✉️</div>
+            <div class="preset-info">
+              <h4>Contact & Booking Form</h4>
+              <p>Interactive form with inputs for Name, Email, Phone, Message and submit feedback.</p>
+            </div>
+            <button type="button" class="btn-preset-insert">Insert Section</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-secondary" id="btn-cancel-add-section">Cancel</button>
       </div>
     </div>
   </div>
