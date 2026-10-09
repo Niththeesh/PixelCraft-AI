@@ -82,12 +82,17 @@ class AuthController {
       const authClient = createIsolatedClient() || client;
 
       // Register user with Supabase Auth (respects Supabase Email Confirmation setting)
-      const origin = req.headers.origin || 'https://pixelcraft-ai-seven.vercel.app';
+      const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+      let emailRedirectTo = 'https://pixelcraft-ai-seven.vercel.app';
+      if (!isProduction && req.headers.origin && (req.headers.origin.includes('localhost') || req.headers.origin.includes('127.0.0.1'))) {
+        emailRedirectTo = 'http://localhost:3000';
+      }
+
       const { data, error } = await authClient.auth.signUp({
         email: normalizedEmail,
         password: password,
         options: {
-          emailRedirectTo: origin
+          emailRedirectTo: emailRedirectTo
         }
       });
 
@@ -262,20 +267,38 @@ class AuthController {
       const client = this.getClient(res);
       if (!client) return;
 
+      const isProduction = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
       const requestedRedirect = (req.query.redirect_to || req.headers.origin || 'https://pixelcraft-ai-seven.vercel.app').trim();
       let redirectTo = 'https://pixelcraft-ai-seven.vercel.app';
       try {
         const parsed = new URL(requestedRedirect);
-        if (
-          parsed.hostname === 'pixelcraft-ai-seven.vercel.app' ||
-          parsed.hostname === 'localhost' ||
-          parsed.hostname === '127.0.0.1' ||
-          parsed.hostname.endsWith('.github.io') ||
-          parsed.hostname.endsWith('.vercel.app')
-        ) {
-          redirectTo = requestedRedirect;
+        if (isProduction) {
+          // In production: Strictly enforce canonical production domain or GitHub Pages
+          if (
+            parsed.hostname === 'pixelcraft-ai-seven.vercel.app' ||
+            parsed.hostname.endsWith('.github.io') ||
+            parsed.hostname.endsWith('.vercel.app')
+          ) {
+            // Strictly prohibit localhost in production even if requested
+            if (!parsed.hostname.includes('localhost') && !parsed.hostname.includes('127.0.0.1')) {
+              redirectTo = requestedRedirect;
+            }
+          }
+        } else {
+          // In local development: Allow localhost / 127.0.0.1
+          if (
+            parsed.hostname === 'pixelcraft-ai-seven.vercel.app' ||
+            parsed.hostname === 'localhost' ||
+            parsed.hostname === '127.0.0.1' ||
+            parsed.hostname.endsWith('.github.io') ||
+            parsed.hostname.endsWith('.vercel.app')
+          ) {
+            redirectTo = requestedRedirect;
+          }
         }
-      } catch (_) {}
+      } catch (_) {
+        redirectTo = 'https://pixelcraft-ai-seven.vercel.app';
+      }
 
       const authClient = createIsolatedClient() || client;
       const { data, error } = await authClient.auth.signInWithOAuth({

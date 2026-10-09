@@ -1231,13 +1231,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getOAuthRedirectUrl() {
+    // 1. Strictly local development on developer machine
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return `${window.location.origin}${window.location.pathname}`;
+      return 'http://localhost:3000';
     }
+    // 2. GitHub Pages
     if (window.location.hostname.includes('github.io')) {
-      return `${window.location.origin}/PixelCraft-AI/`;
+      return `${window.location.origin}/PixelCraft-AI`;
     }
-    return window.location.origin ? `${window.location.origin}${window.location.pathname}` : 'https://pixelcraft-ai-seven.vercel.app/';
+    // 3. Deployed production Vercel
+    return 'https://pixelcraft-ai-seven.vercel.app';
   }
 
   /**
