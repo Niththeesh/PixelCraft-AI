@@ -3327,7 +3327,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // 2. Dispatch to backend POST /api/chat with Bearer Token
+      // 2. Check if prompt is a website / UI design creation request (English, Tamil, Tanglish)
+      const lowerText = text.toLowerCase();
+      const designTriggers = [
+        'website', 'landing page', 'portfolio', 'dashboard', 'ecommerce', 'store',
+        'gym website', 'restaurant website', 'app ui', 'create website', 'build website',
+        'make website', 'design website', 'pannu', 'venum', 'mari design', 'hero section',
+        'pricing table', 'admin panel', 'saas page'
+      ];
+      const isDesignCreation = designTriggers.some(t => lowerText.includes(t));
+
+      if (isDesignCreation && window.PixelCraftBuilder) {
+        try {
+          const builderRes = await fetch('/api/builder/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${activeToken}`
+            },
+            body: JSON.stringify({ prompt: text })
+          });
+
+          if (builderRes.ok) {
+            const bData = await builderRes.json();
+            if (bData.success && bData.project) {
+              showTypingIndicator(false);
+
+              // Render interactive Studio Card in chat stream
+              const cardHtml = `<!-- PIXELCRAFT_STUDIO_CARD -->
+<div class="chat-builder-card" id="card-${bData.project.id}">
+  <span class="card-badge">🎨 Visual Design Generated</span>
+  <h3>${escapeHtml(bData.project.title)}</h3>
+  <p>${escapeHtml(bData.project.designSpec?.summary || 'Interactive website design generated based on your requirements.')}</p>
+  <button type="button" class="btn-open-in-studio" onclick="window.PixelCraftBuilder.loadProject(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(bData.project))}')))">
+    🚀 Open in Visual Studio ➔
+  </button>
+</div>`;
+
+              const assistantRow = appendMessage('assistant', cardHtml, null, state.activePersona);
+              state.messages.push({ role: 'assistant', content: cardHtml });
+
+              // Seamlessly open the visual studio workspace so the user sees the actual interactive website
+              window.PixelCraftBuilder.loadProject(bData.project);
+
+              state.isGenerating = false;
+              elements.chatTextarea.disabled = false;
+              elements.btnSend.disabled = false;
+              elements.chatTextarea.focus();
+              return;
+            }
+          }
+        } catch (builderErr) {
+          console.warn('Builder dispatch fallback to standard chat:', builderErr);
+        }
+      }
+
+      // 3. Dispatch standard chat to backend POST /api/chat with Bearer Token
       const payload = { 
         message: text,
         persona: state.activePersona
@@ -3689,6 +3744,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function formatResponseText(str) {
+    if (typeof str === 'string' && str.startsWith('<!-- PIXELCRAFT_STUDIO_CARD -->')) {
+      return str;
+    }
     let formatted = escapeHtml(str);
     formatted = formatted.replace(/```javascript([\s\S]*?)```/g, '<pre style="background:#090d16; padding:1rem; border-radius:8px; margin:0.75rem 0; overflow-x:auto; font-family:monospace; color:#38bdf8;"><code>$1</code></pre>');
     formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre style="background:#090d16; padding:1rem; border-radius:8px; margin:0.75rem 0; overflow-x:auto; font-family:monospace; color:#38bdf8;"><code>$1</code></pre>');

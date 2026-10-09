@@ -35,7 +35,7 @@
   <meta name="twitter:image" content="https://pixelcraft-ai-seven.vercel.app/images/logo.png">
 
   <link rel="icon" type="image/png" href="images/logo.png">
-  <link rel="stylesheet" href="css/style.css?v=PROD-NO-LOCALHOST-v1">
+  <link rel="stylesheet" href="css/style.css?v=STUDIO-v1">
 </head>
 <body>
 
@@ -205,6 +205,10 @@
       <div class="sidebar-tools-section" id="sidebar-tools-section">
         <div class="section-label">Tools</div>
         <div class="sidebar-tools-list">
+          <button type="button" class="sidebar-tool-btn" id="btn-sidebar-studio" title="Open AI Website & UI/UX Studio">
+            <span class="btn-icon">🎨</span>
+            <span class="sidebar-tool-label">Website Studio</span>
+          </button>
           <button type="button" class="sidebar-tool-btn" id="btn-sidebar-prompts" title="Browse AI prompt templates">
             <span class="btn-icon">💡</span>
             <span class="sidebar-tool-label">Prompt Library</span>
@@ -289,6 +293,18 @@
           </button>
           <div class="chat-title-wrap">
             <h2 id="current-chat-title">AI Assistant Workspace</h2>
+          </div>
+          <!-- Workspace Mode Switcher (Chat vs Studio) -->
+          <div class="workspace-mode-switcher" id="workspace-mode-switcher">
+            <button type="button" class="mode-btn active" id="btn-mode-chat" title="Switch to AI Chat">
+              <span class="mode-icon">💬</span>
+              <span class="mode-label">Chat</span>
+            </button>
+            <button type="button" class="mode-btn" id="btn-mode-studio" title="Switch to AI Website & UI/UX Studio">
+              <span class="mode-icon">✨</span>
+              <span class="mode-label">Studio</span>
+              <span class="studio-badge">AI</span>
+            </button>
           </div>
         </div>
         <div class="header-actions">
@@ -444,6 +460,254 @@
           PixelCraft AI may produce inaccurate information. Verify important outputs.
         </div>
       </footer>
+
+      <!-- ========================================================================
+           3. AI Website & UI/UX Studio Workspace
+           ======================================================================== -->
+      <section class="builder-workspace" id="builder-workspace" style="display: none;">
+        <!-- Studio Top Toolbar -->
+        <div class="builder-toolbar">
+          <div class="tb-left">
+            <button type="button" class="builder-btn-back" id="btn-builder-back-chat" title="Return to Chat">
+              ← <span class="btn-text-label">Chat</span>
+            </button>
+            <div class="builder-title-group">
+              <input type="text" id="builder-project-title-input" class="builder-project-title-input" value="Untitled Project" title="Click to rename project" aria-label="Project Title" maxlength="60">
+              <span class="builder-status-pill" id="builder-status-pill">Ready</span>
+            </div>
+          </div>
+
+          <div class="tb-center">
+            <div class="viewport-switcher" role="radiogroup" aria-label="Viewport Switcher">
+              <button type="button" class="vp-btn active" id="btn-vp-desktop" data-vp="desktop" title="Desktop Viewport (1440px)">
+                🖥️ <span class="vp-label">Desktop</span>
+              </button>
+              <button type="button" class="vp-btn" id="btn-vp-tablet" data-vp="tablet" title="Tablet Viewport (768px)">
+                📱 <span class="vp-label">Tablet</span>
+              </button>
+              <button type="button" class="vp-btn" id="btn-vp-mobile" data-vp="mobile" title="Mobile Viewport (375px)">
+                📲 <span class="vp-label">Mobile</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="tb-right">
+            <button type="button" class="builder-mode-toggle" id="btn-builder-interactive-mode" title="Toggle between Element Edit and Live Interactive Preview">
+              <span id="builder-mode-icon">✏️</span>
+              <span id="builder-mode-label">Edit Mode</span>
+            </button>
+            <div class="history-actions">
+              <button type="button" class="builder-icon-btn" id="btn-builder-undo" title="Undo (Ctrl+Z)" disabled>↩</button>
+              <button type="button" class="builder-icon-btn" id="btn-builder-redo" title="Redo (Ctrl+Y)" disabled>↪</button>
+            </div>
+            <button type="button" class="builder-action-btn" id="btn-builder-code" title="View and Edit Source Code">
+              💻 <span class="btn-text-label">Code</span>
+            </button>
+            <button type="button" class="builder-action-btn btn-export-highlight" id="btn-builder-export" title="Export Website Bundle">
+              📥 <span class="btn-text-label">Export</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Studio Main Body (Left Panel, Center Canvas, Right Panel) -->
+        <div class="builder-main-body">
+          <!-- Mobile Tab Bar for Studio (shows on small screens to toggle between Canvas, Layers, Properties, Prompts) -->
+          <div class="builder-mobile-tab-bar" id="builder-mobile-tab-bar">
+            <button type="button" class="mob-tab-btn active" data-tab="canvas">👁️ Preview</button>
+            <button type="button" class="mob-tab-btn" data-tab="layers">📑 Layers</button>
+            <button type="button" class="mob-tab-btn" data-tab="props">🎨 Properties</button>
+            <button type="button" class="mob-tab-btn" data-tab="prompt">💬 Prompt</button>
+          </div>
+
+          <!-- Left Panel: Layers / Sections Tree -->
+          <aside class="builder-panel builder-left-panel" id="builder-left-panel">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-icon">📑</span>
+                <h3>Sections & Layers</h3>
+              </div>
+              <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh tree">↻</button>
+            </div>
+            <div class="sections-tree-content">
+              <div class="tree-tip">Click a section to scroll and highlight it in preview.</div>
+              <ul class="sections-list" id="builder-sections-list">
+                <li class="section-tree-item empty">No sections loaded</li>
+              </ul>
+            </div>
+          </aside>
+
+          <!-- Center Canvas -->
+          <div class="builder-canvas-wrapper" id="builder-canvas-wrapper">
+            <!-- Viewport Container Frame -->
+            <div class="device-frame desktop" id="builder-device-frame">
+              <div class="device-frame-bar">
+                <div class="device-dots">
+                  <span class="dot red"></span>
+                  <span class="dot yellow"></span>
+                  <span class="dot green"></span>
+                </div>
+                <div class="device-address-bar" id="device-address-bar">
+                  <span class="lock-icon">🔒</span>
+                  <span class="address-text" id="device-address-text">https://preview.pixelcraft.ai</span>
+                </div>
+                <div class="device-meta">
+                  <span class="dimension-badge" id="viewport-dimension-badge">100% Fluid</span>
+                </div>
+              </div>
+
+              <!-- Sandboxed Iframe Preview -->
+              <div class="iframe-container" id="builder-iframe-container">
+                <iframe 
+                  id="builder-iframe" 
+                  class="builder-iframe" 
+                  sandbox="allow-scripts allow-modals allow-forms"
+                  title="PixelCraft AI Live Rendered Preview"
+                ></iframe>
+                
+                <!-- Loading & Generating Overlay -->
+                <div class="canvas-loading-overlay" id="canvas-loading-overlay" style="display: none;">
+                  <div class="canvas-spinner"></div>
+                  <h4 class="canvas-loading-title" id="canvas-loading-title">Creating your design...</h4>
+                  <p class="canvas-loading-sub" id="canvas-loading-sub">Analysing requirements and planning layout</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Natural Language Refinement Bar (Bottom of Canvas) -->
+            <div class="builder-refine-bar" id="builder-refine-bar">
+              <div class="refine-chips-scroll">
+                <button type="button" class="refine-chip" data-prompt="Hero section ah blue gradient ah mathu">✨ Blue Gradient Hero</button>
+                <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing">➕ Add FAQ Accordion</button>
+                <button type="button" class="refine-chip" data-prompt="Make the design modern dark luxury with glassmorphism cards">🎨 Dark Glassmorphism</button>
+                <button type="button" class="refine-chip" data-prompt="Make the mobile layout and navigation super smooth and responsive">📱 Polish Mobile Layout</button>
+                <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects">⚡ Micro-Animations</button>
+              </div>
+              <div class="refine-input-row">
+                <div class="refine-input-wrap">
+                  <span class="refine-sparkle">✨</span>
+                  <textarea 
+                    id="builder-refine-input" 
+                    class="builder-refine-input" 
+                    placeholder="Describe changes in English, Tamil, or Tanglish (e.g. 'Hero section ah blue gradient ah mathu', 'Add pricing table')..."
+                    rows="1"
+                  ></textarea>
+                </div>
+                <button type="button" class="btn-refine-submit" id="btn-refine-submit" title="Apply Natural Language Modification">
+                  <span class="btn-icon">➔</span>
+                  <span class="btn-text">Update</span>
+                </button>
+                <button type="button" class="btn-refine-regen" id="btn-refine-regen" title="Regenerate whole design">
+                  ↻
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Panel: Visual Properties Inspector -->
+          <aside class="builder-panel builder-right-panel" id="builder-right-panel">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-icon">🎨</span>
+                <h3>Visual Inspector</h3>
+              </div>
+              <span class="elem-badge" id="inspector-elem-badge">None</span>
+            </div>
+            
+            <div class="inspector-content" id="inspector-content">
+              <!-- Empty State -->
+              <div class="inspector-empty" id="inspector-empty">
+                <div class="empty-icon">👆</div>
+                <p>Click any element in the preview canvas to inspect, edit text, colors, spacing, and styles live.</p>
+              </div>
+
+              <!-- Active Inspector Form -->
+              <div class="inspector-form" id="inspector-form" style="display: none;">
+                <!-- Text Content Group -->
+                <div class="inspector-group" id="group-text-content">
+                  <label class="group-label" for="prop-text-content">Text Content</label>
+                  <textarea id="prop-text-content" class="prop-input-textarea" rows="2" placeholder="Edit text..."></textarea>
+                </div>
+
+                <!-- Colors Group -->
+                <div class="inspector-group">
+                  <label class="group-label">Colors</label>
+                  <div class="color-props-row">
+                    <div class="color-prop-item">
+                      <span class="prop-sub-label">Text</span>
+                      <div class="color-picker-wrap">
+                        <input type="color" id="prop-text-color" class="color-input">
+                        <span class="color-hex-label" id="label-text-color">#ffffff</span>
+                      </div>
+                    </div>
+                    <div class="color-prop-item">
+                      <span class="prop-sub-label">Background</span>
+                      <div class="color-picker-wrap">
+                        <input type="color" id="prop-bg-color" class="color-input">
+                        <span class="color-hex-label" id="label-bg-color">#1a1d26</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Typography Group -->
+                <div class="inspector-group">
+                  <label class="group-label">Typography</label>
+                  <div class="prop-two-col">
+                    <div>
+                      <span class="prop-sub-label">Font Size</span>
+                      <input type="text" id="prop-font-size" class="prop-input" placeholder="e.g. 16px, 2rem">
+                    </div>
+                    <div>
+                      <span class="prop-sub-label">Weight</span>
+                      <select id="prop-font-weight" class="prop-select">
+                        <option value="400">Regular (400)</option>
+                        <option value="500">Medium (500)</option>
+                        <option value="600">SemiBold (600)</option>
+                        <option value="700">Bold (700)</option>
+                        <option value="800">ExtraBold (800)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Layout & Spacing -->
+                <div class="inspector-group">
+                  <label class="group-label">Layout & Spacing</label>
+                  <div class="prop-two-col">
+                    <div>
+                      <span class="prop-sub-label">Padding</span>
+                      <input type="text" id="prop-padding" class="prop-input" placeholder="e.g. 12px 24px">
+                    </div>
+                    <div>
+                      <span class="prop-sub-label">Radius</span>
+                      <input type="text" id="prop-border-radius" class="prop-input" placeholder="e.g. 12px, 9999px">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contextual: Image Source -->
+                <div class="inspector-group" id="group-image-src" style="display: none;">
+                  <label class="group-label" for="prop-img-src">Image Source URL</label>
+                  <input type="url" id="prop-img-src" class="prop-input" placeholder="https://images.unsplash.com/...">
+                </div>
+
+                <!-- Contextual: Link Target -->
+                <div class="inspector-group" id="group-link-href" style="display: none;">
+                  <label class="group-label" for="prop-link-href">Link / Target (href)</label>
+                  <input type="text" id="prop-link-href" class="prop-input" placeholder="#pricing or https://...">
+                </div>
+
+                <!-- AI Element Enhancement -->
+                <div class="inspector-group ai-enhancement-group">
+                  <label class="group-label">✨ AI Element Assistant</label>
+                  <input type="text" id="prop-ai-instruction" class="prop-input" placeholder="e.g. Make this button pop with orange glow">
+                  <button type="button" class="btn-prop-ai" id="btn-prop-ai">Enhance with AI</button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -911,10 +1175,74 @@
     </div>
   </div>
 
+  <!-- Studio Code Inspector Modal -->
+  <div class="modal-backdrop" id="modal-builder-code" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-code-title">
+    <div class="modal-card modal-code-card">
+      <div class="modal-header">
+        <div class="code-modal-header-left">
+          <h3 id="modal-code-title">💻 Source Code Inspector</h3>
+          <div class="code-file-tabs">
+            <button type="button" class="code-tab active" data-file="html">index.html</button>
+            <button type="button" class="code-tab" data-file="css">style.css</button>
+            <button type="button" class="code-tab" data-file="js">app.js</button>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-code-modal" aria-label="Close code inspector">✕</button>
+      </div>
+      <div class="modal-body code-modal-body">
+        <textarea id="code-editor-textarea" class="code-editor-textarea" spellcheck="false"></textarea>
+      </div>
+      <div class="modal-footer code-modal-footer">
+        <div class="code-status" id="code-sync-status">Ready</div>
+        <div class="code-actions-right">
+          <button type="button" class="btn-modal-secondary" id="btn-copy-code">📋 Copy Code</button>
+          <button type="button" class="btn-modal-primary" id="btn-apply-code-to-preview">⚡ Sync Changes to Preview</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Studio Project Export Modal -->
+  <div class="modal-backdrop" id="modal-builder-export" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-export-title">
+    <div class="modal-card modal-export-card">
+      <div class="modal-header">
+        <h3 id="modal-export-title">📥 Export Website Project</h3>
+        <button class="modal-close" id="btn-close-export-modal" aria-label="Close export modal">✕</button>
+      </div>
+      <div class="modal-body export-modal-body">
+        <p class="export-intro">Export your generated website as a clean, production-ready bundle. No API keys, no server dependencies — runs instantly on any browser or hosting provider.</p>
+        
+        <div class="export-options-grid">
+          <div class="export-option-card selected" id="opt-export-zip">
+            <div class="opt-icon">📦</div>
+            <div class="opt-info">
+              <h4>Full Project Package (ZIP)</h4>
+              <p>Includes separate <code>index.html</code>, <code>css/style.css</code>, <code>js/app.js</code>, and <code>README.md</code>.</p>
+            </div>
+          </div>
+          <div class="export-option-card" id="opt-export-single">
+            <div class="opt-icon">📄</div>
+            <div class="opt-info">
+              <h4>Single Standalone HTML</h4>
+              <p>Self-contained HTML file with embedded CSS and JS. Double-click to open offline anywhere.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-secondary" id="btn-dismiss-export">Cancel</button>
+        <button type="button" class="btn-modal-primary" id="btn-trigger-download">Download Package ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JSZip Library for Client-Side Project Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <!-- Supabase Browser SDK for Client-Side OAuth & Session Handling -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Configuration & Vanilla JavaScript Application -->
   <script src="js/config.js"></script>
-  <script src="js/app.js?v=PROD-NO-LOCALHOST-v1"></script>
+  <script src="js/builder.js?v=STUDIO-v1"></script>
+  <script src="js/app.js?v=STUDIO-v1"></script>
 </body>
 </html>

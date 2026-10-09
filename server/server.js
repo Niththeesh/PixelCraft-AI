@@ -54,6 +54,7 @@ app.get('/api/db/health', async (req, res) => {
 const conversationRoutes = require('./routes/conversationRoutes');
 const authRoutes = require('./routes/authRoutes');
 const promptRoutes = require('./routes/promptRoutes');
+const builderRoutes = require('./routes/builderRoutes');
 
 // Mount Auth API Routes (/api/auth)
 app.use('/api/auth', authRoutes);
@@ -66,6 +67,9 @@ app.use('/api', conversationRoutes);
 
 // Mount AI Prompt Library API Routes (/api/prompts)
 app.use('/api', promptRoutes);
+
+// Mount AI Website & UI/UX Builder API Routes (/api/builder)
+app.use('/api/builder', builderRoutes);
 
 // Start Express server locally when not on Vercel
 if (!process.env.VERCEL) {
