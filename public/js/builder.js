@@ -4045,6 +4045,28 @@ Generated with PixelCraft AI Studio.
       setWorkspaceMode('studio');
       loadProject(proj, true);
     },
+    loadArtifact: function(artifact) {
+      if (!artifact) return;
+      setWorkspaceMode('studio');
+      const mode = artifact.mode;
+      if (mode === 'logo' && (artifact.logoData || artifact.logo)) {
+        setCreativeMode('logo');
+        renderLogoStudio(artifact.logoData || artifact.logo);
+        setSaveStatus('saved');
+      } else if (mode === 'image' && (artifact.imageData || artifact.image)) {
+        setCreativeMode('image');
+        renderImageStudio(artifact.imageData || artifact.image);
+        setSaveStatus('saved');
+      } else if (mode === 'uiux' && (artifact.uiuxData || artifact.uiux)) {
+        setCreativeMode('uiux');
+        renderUiUxStudio(artifact.uiuxData || artifact.uiux);
+        setSaveStatus('saved');
+      } else if (artifact.project) {
+        setCreativeMode('website');
+        loadProject(artifact.project, true);
+        setSaveStatus('saved');
+      }
+    },
     getCurrentProject: function() {
       return state.currentProject;
     },

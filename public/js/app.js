@@ -3382,36 +3382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
       }
 
-      const isDesignCreation = isDesignIntent(text);
-
-      if (isDesignCreation && window.PixelCraftBuilder) {
-        showTypingIndicator(false);
-
-        // Render interactive Studio Card in chat stream so user can return anytime
-        const cardHtml = `<!-- PIXELCRAFT_STUDIO_CARD -->
-<div class="chat-builder-card">
-  <span class="card-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">web</span> Visual Website & Design Studio</span>
-  <h3>Visual Design Workspace Active</h3>
-  <p>${escapeHtml(text)}</p>
-  <button type="button" class="btn-open-in-studio" onclick="window.PixelCraftBuilder.openStudio()">
-    Open in Visual Studio <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">arrow_forward</span>
-  </button>
-</div>`;
-
-        const assistantRow = appendMessage('assistant', cardHtml, null, state.activePersona);
-        state.messages.push({ role: 'assistant', content: cardHtml });
-
-        // Seamlessly open the visual studio workspace immediately so user sees the live rendered preview
-        window.PixelCraftBuilder.generateFromPrompt(text);
-
-        state.isGenerating = false;
-        elements.chatTextarea.disabled = false;
-        elements.btnSend.disabled = false;
-        elements.chatTextarea.focus();
-        return;
-      }
-
-      // 3. Dispatch standard chat to backend POST /api/chat with Bearer Token
+      // 2. Dispatch chat request to backend POST /api/chat with Bearer Token
       const payload = { 
         message: text,
         persona: state.activePersona
@@ -3441,8 +3412,8 @@ document.addEventListener('DOMContentLoaded', () => {
       showTypingIndicator(false);
 
       if (response.ok && data.success && data.reply) {
-        const assistantRow = appendMessage('assistant', data.reply, data.assistantMessageId, data.persona);
-        state.messages.push({ role: 'assistant', content: data.reply, id: data.assistantMessageId, persona: data.persona });
+        const assistantRow = appendMessage('assistant', data.reply, data.assistantMessageId, data.persona, data.artifact);
+        state.messages.push({ role: 'assistant', content: data.reply, id: data.assistantMessageId, persona: data.persona, artifact: data.artifact });
 
         if (data.userMessageId && userRow) {
           attachDeleteActionToRow(userRow, data.userMessageId);
@@ -3470,8 +3441,180 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Global storage for interactive artifacts rendered in chat
+  window.__activeArtifacts = window.__activeArtifacts || {};
+
+  function buildArtifactCardHtml(artifact, artifactId) {
+    if (!artifact) return '';
+    const mode = artifact.mode;
+
+    if (mode === 'logo') {
+      const brandName = escapeHtml(artifact.brandName || artifact.title || 'Brand Logo');
+      const industry = escapeHtml((artifact.industry || 'General').toUpperCase());
+      const palette = artifact.brandKit?.palette || {};
+      const colors = [
+        { name: 'Primary', hex: palette.primary || '#6366f1' },
+        { name: 'Secondary', hex: palette.secondary || '#f97316' },
+        { name: 'Accent', hex: palette.accent || palette.light || '#ffffff' }
+      ];
+
+      const swatchesHtml = colors.map(c => `
+        <div class="chat-swatch" style="--swatch-hex:${c.hex}" title="${c.name}: ${c.hex}">
+          <span class="chat-swatch-dot" style="background:${c.hex}"></span>
+          <span class="chat-swatch-hex">${c.hex}</span>
+        </div>
+      `).join('');
+
+      return `
+<div class="chat-artifact-card chat-artifact-logo" data-artifact-id="${artifactId}">
+  <div class="chat-artifact-header">
+    <div class="chat-artifact-title-group">
+      <span class="chat-artifact-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">palette</span> Vector Brand Identity</span>
+      <h3 class="chat-artifact-title">${brandName}</h3>
+      <span class="chat-artifact-sub">${industry} • Scalable SVG Vector Mark</span>
+    </div>
+    <div class="chat-artifact-actions">
+      <button type="button" class="btn-artifact-open" onclick="window.PixelCraftBuilder.loadArtifact(window.__activeArtifacts['${artifactId}'])">
+        <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">open_in_new</span> Open in Studio
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-logo-artboard-wrap">
+    <div class="chat-logo-artboard" id="chat-logo-artboard-${artifactId}">
+      ${artifact.svg}
+    </div>
+  </div>
+
+  <div class="chat-logo-variants-bar">
+    <span class="chat-variants-label">Styles:</span>
+    <button type="button" class="chat-var-btn active" onclick="window.switchChatLogoVariant('${artifactId}', 'primary', this)">Primary</button>
+    <button type="button" class="chat-var-btn" onclick="window.switchChatLogoVariant('${artifactId}', 'dark', this)">Dark</button>
+    <button type="button" class="chat-var-btn" onclick="window.switchChatLogoVariant('${artifactId}', 'light', this)">Light</button>
+    <button type="button" class="chat-var-btn" onclick="window.switchChatLogoVariant('${artifactId}', 'icon', this)">Icon Only</button>
+    <button type="button" class="chat-var-btn" onclick="window.switchChatLogoVariant('${artifactId}', 'wordmark', this)">Wordmark</button>
+  </div>
+
+  <div class="chat-artifact-footer">
+    <div class="chat-swatches-row">
+      <span class="chat-swatches-label">Palette:</span>
+      ${swatchesHtml}
+    </div>
+    <div class="chat-download-group">
+      <button type="button" class="btn-chat-download" onclick="window.downloadChatLogoSvg('${artifactId}')" title="Download Scalable Vector SVG">
+        <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">download</span> SVG
+      </button>
+      <button type="button" class="btn-chat-download" onclick="window.downloadChatLogoPng('${artifactId}')" title="Download High-Resolution PNG">
+        <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">image</span> PNG
+      </button>
+    </div>
+  </div>
+</div>`;
+    }
+
+    if (mode === 'image') {
+      const title = escapeHtml(artifact.title || 'AI Visual Creation');
+      const imgSrc = artifact.imageUrl || artifact.directUrl;
+      const aspect = artifact.aspectRatio || '1:1';
+
+      return `
+<div class="chat-artifact-card chat-artifact-image" data-artifact-id="${artifactId}">
+  <div class="chat-artifact-header">
+    <div class="chat-artifact-title-group">
+      <span class="chat-artifact-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">photo_camera</span> AI Visual Synthesis</span>
+      <h3 class="chat-artifact-title">${title}</h3>
+      <span class="chat-artifact-sub">Flux / Pollinations AI • ${aspect} • Real Returned Asset</span>
+    </div>
+    <div class="chat-artifact-actions">
+      <button type="button" class="btn-artifact-open" onclick="window.PixelCraftBuilder.loadArtifact(window.__activeArtifacts['${artifactId}'])">
+        <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">open_in_new</span> Open in Studio
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-image-canvas">
+    <img src="${imgSrc}" class="chat-rendered-img" alt="${title}" onclick="window.openImageLightbox(this.src)" />
+  </div>
+
+  <div class="chat-artifact-footer">
+    <div class="chat-specs-info">
+      <span class="material-symbols-rounded ui-icon ui-icon-xs" style="color:var(--accent-cyan);" aria-hidden="true">verified</span>
+      <span>Real Generated Image Asset • Ready to Export</span>
+    </div>
+    <div class="chat-download-group">
+      <button type="button" class="btn-chat-download" onclick="window.downloadChatImage('${artifactId}')" title="Download Image Asset">
+        <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">download</span> Download Image
+      </button>
+    </div>
+  </div>
+</div>`;
+    }
+
+    if (mode === 'uiux') {
+      const title = escapeHtml(artifact.title || artifact.uiuxData?.appTitle || 'App UI Design');
+      const screens = artifact.screens || artifact.uiuxData?.screens || [];
+      const screenChips = screens.map(s => `
+        <div class="chat-uiux-screen-chip">
+          <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">phone_iphone</span>
+          <span>${escapeHtml(s.name)}</span>
+        </div>
+      `).join('');
+
+      return `
+<div class="chat-artifact-card chat-artifact-uiux" data-artifact-id="${artifactId}">
+  <div class="chat-artifact-header">
+    <div class="chat-artifact-title-group">
+      <span class="chat-artifact-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">devices</span> UI/UX Design System</span>
+      <h3 class="chat-artifact-title">${title}</h3>
+      <span class="chat-artifact-sub">${screens.length} Interactive Screens • Inspectable UI Components</span>
+    </div>
+    <div class="chat-artifact-actions">
+      <button type="button" class="btn-artifact-open" onclick="window.PixelCraftBuilder.loadArtifact(window.__activeArtifacts['${artifactId}'])">
+        <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">arrow_forward</span> Open in Studio
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-uiux-screens-list">
+    ${screenChips}
+  </div>
+</div>`;
+    }
+
+    if (mode === 'website' || artifact.project) {
+      const title = escapeHtml(artifact.title || artifact.project?.title || 'Responsive Website');
+      const sectionsCount = artifact.sectionsCount || artifact.project?.sections?.length || 5;
+
+      return `
+<div class="chat-artifact-card chat-artifact-website" data-artifact-id="${artifactId}">
+  <div class="chat-artifact-header">
+    <div class="chat-artifact-title-group">
+      <span class="chat-artifact-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">web</span> Responsive Website Project</span>
+      <h3 class="chat-artifact-title">${title}</h3>
+      <span class="chat-artifact-sub">${sectionsCount} Full Sections • Responsive Viewports</span>
+    </div>
+    <div class="chat-artifact-actions">
+      <button type="button" class="btn-artifact-open" onclick="window.PixelCraftBuilder.loadArtifact(window.__activeArtifacts['${artifactId}'])">
+        <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">arrow_forward</span> Open in Visual Studio
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-website-preview-bar">
+    <div class="chat-device-badges">
+      <span class="chat-device-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">desktop_windows</span> Desktop 1440px</span>
+      <span class="chat-device-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">tablet_mac</span> Tablet 768px</span>
+      <span class="chat-device-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">smartphone</span> Mobile 375px</span>
+    </div>
+  </div>
+</div>`;
+    }
+
+    return '';
+  }
+
   // Render message bubble in chat container
-  function appendMessage(role, text, messageId = null, persona = null) {
+  function appendMessage(role, text, messageId = null, persona = null, artifact = null) {
     const messageRow = document.createElement('div');
     messageRow.className = `message-row ${role}`;
     if (messageId) {
@@ -3499,11 +3642,19 @@ document.addEventListener('DOMContentLoaded', () => {
         ? '<img src="images/logo.png" alt="PixelCraft AI" class="avatar-logo-img">'
         : (PERSONA_LABELS[persona] ? `<span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">${PERSONA_LABELS[persona].icon}</span>` : '<span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">bolt</span>');
 
+      let artifactHtml = '';
+      if (artifact) {
+        const artifactId = 'art_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        window.__activeArtifacts[artifactId] = artifact;
+        artifactHtml = buildArtifactCardHtml(artifact, artifactId);
+      }
+
       messageRow.innerHTML = `
         <div class="message-avatar ai">${avatarContent}</div>
         <div class="message-bubble">
           ${personaBadgeHtml}
           <div class="message-text">${formatResponseText(text)}</div>
+          ${artifactHtml}
           <div class="message-actions">
             <button class="action-btn btn-copy" aria-label="Copy response text"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">content_copy</span> Copy</button>
             <button class="action-btn btn-useful" aria-label="Rate response as helpful"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">thumb_up</span> Useful</button>
@@ -3773,14 +3924,129 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function formatResponseText(str) {
-    if (typeof str === 'string' && str.startsWith('<!-- PIXELCRAFT_STUDIO_CARD -->')) {
+    if (typeof str !== 'string') return '';
+    if (str.startsWith('<!-- PIXELCRAFT_STUDIO_CARD -->') || str.startsWith('<!-- PIXELCRAFT_ARTIFACT -->')) {
       return str;
     }
     let formatted = escapeHtml(str);
-    formatted = formatted.replace(/```javascript([\s\S]*?)```/g, '<pre style="background:#090d16; padding:1rem; border-radius:8px; margin:0.75rem 0; overflow-x:auto; font-family:monospace; color:#38bdf8;"><code>$1</code></pre>');
-    formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre style="background:#090d16; padding:1rem; border-radius:8px; margin:0.75rem 0; overflow-x:auto; font-family:monospace; color:#38bdf8;"><code>$1</code></pre>');
+
+    // Fenced Code Blocks with syntax highlight pre
+    formatted = formatted.replace(/```(?:javascript|js|html|css|python|json|sql|bash)?\n?([\s\S]*?)```/g, (match, p1) => {
+      return `<pre class="code-block-highlight" style="background:#090d16; padding:1.1rem; border-radius:10px; margin:0.85rem 0; overflow-x:auto; font-family:var(--font-mono, monospace); color:#38bdf8; border:1px solid rgba(255,255,255,0.08); font-size:0.85rem;"><code>${p1}</code></pre>`;
+    });
+
+    // Inline code `code`
+    formatted = formatted.replace(/`([^`\n]+)`/g, '<code style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; font-family:var(--font-mono, monospace); font-size:0.84rem; color:#38bdf8;">$1</code>');
+
+    // Headings ### Heading
+    formatted = formatted.replace(/^### (.*$)/gim, '<h3 style="font-size:1.15rem; font-weight:800; color:#ffffff; margin:1rem 0 0.5rem; letter-spacing:-0.01em;">$1</h3>');
+    formatted = formatted.replace(/^## (.*$)/gim, '<h2 style="font-size:1.25rem; font-weight:800; color:#ffffff; margin:1.2rem 0 0.6rem; letter-spacing:-0.01em;">$1</h2>');
+    formatted = formatted.replace(/^# (.*$)/gim, '<h1 style="font-size:1.4rem; font-weight:800; color:#ffffff; margin:1.3rem 0 0.7rem; letter-spacing:-0.01em;">$1</h1>');
+
+    // Blockquotes > quote
+    formatted = formatted.replace(/^> (.*$)/gim, '<blockquote style="border-left:3px solid var(--accent-indigo, #6366f1); margin:0.75rem 0; padding:0.4rem 0.85rem; color:#cbd5e1; background:rgba(99,102,241,0.06); border-radius:0 8px 8px 0; font-style:italic;">$1</blockquote>');
+
+    // Bold **text**
     formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // Italics *text*
+    formatted = formatted.replace(/\*([^\*\n]+)\*/g, '<em>$1</em>');
+
+    // Unordered lists - item or * item
+    formatted = formatted.replace(/^[*-] (.*$)/gim, '<li style="margin-left:1.25rem; list-style-type:disc; margin-bottom:0.25rem;">$1</li>');
+
+    // Line breaks (excluding pre blocks)
     formatted = formatted.replace(/\n/g, '<br>');
+
+    // Clean up br inside pre
+    formatted = formatted.replace(/(<pre[\s\S]*?<\/pre>)/g, (m) => m.replace(/<br>/g, '\n'));
+
     return formatted;
   }
+
+  // Global window functions for artifact interactivity
+  window.switchChatLogoVariant = function(artifactId, variant, btn) {
+    const artifact = window.__activeArtifacts[artifactId];
+    if (!artifact) return;
+    const container = document.getElementById(`chat-logo-artboard-${artifactId}`);
+    if (!container) return;
+
+    const variants = artifact.variants || {};
+    let targetSvg = artifact.svg;
+    if (variant === 'dark') targetSvg = variants.dark || variants.svgDark || artifact.svg;
+    else if (variant === 'light') targetSvg = variants.light || variants.svgLight || artifact.svg;
+    else if (variant === 'icon') targetSvg = variants.iconOnly || variants.svgIcon || artifact.svg;
+    else if (variant === 'wordmark') targetSvg = variants.wordmark || variants.svgWordmark || artifact.svg;
+    else targetSvg = variants.primary || variants.svgPrimary || artifact.svg;
+
+    container.innerHTML = targetSvg;
+
+    if (btn && btn.parentElement) {
+      btn.parentElement.querySelectorAll('.chat-var-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  };
+
+  window.downloadChatLogoSvg = function(artifactId) {
+    const artifact = window.__activeArtifacts[artifactId];
+    if (!artifact) return;
+    const container = document.getElementById(`chat-logo-artboard-${artifactId}`);
+    const svgContent = container ? container.innerHTML : artifact.svg;
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(artifact.brandName || 'logo').toLowerCase().replace(/\s+/g, '-')}-vector.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  window.downloadChatLogoPng = function(artifactId) {
+    const artifact = window.__activeArtifacts[artifactId];
+    if (!artifact) return;
+    const container = document.getElementById(`chat-logo-artboard-${artifactId}`);
+    const svgEl = container ? container.querySelector('svg') : null;
+    if (!svgEl) return;
+
+    const svgData = new XMLSerializer().serializeToString(svgEl);
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1000;
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0, 1000, 1000);
+      URL.revokeObjectURL(url);
+      const pngUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = pngUrl;
+      a.download = `${(artifact.brandName || 'logo').toLowerCase().replace(/\s+/g, '-')}-logo.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+    img.src = url;
+  };
+
+  window.downloadChatImage = function(artifactId) {
+    const artifact = window.__activeArtifacts[artifactId];
+    if (!artifact) return;
+    const src = artifact.imageUrl || artifact.directUrl;
+    const a = document.createElement('a');
+    a.href = src;
+    a.download = `pixelcraft-ai-creation-${Date.now()}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  window.openImageLightbox = function(src) {
+    if (!src) return;
+    window.open(src, '_blank');
+  };
 });
