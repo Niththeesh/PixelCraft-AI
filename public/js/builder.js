@@ -299,6 +299,31 @@
   // ==========================================================================
   function setWorkspaceMode(mode) {
     if (mode === 'studio') {
+      // Close mobile sidebar drawer if it was open
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+      if (sidebar && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('open');
+      }
+
+      // On tablet & mobile viewports (<1024px), collapse side panels by default so the canvas is full width
+      if (window.innerWidth < 1024) {
+        state.isLeftPanelCollapsed = true;
+        state.isRightPanelCollapsed = true;
+        if (el.leftPanel) {
+          el.leftPanel.classList.add('is-collapsed');
+          el.leftPanel.classList.remove('mob-visible');
+        }
+        if (el.rightPanel) {
+          el.rightPanel.classList.add('is-collapsed');
+          el.rightPanel.classList.remove('mob-visible');
+        }
+        if (el.btnToggleLeftPanel) el.btnToggleLeftPanel.classList.remove('is-active');
+        if (el.btnToggleRightPanel) el.btnToggleRightPanel.classList.remove('is-active');
+        if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'none';
+      }
+
       if (el.chatStream) el.chatStream.style.display = 'none';
       if (el.inputContainer) el.inputContainer.style.display = 'none';
       if (el.builderWorkspace) el.builderWorkspace.style.display = 'flex';
@@ -1706,6 +1731,24 @@
   }
 
   function toggleLeftPanel(forceState) {
+    if (window.innerWidth < 768) {
+      const isCurrentlyVisible = el.leftPanel && el.leftPanel.classList.contains('mob-visible');
+      const shouldShow = typeof forceState === 'boolean' ? !forceState : !isCurrentlyVisible;
+      if (shouldShow) {
+        if (el.leftPanel) el.leftPanel.classList.add('mob-visible');
+        if (el.rightPanel) el.rightPanel.classList.remove('mob-visible');
+        if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'block';
+        if (el.promptCard) el.promptCard.style.display = 'none';
+        state.isPromptPopoverOpen = false;
+        if (el.mobTabButtons) {
+          el.mobTabButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === 'layers'));
+        }
+      } else {
+        closeMobileSheets();
+      }
+      return;
+    }
+
     state.isLeftPanelCollapsed = typeof forceState === 'boolean' ? forceState : !state.isLeftPanelCollapsed;
     if (el.leftPanel) {
       el.leftPanel.classList.toggle('is-collapsed', state.isLeftPanelCollapsed);
@@ -1713,15 +1756,43 @@
     if (el.btnToggleLeftPanel) {
       el.btnToggleLeftPanel.classList.toggle('is-active', !state.isLeftPanelCollapsed);
     }
+    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
+      if (el.mobileBackdrop) {
+        el.mobileBackdrop.style.display = (!state.isLeftPanelCollapsed || !state.isRightPanelCollapsed) ? 'block' : 'none';
+      }
+    }
   }
 
   function toggleRightPanel(forceState) {
+    if (window.innerWidth < 768) {
+      const isCurrentlyVisible = el.rightPanel && el.rightPanel.classList.contains('mob-visible');
+      const shouldShow = typeof forceState === 'boolean' ? !forceState : !isCurrentlyVisible;
+      if (shouldShow) {
+        if (el.rightPanel) el.rightPanel.classList.add('mob-visible');
+        if (el.leftPanel) el.leftPanel.classList.remove('mob-visible');
+        if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'block';
+        if (el.promptCard) el.promptCard.style.display = 'none';
+        state.isPromptPopoverOpen = false;
+        if (el.mobTabButtons) {
+          el.mobTabButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === 'props'));
+        }
+      } else {
+        closeMobileSheets();
+      }
+      return;
+    }
+
     state.isRightPanelCollapsed = typeof forceState === 'boolean' ? forceState : !state.isRightPanelCollapsed;
     if (el.rightPanel) {
       el.rightPanel.classList.toggle('is-collapsed', state.isRightPanelCollapsed);
     }
     if (el.btnToggleRightPanel) {
       el.btnToggleRightPanel.classList.toggle('is-active', !state.isRightPanelCollapsed);
+    }
+    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
+      if (el.mobileBackdrop) {
+        el.mobileBackdrop.style.display = (!state.isLeftPanelCollapsed || !state.isRightPanelCollapsed) ? 'block' : 'none';
+      }
     }
   }
 
@@ -1731,6 +1802,19 @@
       el.promptCard.style.display = state.isPromptPopoverOpen ? 'flex' : 'none';
       if (state.isPromptPopoverOpen) {
         el.originalPromptInput?.focus();
+        if (window.innerWidth < 768) {
+          if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'block';
+          if (el.leftPanel) el.leftPanel.classList.remove('mob-visible');
+          if (el.rightPanel) el.rightPanel.classList.remove('mob-visible');
+          if (el.mobTabButtons) {
+            el.mobTabButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === 'prompt'));
+          }
+        }
+      } else if (window.innerWidth < 768) {
+        if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'none';
+        if (el.mobTabButtons) {
+          el.mobTabButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === 'canvas'));
+        }
       }
     }
     if (el.btnTogglePromptPanel) {
@@ -1741,6 +1825,14 @@
   function closeMobileSheets() {
     if (el.leftPanel) el.leftPanel.classList.remove('mob-visible');
     if (el.rightPanel) el.rightPanel.classList.remove('mob-visible');
+    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
+      if (el.leftPanel) el.leftPanel.classList.add('is-collapsed');
+      if (el.rightPanel) el.rightPanel.classList.add('is-collapsed');
+      state.isLeftPanelCollapsed = true;
+      state.isRightPanelCollapsed = true;
+      if (el.btnToggleLeftPanel) el.btnToggleLeftPanel.classList.remove('is-active');
+      if (el.btnToggleRightPanel) el.btnToggleRightPanel.classList.remove('is-active');
+    }
     if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'none';
     if (el.promptCard) el.promptCard.style.display = 'none';
     state.isPromptPopoverOpen = false;
@@ -3431,6 +3523,10 @@ Generated with PixelCraft AI Studio.
     }
 
     if (el.refineInput) {
+      el.refineInput.addEventListener('input', () => {
+        el.refineInput.style.height = 'auto';
+        el.refineInput.style.height = Math.min(Math.max(el.refineInput.scrollHeight, 28), 120) + 'px';
+      });
       el.refineInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
@@ -3439,6 +3535,15 @@ Generated with PixelCraft AI Studio.
         }
       });
     }
+
+    // Responsive Window Resize Adaptations
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        if (el.mobileBackdrop) el.mobileBackdrop.style.display = 'none';
+        if (el.leftPanel) el.leftPanel.classList.remove('mob-visible');
+        if (el.rightPanel) el.rightPanel.classList.remove('mob-visible');
+      }
+    });
 
     // Quick Chips
     el.refineChips.forEach(chip => {

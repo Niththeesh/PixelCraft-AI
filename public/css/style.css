@@ -2641,9 +2641,9 @@ button {
 }
 
 /* --------------------------------------------------------------------------
-   2. Medium Tablets (Portrait mode: iPads, Surfaces, Android Tabs) (max-width: 900px)
+   2. Tablets & Mobile Drawer (max-width: 1023px)
    -------------------------------------------------------------------------- */
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .sidebar {
     position: fixed;
     top: 0;
@@ -5227,7 +5227,8 @@ button {
 .code-modal-header-left {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .code-file-tabs {
@@ -5283,6 +5284,8 @@ button {
   padding: 12px 18px;
   border-top: 1px solid var(--border-color);
   background: rgba(15, 23, 42, 0.5);
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .code-status {
@@ -5294,6 +5297,7 @@ button {
 .code-actions-right {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Studio Project Export Modal */
@@ -5441,86 +5445,359 @@ button {
 }
 
 /* ==========================================================================
-   Responsive Adaptations for Studio Workspace
+   Comprehensive Responsive System for PixelCraft Studio & Multimodal Workspace
    ========================================================================== */
-/* Responsive Adaptations for Studio Workspace */
-@media (max-width: 1024px) {
-  .builder-left-panel {
-    width: 220px;
-    min-width: 220px;
-    max-width: 220px;
-  }
-  .builder-right-panel {
-    width: 280px;
-    min-width: 280px;
-    max-width: 280px;
-  }
-  .builder-project-title-input {
-    width: 140px;
+
+/* 1. Large Desktops & Wide Screens (1440px and above) */
+@media (min-width: 1440px) {
+  .chat-content-max {
+    max-width: 900px;
   }
   .device-frame.desktop {
-    max-width: 100%;
+    max-width: 1400px;
+  }
+  .builder-left-panel {
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
+  }
+  .builder-right-panel {
+    width: 340px;
+    min-width: 340px;
+    max-width: 340px;
+  }
+  .builder-refine-bar {
+    max-width: 980px;
   }
 }
 
-@media (max-width: 768px) {
-  .builder-mobile-tab-bar {
-    display: flex;
-    background: #0d121c;
-    border-bottom: 1px solid var(--border-color);
-    padding: 6px 10px;
-    gap: 6px;
-    z-index: 40;
+/* 2. Standard Tablets & iPads (768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Studio Toolbar Tablet Adaptations */
+  .builder-toolbar {
+    height: 48px;
+    padding: 0 12px;
+    gap: 8px;
+    justify-content: space-between;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
   }
 
-  .mob-tab-btn {
-    padding: 8px 6px;
+  .builder-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tb-brand-text {
+    display: none;
+  }
+
+  .builder-project-title-input {
+    width: 110px;
     font-size: 0.8rem;
-    font-weight: 600;
   }
 
-  .builder-main-body {
-    flex-direction: column;
-    position: relative;
+  .save-status-text {
+    display: none;
   }
 
-  /* Secondary Panels open as slide-over / sheet drawers on Mobile */
-  .builder-panel {
+  .creative-mode-selector {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .mode-pill {
+    padding: 4px 8px;
+    font-size: 0.76rem;
+  }
+
+  .viewport-switcher {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .vp-btn {
+    padding: 4px 8px;
+    font-size: 0.74rem;
+  }
+
+  .builder-zoom-controls {
+    flex-shrink: 0;
+  }
+
+  .builder-btn-prompt-toggle .btn-text-label,
+  .builder-action-btn .btn-text-label,
+  .builder-btn-back .btn-text-label {
+    display: none;
+  }
+
+  .builder-mode-toggle #builder-mode-label {
+    display: none;
+  }
+
+  .builder-action-btn,
+  .builder-panel-toggle-btn,
+  .builder-mode-toggle {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px;
+  }
+
+  /* Center Canvas is Primary Focus - Canvas wrapper gets 100% width */
+  .builder-canvas-wrapper {
     width: 100% !important;
-    max-width: 100% !important;
-    min-width: 100% !important;
-    position: fixed !important;
-    top: 92px !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    display: none !important;
-    z-index: 90 !important;
-    background: #0d121c !important;
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.7);
+    flex: 1 !important;
+    min-width: 0 !important;
   }
 
-  .builder-panel.mob-visible {
-    display: flex !important;
+  .device-frame.desktop {
+    max-width: 100%;
+  }
+
+  /* Side Panels Open as Slide-over Overlay Drawers with Backdrop */
+  .builder-left-panel {
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 290px !important;
+    min-width: 290px !important;
+    max-width: 80vw !important;
+    z-index: 50 !important;
+    background: #0d121c !important;
+    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.7) !important;
+    transform: translateX(0);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .builder-left-panel.is-collapsed {
+    transform: translateX(-100%) !important;
+    width: 290px !important;
+    min-width: 290px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .builder-right-panel {
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    width: 320px !important;
+    min-width: 320px !important;
+    max-width: 85vw !important;
+    z-index: 50 !important;
+    background: #0d121c !important;
+    box-shadow: -12px 0 36px rgba(0, 0, 0, 0.7) !important;
+    transform: translateX(0);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .builder-right-panel.is-collapsed {
+    transform: translateX(100%) !important;
+    width: 320px !important;
+    min-width: 320px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 
   .builder-mobile-backdrop {
-    position: fixed;
+    position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.65);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
-    z-index: 85;
+    z-index: 45;
   }
 
-  /* Canvas is primary content on Mobile */
+  .builder-mobile-tab-bar {
+    display: none;
+  }
+
+  .builder-prompt-popover {
+    width: min(720px, 92vw);
+    top: 54px;
+    padding: 14px 18px;
+  }
+
+  .builder-refine-dock {
+    padding: 8px 16px;
+  }
+}
+
+/* 3. Mobile Phones & Small Handheld Devices (320px to 767px) */
+@media (max-width: 767px) {
+  /* 2-Tier Compact Mobile Top Toolbar */
+  .builder-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 48px;
+    padding: 6px 10px;
+    gap: 6px;
+    justify-content: space-between;
+    background: rgba(13, 18, 28, 0.98);
+    backdrop-filter: blur(16px);
+  }
+
+  .tb-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .tb-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .tb-center {
+    display: flex !important;
+    width: 100%;
+    order: 3;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 0 0 0;
+    margin: 0;
+    gap: 6px;
+  }
+
+  .tb-center::-webkit-scrollbar {
+    display: none;
+  }
+
+  .creative-mode-selector {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+    width: 100%;
+  }
+
+  .creative-mode-selector::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mode-pill {
+    padding: 5px 9px;
+    font-size: 0.74rem;
+    white-space: nowrap;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Hidden on physical phone: phone screen size IS the viewport */
+  .viewport-switcher,
+  .zoom-controls,
+  .builder-btn-prompt-toggle {
+    display: none !important;
+  }
+
+  .builder-btn-back .btn-text-label,
+  .tb-brand-text,
+  .builder-action-btn .btn-text-label,
+  .builder-mode-toggle #builder-mode-label,
+  .save-status-text {
+    display: none;
+  }
+
+  .builder-project-title-input {
+    width: 95px;
+    font-size: 0.78rem;
+    padding: 3px 6px;
+  }
+
+  .builder-action-btn,
+  .builder-panel-toggle-btn,
+  .builder-mode-toggle {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px 8px;
+    justify-content: center;
+  }
+
+  .history-actions {
+    display: none; /* Secondary toolbar history actions condensed on small screens */
+  }
+
+  /* Studio Main Body Layout */
+  .builder-main-body {
+    flex-direction: column;
+    position: relative;
+    height: calc(100% - 84px);
+    overflow: hidden;
+  }
+
+  /* Native-Feel Accessible Mobile Bottom Navigation Bar */
+  .builder-mobile-tab-bar {
+    display: flex !important;
+    order: 10;
+    margin-top: auto;
+    background: #0d121c;
+    border-top: 1px solid var(--border-color);
+    border-bottom: none;
+    padding: 6px 8px max(6px, env(safe-area-inset-bottom, 6px));
+    gap: 6px;
+    width: 100%;
+    flex-shrink: 0;
+    z-index: 105;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .mob-tab-btn {
+    flex: 1;
+    padding: 6px 4px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    min-height: 42px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    transition: all 0.2s;
+  }
+
+  .mob-tab-btn .ui-icon {
+    font-size: 1.15rem;
+  }
+
+  .mob-tab-btn.active {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+  }
+
+  /* Primary Canvas Area on Mobile */
   .builder-canvas-wrapper {
     flex: 1;
-    height: 100%;
+    height: auto;
+    min-height: 0;
     padding: 0;
+    width: 100%;
+    overflow: hidden;
   }
 
   .builder-canvas-viewport {
-    padding: 12px 10px 20px;
+    padding: 10px 8px 16px;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .device-frame.desktop,
@@ -5528,53 +5805,172 @@ button {
   .device-frame.mobile {
     width: 100%;
     max-width: 100%;
+    border-radius: 10px;
+  }
+
+  .device-frame-bar {
+    height: 32px;
+    padding: 0 10px;
+  }
+
+  .device-address-text {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .iframe-container {
-    min-height: 600px;
+    min-height: 480px;
+    width: 100%;
   }
 
   .builder-iframe {
-    min-height: 600px;
+    min-height: 480px;
+    width: 100%;
   }
 
-  /* Docked Refine Bar on Mobile */
+  /* Docked Refinement Bar on Mobile (Immediately above bottom tabs) */
   .builder-refine-dock {
-    padding: 8px 12px max(10px, env(safe-area-inset-bottom, 10px));
+    padding: 6px 10px;
+    width: 100%;
+    box-sizing: border-box;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .builder-refine-bar {
+    max-width: 100%;
+    gap: 6px;
+  }
+
+  .refine-scope-bar {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 0;
+  }
+
+  .scope-label {
+    font-size: 0.68rem;
+  }
+
+  .scope-btn {
+    padding: 3px 8px;
+    font-size: 0.7rem;
   }
 
   .refine-chips-scroll {
     gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .refine-chips-scroll::-webkit-scrollbar {
+    display: none;
   }
 
   .refine-chip {
-    padding: 5px 10px;
-    font-size: 0.72rem;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .refine-input-row {
+    gap: 6px;
+  }
+
+  .refine-input-wrap {
+    padding: 6px 10px;
   }
 
   .builder-refine-input {
-    font-size: 0.84rem;
+    font-size: 16px; /* 16px eliminates iOS auto-zoom */
+    min-height: 28px;
+    line-height: 1.4;
   }
 
-  /* Floating Prompt Popover on Mobile */
+  .btn-refine-submit {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    min-height: 38px;
+  }
+
+  .btn-refine-regen {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  /* Secondary Panels open as Contextual Bottom Sheets / Sliding Drawers */
+  .builder-panel {
+    position: fixed !important;
+    top: 52px !important;
+    bottom: 58px !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    z-index: 95 !important;
+    background: #0d121c !important;
+    border-radius: 16px 16px 0 0;
+    display: none !important;
+    box-shadow: 0 -12px 36px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+  }
+
+  .builder-panel.mob-visible {
+    display: flex !important;
+    flex-direction: column;
+    animation: sheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes sheetSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .builder-mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 90;
+  }
+
+  /* Master Prompt Popover as a Mobile Bottom Sheet */
   .builder-prompt-popover {
-    width: calc(100% - 20px);
-    top: 54px;
-    padding: 12px 14px;
+    position: fixed !important;
+    bottom: 58px !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 18px 18px 0 0 !important;
+    z-index: 100 !important;
+    max-height: calc(85dvh - 58px) !important;
+    overflow-y: auto !important;
+    box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.85);
+    padding: 14px 14px 16px;
+    animation: sheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .tb-center {
-    display: none; /* Viewport switching handled by phone screen width on mobile */
+  .builder-original-prompt-input {
+    font-size: 16px; /* 16px eliminates iOS zoom */
+    line-height: 1.4;
   }
 
-  .builder-toolbar {
-    padding: 0 10px;
-    height: 44px;
+  .prompt-quick-chips {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
   }
 
-  .builder-btn-back .btn-text-label,
-  .builder-action-btn .btn-text-label,
-  .builder-mode-toggle #builder-mode-label {
+  .prompt-quick-chips::-webkit-scrollbar {
     display: none;
   }
 }
@@ -6819,16 +7215,63 @@ button {
   object-fit: contain;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .creative-mode-selector {
     overflow-x: auto;
     max-width: 100%;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
   .brand-kit-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .uiux-canvas-container {
+    padding: 12px 8px;
+    width: 100%;
+    box-sizing: border-box;
   }
   .uiux-phone-mockup {
     width: 100%;
-    max-width: 375px;
+    max-width: 360px;
+    box-sizing: border-box;
+    border: 8px solid #1e293b;
+    border-radius: 30px;
+    min-height: 520px;
+  }
+  .logo-canvas-container,
+  .image-canvas-container {
+    padding: 12px 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .logo-variant-toggles {
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  .image-aspect-pills {
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  .logo-artboard-wrap {
+    padding: 24px 12px;
+  }
+}
+
+@media (max-width: 375px) {
+  .uiux-phone-mockup {
+    border: 6px solid #1e293b;
+    border-radius: 24px;
+    min-height: 480px;
+  }
+  .bizcard-mockup {
+    flex-direction: column;
+    gap: 8px;
   }
 }
