@@ -85,11 +85,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // AI Persona Definitions & State
   const PERSONA_LABELS = {
-    general: { name: 'General Assistant', icon: '🎯' },
-    code_architect: { name: 'Code Architect', icon: '💻' },
-    technical_writer: { name: 'Technical Writer', icon: '📝' },
-    executive_summarizer: { name: 'Executive Summarizer', icon: '💼' },
-    creative_brainstormer: { name: 'Creative Thinker', icon: '🎨' }
+    general: { name: 'General Assistant', icon: 'smart_toy' },
+    code_architect: { name: 'Code Architect', icon: 'code' },
+    technical_writer: { name: 'Technical Writer', icon: 'edit_note' },
+    executive_summarizer: { name: 'Executive Summarizer', icon: 'business_center' },
+    creative_brainstormer: { name: 'Creative Thinker', icon: 'palette' }
   };
 
   let currentStatsData = null;
@@ -376,16 +376,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Displays the modern "Welcome, [User Name] 👋" greeting banner
+   * Displays the modern "Welcome, [User Name]" greeting banner
    * Uses authenticated user metadata: full_name -> name -> user_name -> email prefix
    */
   function showWelcomeGreeting(user) {
     if (!user) return;
     const displayName = getUserDisplayName(user);
-    const greetingText = `Welcome, ${displayName} 👋`;
+    const greetingText = `Welcome, ${displayName} <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">waving_hand</span>`;
 
     if (elements.welcomeToastText) {
-      elements.welcomeToastText.textContent = greetingText;
+      elements.welcomeToastText.innerHTML = greetingText;
     }
     if (elements.welcomeToastBanner) {
       elements.welcomeToastBanner.style.display = 'inline-flex';
@@ -1075,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (elements.userAvatar) {
-      elements.userAvatar.innerHTML = '👤';
+      elements.userAvatar.innerHTML = '<span class="material-symbols-rounded ui-icon" aria-hidden="true">account_circle</span>';
     }
 
     if (elements.userAvatarStatusDot) {
@@ -1106,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.chatList) {
       elements.chatList.innerHTML = `
         <li class="chat-list-empty" style="text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.82rem;">
-          <div style="font-size: 1.4rem; margin-bottom: 0.4rem;">🔒</div>
+          <div style="font-size: 1.4rem; margin-bottom: 0.4rem;"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">lock</span></div>
           <p style="margin-bottom: 0.6rem; line-height: 1.4;">Sign in to save and access your conversations.</p>
           <button type="button" class="btn-sidebar-login" style="margin: 0 auto; display: inline-flex;" onclick="document.getElementById('btn-sidebar-login').click();">Sign In</button>
         </li>
@@ -1154,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (elements.authConfirmPassword) {
           elements.authConfirmPassword.type = isPassword ? 'text' : 'password';
         }
-        elements.btnTogglePassword.textContent = isPassword ? '🔒' : '👁️';
+        elements.btnTogglePassword.innerHTML = isPassword ? '<span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">visibility</span>' : '<span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">visibility_off</span>';
       });
     }
 
@@ -2176,10 +2176,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (elements.currentPersonaLabel) {
       if (hasCustom) {
-        elements.currentPersonaLabel.textContent = '⚙️ Custom';
+        elements.currentPersonaLabel.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">tune</span> Custom';
       } else {
         const p = PERSONA_LABELS[state.activePersona] || PERSONA_LABELS.general;
-        elements.currentPersonaLabel.textContent = `${p.icon} ${p.name}`;
+        elements.currentPersonaLabel.innerHTML = `<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">${p.icon}</span> ${p.name}`;
       }
     }
 
@@ -2270,7 +2270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentStatsData) return;
         const s = currentStatsData;
         const markdown = [
-          `# 📊 Conversation Analytics: ${s.conversation?.title || 'Thread'}`,
+          `# Conversation Analytics: ${s.conversation?.title || 'Thread'}`,
           `- **Total Messages**: ${s.totalMessages} (${s.userMessages} user / ${s.assistantMessages} AI)`,
           `- **Estimated Tokens**: ${(s.estimatedTokens?.totalTokens || 0).toLocaleString()} (${(s.estimatedTokens?.promptTokens || 0).toLocaleString()} prompt / ${(s.estimatedTokens?.completionTokens || 0).toLocaleString()} output)`,
           `- **Total Words**: ${(s.totalWords || 0).toLocaleString()} (User: ${(s.userWords || 0).toLocaleString()} | AI: ${(s.assistantWords || 0).toLocaleString()})`,
@@ -2283,7 +2283,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const onSuccess = () => {
           const originalText = elements.btnCopyStats.textContent;
-          elements.btnCopyStats.textContent = '✓ Copied!';
+          elements.btnCopyStats.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span> Copied!';
           setTimeout(() => {
             if (elements.btnCopyStats) elements.btnCopyStats.textContent = originalText;
           }, 2000);
@@ -2585,7 +2585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filtered.length === 0) {
       elements.promptCardsContainer.innerHTML = `
         <div class="prompt-empty-notice">
-          <span>🔍</span> No prompts found matching your criteria.
+          <span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true" style="margin-right:6px;vertical-align:middle;">search</span> No prompts found matching your criteria.
         </div>
       `;
       return;
@@ -2624,7 +2624,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const runBtn = document.createElement('button');
       runBtn.type = 'button';
       runBtn.className = 'btn-prompt-act btn-prompt-run';
-      runBtn.textContent = '🚀 Run';
+      runBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">play_arrow</span> Run';
       runBtn.title = 'Run prompt immediately against AI Assistant';
       runBtn.addEventListener('click', () => {
         closePromptLibraryModal();
@@ -2634,7 +2634,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const insertBtn = document.createElement('button');
       insertBtn.type = 'button';
       insertBtn.className = 'btn-prompt-act btn-prompt-insert';
-      insertBtn.textContent = '✏️ Insert';
+      insertBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">edit</span> Insert';
       insertBtn.title = 'Insert template into chat textarea to customize';
       insertBtn.addEventListener('click', () => {
         closePromptLibraryModal();
@@ -2644,14 +2644,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const copyBtn = document.createElement('button');
       copyBtn.type = 'button';
       copyBtn.className = 'btn-prompt-act btn-prompt-copy';
-      copyBtn.textContent = '📋 Copy';
+      copyBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">content_copy</span> Copy';
       copyBtn.title = 'Copy template to clipboard';
       copyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(item.template).then(() => {
-            copyBtn.textContent = '✓ Copied';
-            setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
+            copyBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span> Copied';
+            setTimeout(() => { copyBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">content_copy</span> Copy'; }, 2000);
           });
         }
       });
@@ -2761,7 +2761,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const titleSpan = document.createElement('span');
       titleSpan.className = 'chat-item-title';
-      titleSpan.textContent = `💬 ${conv.title || 'New Conversation'}`;
+      titleSpan.innerHTML = `<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true" style="margin-right:6px;opacity:0.7;">chat</span><span>${escapeHtml(conv.title || 'New Conversation')}</span>`;
       titleSpan.title = conv.title || 'New Conversation';
       contentWrapper.appendChild(titleSpan);
 
@@ -2782,7 +2782,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renameBtn.className = 'chat-item-action-btn chat-item-rename';
       renameBtn.setAttribute('aria-label', 'Rename conversation');
       renameBtn.title = 'Rename conversation';
-      renameBtn.textContent = '✏️';
+      renameBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">edit</span>';
       renameBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         startRenamingConversation(conv, li, titleSpan, contentWrapper);
@@ -2792,7 +2792,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statsBtn.className = 'chat-item-action-btn chat-item-stats';
       statsBtn.setAttribute('aria-label', 'Conversation Statistics');
       statsBtn.title = 'View conversation analytics & token estimates';
-      statsBtn.textContent = '📊';
+      statsBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">analytics</span>';
       statsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         openConversationStats(conv.id, conv.title);
@@ -2802,7 +2802,7 @@ document.addEventListener('DOMContentLoaded', () => {
       forkBtn.className = 'chat-item-action-btn chat-item-fork';
       forkBtn.setAttribute('aria-label', 'Fork conversation');
       forkBtn.title = 'Fork conversation into a new branch';
-      forkBtn.textContent = '🔀';
+      forkBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">call_split</span>';
       forkBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         forkConversation(conv.id, conv.title);
@@ -2812,7 +2812,7 @@ document.addEventListener('DOMContentLoaded', () => {
       deleteBtn.className = 'chat-item-action-btn chat-item-delete';
       deleteBtn.setAttribute('aria-label', 'Delete conversation');
       deleteBtn.title = 'Delete conversation';
-      deleteBtn.textContent = '🗑️';
+      deleteBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">delete</span>';
       deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         deleteConversation(conv.id);
@@ -2905,7 +2905,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.ok && data.success && data.conversation) {
         conv.title = data.conversation.title;
-        titleSpan.textContent = `💬 ${data.conversation.title}`;
+        titleSpan.innerHTML = `<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true" style="margin-right:6px;opacity:0.7;">chat</span><span>${escapeHtml(data.conversation.title)}</span>`;
         titleSpan.title = data.conversation.title;
 
         // Also update search results if active
@@ -3038,7 +3038,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.welcomeState) elements.welcomeState.style.display = 'none';
     elements.messagesContainer.innerHTML = `
       <div class="messages-loading">
-        <span>⏳</span> Loading conversation messages...
+        <span class="material-symbols-rounded ui-icon ui-icon-sm ui-icon-spin" aria-hidden="true">progress_activity</span> Loading conversation messages...
       </div>
     `;
 
@@ -3068,12 +3068,12 @@ document.addEventListener('DOMContentLoaded', () => {
           scrollToBottom();
         }
       } else {
-        appendMessage('assistant', `⚠️ Could not load messages: ${data.error || 'Unknown error'}`);
+        appendMessage('assistant', `<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true" style="color:var(--accent-rose);margin-right:4px;">warning</span> Could not load messages: ${data.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error('Error fetching conversation messages:', err);
       elements.messagesContainer.innerHTML = '';
-      appendMessage('assistant', '❌ Network Error: Failed to fetch conversation messages.');
+      appendMessage('assistant', '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true" style="color:var(--accent-rose);margin-right:4px;">error</span> Network Error: Failed to fetch conversation messages.');
     } finally {
       state.isLoadingMessages = false;
     }
@@ -3390,11 +3390,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render interactive Studio Card in chat stream so user can return anytime
         const cardHtml = `<!-- PIXELCRAFT_STUDIO_CARD -->
 <div class="chat-builder-card">
-  <span class="card-badge">🎨 Visual Website & Design Studio</span>
+  <span class="card-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">web</span> Visual Website & Design Studio</span>
   <h3>Visual Design Workspace Active</h3>
   <p>${escapeHtml(text)}</p>
   <button type="button" class="btn-open-in-studio" onclick="window.PixelCraftBuilder.openStudio()">
-    🚀 Open in Visual Studio ➔
+    Open in Visual Studio <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">arrow_forward</span>
   </button>
 </div>`;
 
@@ -3457,11 +3457,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         const errorMsg = data.error || `HTTP ${response.status}: Failed to receive AI response`;
-        appendMessage('assistant', `⚠️ ${errorMsg}`);
+        appendMessage('assistant', `<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true" style="color:var(--accent-rose);margin-right:4px;">warning</span> ${errorMsg}`);
       }
     } catch (err) {
       showTypingIndicator(false);
-      appendMessage('assistant', `❌ Network Error: Could not connect to Express server.`);
+      appendMessage('assistant', `<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true" style="color:var(--accent-rose);margin-right:4px;">error</span> Network Error: Could not connect to Express server.`);
     } finally {
       state.isGenerating = false;
       elements.chatTextarea.disabled = false;
@@ -3483,7 +3483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="message-bubble">
           <div class="message-text">${escapeHtml(text)}</div>
           <div class="message-actions">
-            <button class="action-btn btn-delete-msg" aria-label="Delete message" title="Delete message" ${!messageId ? 'style="display:none;"' : ''}>🗑️</button>
+            <button class="action-btn btn-delete-msg" aria-label="Delete message" title="Delete message" ${!messageId ? 'style="display:none;"' : ''}><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">delete</span></button>
           </div>
         </div>
       `;
@@ -3491,13 +3491,13 @@ document.addEventListener('DOMContentLoaded', () => {
       let personaBadgeHtml = '';
       if (persona && persona !== 'general') {
         const pInfo = PERSONA_LABELS[persona];
-        const badgeLabel = pInfo ? `${pInfo.icon} ${pInfo.name}` : `⚙️ ${persona}`;
-        personaBadgeHtml = `<div class="message-persona-badge">${escapeHtml(badgeLabel)}</div>`;
+        const badgeLabel = pInfo ? `<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">${pInfo.icon}</span> ${pInfo.name}` : `<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">tune</span> ${persona}`;
+        personaBadgeHtml = `<div class="message-persona-badge">${badgeLabel}</div>`;
       }
 
       const avatarContent = (!persona || persona === 'general') 
         ? '<img src="images/logo.png" alt="PixelCraft AI" class="avatar-logo-img">'
-        : (PERSONA_LABELS[persona] ? PERSONA_LABELS[persona].icon : '⚡');
+        : (PERSONA_LABELS[persona] ? `<span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">${PERSONA_LABELS[persona].icon}</span>` : '<span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">bolt</span>');
 
       messageRow.innerHTML = `
         <div class="message-avatar ai">${avatarContent}</div>
@@ -3505,10 +3505,10 @@ document.addEventListener('DOMContentLoaded', () => {
           ${personaBadgeHtml}
           <div class="message-text">${formatResponseText(text)}</div>
           <div class="message-actions">
-            <button class="action-btn btn-copy" aria-label="Copy response text">📋 Copy</button>
-            <button class="action-btn btn-useful" aria-label="Rate response as helpful">👍 Useful</button>
-            <button class="action-btn btn-retry" aria-label="Retry response generation">🔄 Retry</button>
-            <button class="action-btn btn-delete-msg" aria-label="Delete message" title="Delete message" ${!messageId ? 'style="display:none;"' : ''}>🗑️</button>
+            <button class="action-btn btn-copy" aria-label="Copy response text"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">content_copy</span> Copy</button>
+            <button class="action-btn btn-useful" aria-label="Rate response as helpful"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">thumb_up</span> Useful</button>
+            <button class="action-btn btn-retry" aria-label="Retry response generation"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">replay</span> Retry</button>
+            <button class="action-btn btn-delete-msg" aria-label="Delete message" title="Delete message" ${!messageId ? 'style="display:none;"' : ''}><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">delete</span></button>
           </div>
         </div>
       `;
@@ -3522,8 +3522,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const textDiv = messageRow.querySelector('.message-text');
         const contentToCopy = textDiv ? (textDiv.getAttribute('data-raw') || text) : text;
         navigator.clipboard.writeText(contentToCopy);
-        copyBtn.textContent = '✅ Copied!';
-        setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
+        copyBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span> Copied!';
+        setTimeout(() => { copyBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">content_copy</span> Copy'; }, 2000);
       });
     }
 
@@ -3531,7 +3531,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (usefulBtn) {
       usefulBtn.addEventListener('click', () => {
         usefulBtn.classList.toggle('active');
-        usefulBtn.textContent = usefulBtn.classList.contains('active') ? '👍 Saved' : '👍 Useful';
+        usefulBtn.innerHTML = usefulBtn.classList.contains('active') ? '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">thumb_up</span> Saved' : '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">thumb_up</span> Useful';
       });
     }
 
@@ -3655,7 +3655,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (retryBtn) {
       retryBtn.disabled = true;
-      retryBtn.textContent = '⏳ Retrying...';
+      retryBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs ui-icon-spin" aria-hidden="true">progress_activity</span> Retrying...';
       retryBtn.classList.add('spinning');
     }
 
@@ -3724,7 +3724,7 @@ document.addEventListener('DOMContentLoaded', () => {
       elements.chatTextarea.focus();
       if (retryBtn) {
         retryBtn.disabled = false;
-        retryBtn.textContent = '🔄 Retry';
+        retryBtn.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">replay</span> Retry';
         retryBtn.classList.remove('spinning');
       }
     }

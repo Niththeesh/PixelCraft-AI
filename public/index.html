@@ -35,6 +35,10 @@
   <meta name="twitter:image" content="https://pixelcraft-ai-seven.vercel.app/images/logo.png">
 
   <link rel="icon" type="image/png" href="images/logo.png">
+    <!-- Google Fonts: Inter font & Google Material Symbols Rounded -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
   <link rel="stylesheet" href="css/style.css?v=STUDIO-v1">
 </head>
 <body>
@@ -44,7 +48,7 @@
        ======================================================================== -->
   <div class="auth-view" id="auth-view">
     <div class="auth-card">
-      <button type="button" class="auth-back-btn" id="btn-close-auth-view" aria-label="Return to homepage" title="Return to homepage">✕</button>
+      <button type="button" class="auth-back-btn" id="btn-close-auth-view" aria-label="Return to homepage" title="Return to homepage"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       <div class="auth-header">
         <div class="brand">
           <img src="images/logo.png" alt="PixelCraft AI Assistant Logo" class="brand-logo">
@@ -96,7 +100,7 @@
         <div class="form-group">
           <label for="auth-email">Email Address</label>
           <div class="input-wrapper">
-            <span class="input-icon">✉️</span>
+            <span class="input-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">mail</span></span>
             <input 
               type="email" 
               id="auth-email" 
@@ -111,7 +115,7 @@
         <div class="form-group">
           <label for="auth-password">Password</label>
           <div class="input-wrapper">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">lock</span></span>
             <input 
               type="password" 
               id="auth-password" 
@@ -121,9 +125,7 @@
               required 
               minlength="6"
             >
-            <button type="button" class="password-toggle-btn" id="btn-toggle-password" title="Show or hide password" aria-label="Toggle password visibility">
-              👁️
-            </button>
+            <button type="button" class="password-toggle-btn" id="btn-toggle-password" title="Show or hide password" aria-label="Toggle password visibility"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">visibility</span></button>
           </div>
           <span class="field-hint" id="password-hint" style="display: none;">Must be at least 6 characters</span>
         </div>
@@ -131,7 +133,7 @@
         <div class="form-group" id="confirm-password-group" style="display: none;">
           <label for="auth-confirm-password">Confirm Password</label>
           <div class="input-wrapper">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">lock</span></span>
             <input 
               type="password" 
               id="auth-confirm-password" 
@@ -145,7 +147,7 @@
 
         <button type="submit" class="btn-auth-submit" id="btn-auth-submit">
           <span class="btn-text" id="btn-auth-text">Sign In</span>
-          <span class="btn-spinner" id="btn-auth-spinner" style="display: none;">⏳ Processing...</span>
+          <span class="btn-spinner" id="btn-auth-spinner" style="display: none;"><span class="material-symbols-rounded ui-icon ui-icon-sm ui-icon-spin" aria-hidden="true">progress_activity</span> Processing...</span>
         </button>
       </form>
 
@@ -171,19 +173,17 @@
           <img src="images/logo.png" alt="PixelCraft AI Assistant Logo" class="brand-logo">
           <span>PixelCraft AI</span>
         </div>
-        <button class="sidebar-close-btn" id="btn-close-sidebar" aria-label="Close sidebar" title="Close sidebar">✕</button>
+        <button class="sidebar-close-btn" id="btn-close-sidebar" aria-label="Close sidebar" title="Close sidebar"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
 
-      <button class="btn-new-chat" id="btn-new-chat">
-        <span>+</span> New Chat
-      </button>
+      <button class="btn-new-chat" id="btn-new-chat"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">add_comment</span> New Chat</button>
 
       <div class="conversations-section">
         <div class="section-label">Your Conversations</div>
         
         <!-- Conversation Search Bar -->
         <div class="chat-search-wrapper">
-          <span class="chat-search-icon">🔍</span>
+          <span class="chat-search-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">search</span></span>
           <input 
             type="text" 
             id="chat-search-input" 
@@ -193,7 +193,7 @@
             maxlength="100"
             autocomplete="off"
           >
-          <button type="button" id="btn-clear-search" class="chat-search-clear" style="display: none;" title="Clear search" aria-label="Clear search">×</button>
+          <button type="button" id="btn-clear-search" class="chat-search-clear" style="display: none;" title="Clear search" aria-label="Clear search"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">close</span></button>
         </div>
 
         <ul class="chat-list" id="chat-list">
@@ -206,15 +206,15 @@
         <div class="section-label">Tools</div>
         <div class="sidebar-tools-list">
           <button type="button" class="sidebar-tool-btn" id="btn-sidebar-studio" title="Open AI Website & UI/UX Studio">
-            <span class="btn-icon">🎨</span>
+            <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">web</span></span>
             <span class="sidebar-tool-label">Website Studio</span>
           </button>
           <button type="button" class="sidebar-tool-btn" id="btn-sidebar-prompts" title="Browse AI prompt templates">
-            <span class="btn-icon">💡</span>
+            <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">lightbulb</span></span>
             <span class="sidebar-tool-label">Prompt Library</span>
           </button>
           <button type="button" class="sidebar-tool-btn" id="btn-sidebar-stats" title="View conversation analytics">
-            <span class="btn-icon">📊</span>
+            <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">analytics</span></span>
             <span class="sidebar-tool-label">Analytics</span>
           </button>
         </div>
@@ -250,22 +250,22 @@
           <div class="popover-divider"></div>
           <div class="popover-menu-items">
             <button type="button" class="popover-menu-item" id="menu-item-profile" role="menuitem">
-              <span class="popover-item-icon">👤</span>
+              <span class="popover-item-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">account_circle</span></span>
               <span class="popover-item-label">Profile</span>
             </button>
             <button type="button" class="popover-menu-item" id="menu-item-settings" role="menuitem">
-              <span class="popover-item-icon">⚙️</span>
+              <span class="popover-item-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">settings</span></span>
               <span class="popover-item-label">Settings</span>
             </button>
             <button type="button" class="popover-menu-item" id="menu-item-connected-accounts" role="menuitem">
-              <span class="popover-item-icon">🔗</span>
+              <span class="popover-item-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">link</span></span>
               <span class="popover-item-label">Connected Accounts</span>
             </button>
           </div>
           <div class="popover-divider"></div>
           <div class="popover-menu-footer">
             <button type="button" class="popover-menu-item popover-item-danger btn-logout" id="btn-logout" role="menuitem">
-              <span class="popover-item-icon">🚪</span>
+              <span class="popover-item-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">logout</span></span>
               <span class="popover-item-label">Sign Out</span>
             </button>
           </div>
@@ -273,7 +273,7 @@
 
         <!-- Guest Mode Actions (Shown when unauthenticated) -->
         <button class="btn-sidebar-login" id="btn-sidebar-login" style="display: none;" title="Sign in to your account" aria-label="Sign In">
-          <span class="btn-icon">🔐</span> Sign In
+          <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">login</span></span> Sign In
         </button>
       </div>
     </aside>
@@ -282,26 +282,24 @@
     <main class="main-workspace">
       <!-- Floating Welcome Notification Toast -->
       <div class="welcome-toast-banner" id="welcome-toast-banner" style="display: none;" role="status" aria-live="polite">
-        <span class="welcome-toast-text" id="welcome-toast-text">Welcome, User 👋</span>
+        <span class="welcome-toast-text" id="welcome-toast-text">Welcome, User <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">waving_hand</span></span>
       </div>
 
       <!-- Chat Header -->
       <header class="chat-header">
         <div class="header-left">
-          <button class="mobile-toggle" id="mobile-toggle" aria-label="Open Sidebar Menu">
-            ☰
-          </button>
+          <button class="mobile-toggle" id="mobile-toggle" aria-label="Open Sidebar Menu"><span class="material-symbols-rounded ui-icon" aria-hidden="true">menu</span></button>
           <div class="chat-title-wrap">
             <h2 id="current-chat-title">AI Assistant Workspace</h2>
           </div>
           <!-- Workspace Mode Switcher (Chat vs Studio) -->
           <div class="workspace-mode-switcher" id="workspace-mode-switcher">
             <button type="button" class="mode-btn active" id="btn-mode-chat" title="Switch to AI Chat">
-              <span class="mode-icon">💬</span>
+              <span class="mode-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">chat</span></span>
               <span class="mode-label">Chat</span>
             </button>
             <button type="button" class="mode-btn" id="btn-mode-studio" title="Switch to AI Website & UI/UX Studio">
-              <span class="mode-icon">✨</span>
+              <span class="mode-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">auto_awesome</span></span>
               <span class="mode-label">Studio</span>
               <span class="studio-badge">AI</span>
             </button>
@@ -309,47 +307,47 @@
         </div>
         <div class="header-actions">
           <button class="action-btn btn-header-login" id="btn-header-login" style="display: none;" title="Sign in to PixelCraft AI" aria-label="Sign In">
-            <span class="btn-icon">🔐</span>
+            <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">login</span></span>
             <span class="btn-text-label">Sign In</span>
           </button>
           <div class="persona-dropdown-wrapper" id="persona-dropdown-wrapper">
             <button class="action-btn btn-persona" id="btn-persona-selector" title="Select AI Persona & Instructions" aria-label="Select AI Persona">
-              <span class="engine-pill-icon">⚡</span>
-              <span class="persona-current-label" id="current-persona-label">🎯 General Assistant</span>
+              <span class="engine-pill-icon"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">bolt</span></span>
+              <span class="persona-current-label" id="current-persona-label"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">smart_toy</span> General Assistant</span>
               <span class="dropdown-caret">▾</span>
             </button>
             <div class="persona-menu" id="persona-menu" style="display: none;" role="menu">
               <div class="persona-menu-header">AI Persona & Tone</div>
               <button type="button" class="persona-option active" data-persona="general" role="menuitem">
-                <span class="persona-opt-icon">🎯</span>
+                <span class="persona-opt-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">smart_toy</span></span>
                 <div class="persona-opt-text">
                   <span class="persona-opt-title">General Assistant</span>
                   <span class="persona-opt-desc">Balanced, accurate & direct</span>
                 </div>
               </button>
               <button type="button" class="persona-option" data-persona="code_architect" role="menuitem">
-                <span class="persona-opt-icon">💻</span>
+                <span class="persona-opt-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">code</span></span>
                 <div class="persona-opt-text">
                   <span class="persona-opt-title">Code Architect</span>
                   <span class="persona-opt-desc">Production code, patterns & best practices</span>
                 </div>
               </button>
               <button type="button" class="persona-option" data-persona="technical_writer" role="menuitem">
-                <span class="persona-opt-icon">📝</span>
+                <span class="persona-opt-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">edit_note</span></span>
                 <div class="persona-opt-text">
                   <span class="persona-opt-title">Technical Writer</span>
                   <span class="persona-opt-desc">Step-by-step guides & clear deep-dives</span>
                 </div>
               </button>
               <button type="button" class="persona-option" data-persona="executive_summarizer" role="menuitem">
-                <span class="persona-opt-icon">💼</span>
+                <span class="persona-opt-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">business_center</span></span>
                 <div class="persona-opt-text">
                   <span class="persona-opt-title">Executive Summarizer</span>
                   <span class="persona-opt-desc">High-level bullets & actionable takeaways</span>
                 </div>
               </button>
               <button type="button" class="persona-option" data-persona="creative_brainstormer" role="menuitem">
-                <span class="persona-opt-icon">🎨</span>
+                <span class="persona-opt-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">palette</span></span>
                 <div class="persona-opt-text">
                   <span class="persona-opt-title">Creative Thinker</span>
                   <span class="persona-opt-desc">Lateral thinking, metaphors & ideation</span>
@@ -357,7 +355,7 @@
               </button>
               <div class="persona-menu-divider"></div>
               <button type="button" class="persona-option persona-custom-btn" id="btn-custom-instruction-open" role="menuitem">
-                <span class="persona-opt-icon">⚙️</span>
+                <span class="persona-opt-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">tune</span></span>
                 <div class="persona-opt-text">
                   <span class="persona-opt-title">Custom Instructions...</span>
                   <span class="persona-opt-desc" id="custom-instruction-preview">Personalize AI system prompt</span>
@@ -367,30 +365,30 @@
           </div>
           <div class="export-dropdown-wrapper" id="export-dropdown-wrapper">
             <button class="action-btn btn-export-chat" id="btn-export-chat" title="Export conversation transcript" aria-label="Export conversation transcript">
-              <span class="btn-icon">📥</span>
+              <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">download</span></span>
               <span class="btn-text-label">Export</span>
               <span class="dropdown-caret">▾</span>
             </button>
             <div class="export-menu" id="export-menu" style="display: none;" role="menu">
-              <button type="button" class="export-option" data-format="markdown" role="menuitem">📄 Markdown (.md)</button>
-              <button type="button" class="export-option" data-format="json" role="menuitem">📦 JSON (.json)</button>
-              <button type="button" class="export-option" data-format="text" role="menuitem">📝 Plain Text (.txt)</button>
+              <button type="button" class="export-option" data-format="markdown" role="menuitem"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">description</span> Markdown (.md)</button>
+              <button type="button" class="export-option" data-format="json" role="menuitem"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">data_object</span> JSON (.json)</button>
+              <button type="button" class="export-option" data-format="text" role="menuitem"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">article</span> Plain Text (.txt)</button>
             </div>
           </div>
           <button class="action-btn" id="btn-prompt-vault" title="Browse AI prompt templates and engineering presets" aria-label="Prompt Templates Vault">
-            <span class="btn-icon">💡</span>
+            <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">lightbulb</span></span>
             <span class="btn-text-label">Prompts</span>
           </button>
           <button class="action-btn" id="btn-chat-stats" title="View conversation statistics and token estimates" aria-label="Conversation Statistics">
-            <span class="btn-icon">📊</span>
+            <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">analytics</span></span>
             <span class="btn-text-label">Stats</span>
           </button>
           <button class="action-btn" id="btn-fork-chat" title="Fork conversation into a new branch" aria-label="Fork conversation">
-            <span class="btn-icon">🔀</span>
+            <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">call_split</span></span>
             <span class="btn-text-label">Fork</span>
           </button>
           <button class="action-btn btn-clear-chat-header" id="btn-clear-chat" title="Clear conversation messages" aria-label="Clear conversation messages">
-            <span class="btn-icon">🗑️</span>
+            <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">delete</span></span>
             <span class="btn-text-label">Clear</span>
           </button>
         </div>
@@ -402,25 +400,25 @@
           
           <!-- Welcome / Empty State View -->
           <div class="welcome-state" id="welcome-state">
-            <div class="welcome-icon">⚡</div>
+            <div class="welcome-icon"><span class="material-symbols-rounded ui-icon ui-icon-xl" aria-hidden="true">auto_awesome</span></div>
             <h1 class="welcome-title">How can PixelCraft AI assist you today?</h1>
             <p class="welcome-subtitle">Select a prompt suggestion below or type your message to begin a real-time conversation.</p>
 
             <div class="suggestions-grid">
               <div class="suggestion-card" data-prompt="Brainstorm 5 innovative features for a modern web application">
-                <div class="suggestion-header">💡 Brainstorm Ideas</div>
+                <div class="suggestion-header"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">lightbulb</span> Brainstorm Ideas</div>
                 <div class="suggestion-prompt">Create innovative feature concepts for web products</div>
               </div>
               <div class="suggestion-card" data-prompt="Explain how Node.js and Express handle async request routing">
-                <div class="suggestion-header">💻 Analyze & Code</div>
+                <div class="suggestion-header"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">code</span> Analyze & Code</div>
                 <div class="suggestion-prompt">Explain backend asynchronous routing mechanisms</div>
               </div>
               <div class="suggestion-card" data-prompt="Summarize the core principles of responsive UI design">
-                <div class="suggestion-header">📝 Summarize Text</div>
+                <div class="suggestion-header"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">edit_note</span> Summarize Text</div>
                 <div class="suggestion-prompt">Condense complex technical topics into key bullet points</div>
               </div>
               <div class="suggestion-card" data-prompt="Draft a professional project launch announcement email">
-                <div class="suggestion-header">✉️ Draft Email</div>
+                <div class="suggestion-header"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">mail</span> Draft Email</div>
                 <div class="suggestion-prompt">Compose clear and persuasive team communication</div>
               </div>
             </div>
@@ -449,12 +447,8 @@
       <footer class="input-container">
         <div class="input-box-wrapper" id="input-box-wrapper">
           <textarea id="chat-textarea" class="chat-textarea" placeholder="Ask PixelCraft AI anything..." rows="1"></textarea>
-          <button id="btn-guest-gate-trigger" class="btn-guest-gate-trigger" style="display: none;" type="button" aria-label="Sign in to chat">
-            🔒 Sign In to Chat
-          </button>
-          <button id="btn-send" class="btn-send" aria-label="Send Message">
-            ➔
-          </button>
+          <button id="btn-guest-gate-trigger" class="btn-guest-gate-trigger" style="display: none;" type="button" aria-label="Sign in to chat"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">lock</span> Sign In to Chat</button>
+          <button id="btn-send" class="btn-send" aria-label="Send Message"><span class="material-symbols-rounded ui-icon" aria-hidden="true">arrow_upward</span></button>
         </div>
         <div class="input-disclaimer">
           PixelCraft AI may produce inaccurate information. Verify important outputs.
@@ -469,11 +463,9 @@
         <div class="builder-toolbar">
           <div class="tb-left">
             <button type="button" class="builder-btn-back" id="btn-builder-back-chat" title="Return to Chat">
-              ← <span class="btn-text-label">Chat</span>
+              <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">arrow_back</span> <span class="btn-text-label">Chat</span>
             </button>
-            <button type="button" class="builder-panel-toggle-btn" id="btn-toggle-left-panel" title="Toggle Sections Sidebar" aria-label="Toggle Sections Sidebar">
-              📑
-            </button>
+            <button type="button" class="builder-panel-toggle-btn" id="btn-toggle-left-panel" title="Toggle Sections Sidebar" aria-label="Toggle Sections Sidebar"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">view_sidebar</span></button>
             <div class="builder-brand-badge">
               <img src="images/logo.png" alt="PixelCraft Logo" class="tb-brand-img">
               <span class="tb-brand-text">PixelCraft Studio</span>
@@ -492,32 +484,32 @@
             <!-- Multimodal Creative Studio Mode Selector (Website, UI/UX, Logo, Image) -->
             <div class="creative-mode-selector" id="creative-mode-selector" role="radiogroup" aria-label="Creative Studio Mode">
               <button type="button" class="mode-pill active" id="btn-mode-website" data-mode="website" title="Website Design Studio">
-                🌐 <span class="mode-pill-label">Website</span>
+                <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">web</span> <span class="mode-pill-label">Website</span>
               </button>
               <button type="button" class="mode-pill" id="btn-mode-uiux" data-mode="uiux" title="UI/UX Mobile & Web App Studio">
-                📱 <span class="mode-pill-label">UI/UX App</span>
+                <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">devices</span> <span class="mode-pill-label">UI/UX App</span>
               </button>
               <button type="button" class="mode-pill" id="btn-mode-logo" data-mode="logo" title="Logo & Brand Identity Studio">
-                🏷️ <span class="mode-pill-label">Logo & Brand</span>
+                <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">draw</span> <span class="mode-pill-label">Logo & Brand</span>
               </button>
               <button type="button" class="mode-pill" id="btn-mode-image" data-mode="image" title="AI Image & Poster Studio">
-                🎨 <span class="mode-pill-label">AI Image</span>
+                <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">image</span> <span class="mode-pill-label">AI Image</span>
               </button>
             </div>
 
             <div class="viewport-switcher" id="viewport-switcher" role="radiogroup" aria-label="Viewport Switcher">
               <button type="button" class="vp-btn active" id="btn-vp-desktop" data-vp="desktop" title="Desktop Viewport (1440px)">
-                🖥️ <span class="vp-label">Desktop</span>
+                <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">desktop_windows</span> <span class="vp-label">Desktop</span>
               </button>
               <button type="button" class="vp-btn" id="btn-vp-tablet" data-vp="tablet" title="Tablet Viewport (768px)">
-                📱 <span class="vp-label">Tablet</span>
+                <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">tablet_mac</span> <span class="vp-label">Tablet</span>
               </button>
               <button type="button" class="vp-btn" id="btn-vp-mobile" data-vp="mobile" title="Mobile Viewport (375px)">
-                📲 <span class="vp-label">Mobile</span>
+                <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">smartphone</span> <span class="vp-label">Mobile</span>
               </button>
             </div>
             <div class="zoom-controls" id="builder-zoom-controls">
-              <span class="zoom-icon" title="Canvas zoom scale">🔍</span>
+              <span class="zoom-icon" title="Canvas zoom scale"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">zoom_in</span></span>
               <select id="builder-zoom-select" class="zoom-select" title="Canvas Zoom Level" aria-label="Zoom Level">
                 <option value="1">100%</option>
                 <option value="0.85">85%</option>
@@ -527,31 +519,29 @@
               </select>
             </div>
             <button type="button" class="builder-btn-prompt-toggle" id="btn-toggle-prompt-panel" title="View & Edit Master Prompt">
-              💬 <span class="btn-text-label">Edit Prompt</span>
+              <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">chat</span> <span class="btn-text-label">Edit Prompt</span>
             </button>
           </div>
 
           <div class="tb-right">
             <button type="button" class="builder-mode-toggle active-design" id="btn-builder-interactive-mode" title="Toggle between Design Editing (inspect elements) and Live Interactive Preview (click links and buttons)">
-              <span id="builder-mode-icon">✏️</span>
+              <span id="builder-mode-icon" class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">edit</span>
               <span id="builder-mode-label">Design Mode</span>
             </button>
             <div class="history-actions">
-              <button type="button" class="builder-icon-btn" id="btn-builder-undo" title="Undo (Ctrl+Z)" disabled>↩</button>
-              <button type="button" class="builder-icon-btn" id="btn-builder-redo" title="Redo (Ctrl+Y)" disabled>↪</button>
+              <button type="button" class="builder-icon-btn" id="btn-builder-undo" title="Undo (Ctrl+Z)" disabled><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">undo</span></button>
+              <button type="button" class="builder-icon-btn" id="btn-builder-redo" title="Redo (Ctrl+Y)" disabled><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">redo</span></button>
             </div>
             <button type="button" class="builder-action-btn" id="btn-builder-fullpage" title="Toggle Full-Page Inspection Mode">
-              🔍 <span class="btn-text-label">Full Page</span>
+              <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">open_in_full</span> <span class="btn-text-label">Full Page</span>
             </button>
             <button type="button" class="builder-action-btn" id="btn-builder-code" title="View and Edit Source Code">
-              💻 <span class="btn-text-label">Code</span>
+              <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">code</span> <span class="btn-text-label">Code</span>
             </button>
             <button type="button" class="builder-action-btn btn-export-highlight" id="btn-builder-export" title="Export Website Bundle">
-              📥 <span class="btn-text-label">Export</span>
+              <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">download</span> <span class="btn-text-label">Export</span>
             </button>
-            <button type="button" class="builder-panel-toggle-btn" id="btn-toggle-right-panel" title="Toggle Properties Inspector" aria-label="Toggle Properties Inspector">
-              🎨
-            </button>
+            <button type="button" class="builder-panel-toggle-btn" id="btn-toggle-right-panel" title="Toggle Properties Inspector" aria-label="Toggle Properties Inspector"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">tune</span></button>
           </div>
         </div>
 
@@ -559,12 +549,12 @@
         <div class="builder-prompt-popover" id="builder-prompt-card" style="display: none;">
           <div class="prompt-card-header">
             <div class="prompt-card-title">
-              <span class="prompt-icon">💡</span>
+              <span class="prompt-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">lightbulb</span></span>
               <span class="prompt-label">Original Prompt (Editable)</span>
               <span class="prompt-hint">— Steer requirements to regenerate or refine the design</span>
             </div>
             <div class="prompt-card-actions">
-              <button type="button" class="btn-prompt-close" id="btn-prompt-close" title="Close Prompt Editor">✕</button>
+              <button type="button" class="btn-prompt-close" id="btn-prompt-close" title="Close Prompt Editor"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">close</span></button>
               <button type="button" class="btn-prompt-toggle" id="btn-prompt-toggle" style="display: none;" title="Collapse / Expand Prompt Editor">▲ Hide</button>
             </div>
           </div>
@@ -572,8 +562,8 @@
             <div class="prompt-editor-row">
               <textarea id="builder-original-prompt-input" class="builder-original-prompt-input" rows="3" placeholder="e.g. create a gym website design with black and orange theme, trainer profiles, membership pricing..."></textarea>
               <div class="prompt-btn-group">
-                <button type="button" class="btn-prompt-optimize" id="btn-prompt-optimize" title="AI expands and optimizes your prompt requirements">✨ AI Optimize</button>
-                <button type="button" class="btn-prompt-update" id="btn-prompt-update" title="Regenerate website with updated prompt">⚡ Apply & Regenerate</button>
+                <button type="button" class="btn-prompt-optimize" id="btn-prompt-optimize" title="AI expands and optimizes your prompt requirements"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> AI Optimize</button>
+                <button type="button" class="btn-prompt-update" id="btn-prompt-update" title="Regenerate website with updated prompt"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">bolt</span> Apply & Regenerate</button>
               </div>
             </div>
             <div class="prompt-popover-meta">
@@ -583,10 +573,10 @@
             <!-- Intuitive Quick Inspiration Chips (English & Tanglish Friendly) -->
             <div class="prompt-quick-chips" id="prompt-quick-chips">
               <span class="quick-chip-label">Quick Ideas:</span>
-              <button type="button" class="quick-chip" data-mode="logo" data-prompt="Bubble Cafe ku professional modern logo create pannu">☕ Bubble Cafe Logo</button>
-              <button type="button" class="quick-chip" data-mode="uiux" data-prompt="Oru modern mobile banking app UI design pannu">💳 Mobile Banking App</button>
-              <button type="button" class="quick-chip" data-mode="image" data-prompt="Create a premium Bubble Cafe Instagram poster with warm lighting">🎨 Coffee Poster</button>
-              <button type="button" class="quick-chip" data-mode="website" data-prompt="Create a modern fitness gym website with black and orange colors">🏋️ Gym Website</button>
+              <button type="button" class="quick-chip" data-mode="logo" data-prompt="Bubble Cafe ku professional modern logo create pannu"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">local_cafe</span> Bubble Cafe Logo</button>
+              <button type="button" class="quick-chip" data-mode="uiux" data-prompt="Oru modern mobile banking app UI design pannu"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">credit_card</span> Mobile Banking App</button>
+              <button type="button" class="quick-chip" data-mode="image" data-prompt="Create a premium Bubble Cafe Instagram poster with warm lighting"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">image</span> Coffee Poster</button>
+              <button type="button" class="quick-chip" data-mode="website" data-prompt="Create a modern fitness gym website with black and orange colors"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">fitness_center</span> Gym Website</button>
             </div>
           </div>
         </div>
@@ -598,36 +588,36 @@
         <div class="builder-main-body">
           <!-- Mobile Tab Bar for Studio (shows on small screens to toggle between Canvas, Layers, Properties, Prompts) -->
           <div class="builder-mobile-tab-bar" id="builder-mobile-tab-bar">
-            <button type="button" class="mob-tab-btn active" data-tab="canvas">👁️ Preview</button>
-            <button type="button" class="mob-tab-btn" data-tab="layers">📑 Sections</button>
-            <button type="button" class="mob-tab-btn" data-tab="props">🎨 Inspector</button>
-            <button type="button" class="mob-tab-btn" data-tab="prompt">💬 Prompt</button>
+            <button type="button" class="mob-tab-btn active" data-tab="canvas"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">visibility</span> Preview</button>
+            <button type="button" class="mob-tab-btn" data-tab="layers"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">layers</span> Sections</button>
+            <button type="button" class="mob-tab-btn" data-tab="props"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">tune</span> Inspector</button>
+            <button type="button" class="mob-tab-btn" data-tab="prompt"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">chat</span> Prompt</button>
           </div>
 
           <!-- Left Panel: Sections, Screens & Assets (Collapsible) -->
           <aside class="builder-panel builder-left-panel" id="builder-left-panel">
             <div class="panel-header">
               <div class="panel-title-wrap">
-                <span class="panel-icon">📑</span>
+                <span class="panel-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">layers</span></span>
                 <h3 id="panel-main-title">Layers</h3>
               </div>
               <div class="panel-header-actions">
                 <button type="button" class="btn-panel-action btn-add-section-trigger" id="btn-add-section-open" title="Add New Section">
-                  ➕ <span class="btn-label-sm">Add</span>
+                  <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">add</span> <span class="btn-label-sm">Add</span>
                 </button>
-                <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh list">↻</button>
-                <button type="button" class="btn-panel-action btn-collapse-panel" id="btn-collapse-left-panel" title="Collapse sidebar">◀</button>
+                <button type="button" class="btn-panel-action" id="btn-builder-refresh-tree" title="Refresh list"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">refresh</span></button>
+                <button type="button" class="btn-panel-action btn-collapse-panel" id="btn-collapse-left-panel" title="Collapse sidebar"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">chevron_left</span></button>
               </div>
             </div>
 
             <!-- Left Panel Tabs: Layers vs Assets -->
             <div class="left-panel-tab-bar" id="left-panel-tab-bar">
-              <button type="button" class="panel-tab-btn active" id="tab-left-layers" data-panel-tab="layers">📑 Layers</button>
-              <button type="button" class="panel-tab-btn" id="tab-left-assets" data-panel-tab="assets">🗂️ Assets</button>
+              <button type="button" class="panel-tab-btn active" id="tab-left-layers" data-panel-tab="layers"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">layers</span> Layers</button>
+              <button type="button" class="panel-tab-btn" id="tab-left-assets" data-panel-tab="assets"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">perm_media</span> Assets</button>
             </div>
 
             <div class="panel-meta-bar" id="panel-meta-bar">
-              <span class="pages-badge" id="panel-pages-badge">📄 Project Canvas</span>
+              <span class="pages-badge" id="panel-pages-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">web</span> Project Canvas</span>
               <span class="sections-count-badge" id="sections-count-badge">Items</span>
             </div>
 
@@ -663,7 +653,7 @@
                     <span class="dot green"></span>
                   </div>
                   <div class="device-address-bar" id="device-address-bar">
-                    <span class="lock-icon">🔒</span>
+                    <span class="lock-icon"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">lock</span></span>
                     <span class="address-text" id="device-address-text">https://preview.pixelcraft.ai</span>
                   </div>
                   <div class="device-meta">
@@ -693,10 +683,10 @@
               <div class="uiux-canvas-container" id="uiux-canvas-container" style="display: none;">
                 <div class="uiux-canvas-header">
                   <div class="uiux-screen-switcher-bar" id="uiux-screen-tabs">
-                    <!-- Dynamic screen tabs injected here: [ 📱 1. Login ] [ 📱 2. Dashboard ] [ 📱 3. Action ] -->
+                    <!-- Dynamic screen tabs injected here: [ 1. Login ] [ 2. Dashboard ] [ 3. Action ] -->
                   </div>
                   <div class="uiux-canvas-meta">
-                    <span class="uiux-device-label">📱 Interactive Mobile App Viewport (375x812)</span>
+                    <span class="uiux-device-label"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">smartphone</span> Interactive Mobile App Viewport (375x812)</span>
                   </div>
                 </div>
                 <div class="uiux-phone-mockup" id="uiux-phone-mockup">
@@ -711,14 +701,14 @@
               <div class="logo-canvas-container" id="logo-canvas-container" style="display: none;">
                 <div class="logo-studio-toolbar" id="logo-studio-toolbar">
                   <div class="logo-variant-toggles">
-                    <button type="button" class="logo-var-btn active" data-variant="primary" title="Full Primary Logo">📐 Full Logo</button>
-                    <button type="button" class="logo-var-btn" data-variant="iconOnly" title="Icon / Monogram Only">📦 Icon Only</button>
-                    <button type="button" class="logo-var-btn" data-variant="wordmark" title="Wordmark Typography Only">📝 Wordmark</button>
-                    <button type="button" class="logo-bg-btn" id="btn-toggle-logo-bg" data-mode="dark" title="Toggle Light / Dark Background">☀️ Light Mode</button>
+                    <button type="button" class="logo-var-btn active" data-variant="primary" title="Full Primary Logo"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">aspect_ratio</span> Full Logo</button>
+                    <button type="button" class="logo-var-btn" data-variant="iconOnly" title="Icon / Monogram Only"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">token</span> Icon Only</button>
+                    <button type="button" class="logo-var-btn" data-variant="wordmark" title="Wordmark Typography Only"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">title</span> Wordmark</button>
+                    <button type="button" class="logo-bg-btn" id="btn-toggle-logo-bg" data-mode="dark" title="Toggle Light / Dark Background"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">dark_mode</span> <span id="logo-bg-label">Light Mode</span></button>
                   </div>
                   <div class="logo-export-quick">
-                    <button type="button" class="logo-quick-export-btn" id="btn-download-svg" title="Download mathematical vector SVG">📥 Download SVG</button>
-                    <button type="button" class="logo-quick-export-btn" id="btn-download-png" title="Download high resolution PNG">🖼️ Download PNG</button>
+                    <button type="button" class="logo-quick-export-btn" id="btn-download-svg" title="Download mathematical vector SVG"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">download</span> Download SVG</button>
+                    <button type="button" class="logo-quick-export-btn" id="btn-download-png" title="Download high resolution PNG"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">image</span> Download PNG</button>
                   </div>
                 </div>
 
@@ -730,7 +720,7 @@
 
                 <!-- Complete Brand Identity Kit Showcase -->
                 <div class="brand-kit-showcase" id="brand-kit-showcase">
-                  <h4 class="brand-kit-heading">🎨 Brand Identity System</h4>
+                  <h4 class="brand-kit-heading"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">palette</span> Brand Identity System</h4>
                   <div class="brand-kit-grid">
                     <!-- Palette Cards -->
                     <div class="brand-kit-card palette-card">
@@ -765,7 +755,7 @@
                     <button type="button" class="aspect-pill" data-aspect="16:9">16:9 Banner</button>
                     <button type="button" class="aspect-pill" data-aspect="4:5">4:5 Portrait</button>
                   </div>
-                  <button type="button" class="image-download-btn" id="btn-download-image-asset">📥 Download Image</button>
+                  <button type="button" class="image-download-btn" id="btn-download-image-asset"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">download</span> Download Image</button>
                 </div>
                 <div class="image-artboard-wrap" id="image-artboard-wrap">
                   <div class="image-frame-container" id="image-frame-container">
@@ -783,29 +773,29 @@
                   <span class="scope-label">Target Scope:</span>
                   <div class="scope-buttons" role="radiogroup" aria-label="Refinement Scope">
                     <button type="button" class="scope-btn active" id="scope-btn-project" data-scope="project" title="Apply change across the entire website">
-                      🌐 Entire Project
+                      <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">web</span> Entire Project
                     </button>
                     <button type="button" class="scope-btn" id="scope-btn-section" data-scope="section" title="Apply change only to the selected section">
-                      📑 Selected Section <span class="scope-target-pill" id="scope-section-pill">#hero</span>
+                      <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">layers</span> Selected Section <span class="scope-target-pill" id="scope-section-pill">#hero</span>
                     </button>
                     <button type="button" class="scope-btn" id="scope-btn-element" data-scope="element" title="Apply change only to the selected element">
-                      🎯 Selected Element <span class="scope-target-pill" id="scope-element-pill">&lt;element&gt;</span>
+                      <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">ads_click</span> Selected Element <span class="scope-target-pill" id="scope-element-pill">&lt;element&gt;</span>
                     </button>
                   </div>
                 </div>
 
                 <div class="refine-chips-scroll" id="refine-chips-container">
-                  <button type="button" class="refine-chip" data-prompt="Change the color palette to black and orange with athletic vibes">🎨 Black & Orange Theme</button>
-                  <button type="button" class="refine-chip" data-prompt="Make the hero section more premium with athletic glow">⚡ Premium Hero</button>
-                  <button type="button" class="refine-chip" data-prompt="Add three modern trainer cards to this section">🏋️ 3 Trainer Cards</button>
-                  <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing">❓ Add FAQ Accordion</button>
-                  <button type="button" class="refine-chip" data-prompt="Make this section responsive and polished on mobile">📱 Mobile Polish</button>
-                  <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects">✨ Micro-Animations</button>
+                  <button type="button" class="refine-chip" data-prompt="Change the color palette to black and orange with athletic vibes"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">palette</span> Black & Orange Theme</button>
+                  <button type="button" class="refine-chip" data-prompt="Make the hero section more premium with athletic glow"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">bolt</span> Premium Hero</button>
+                  <button type="button" class="refine-chip" data-prompt="Add three modern trainer cards to this section"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">fitness_center</span> 3 Trainer Cards</button>
+                  <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">help</span> Add FAQ Accordion</button>
+                  <button type="button" class="refine-chip" data-prompt="Make this section responsive and polished on mobile"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">smartphone</span> Mobile Polish</button>
+                  <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> Micro-Animations</button>
                 </div>
 
                 <div class="refine-input-row">
                   <div class="refine-input-wrap">
-                    <span class="refine-sparkle">✨</span>
+                    <span class="refine-sparkle"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">auto_awesome</span></span>
                     <textarea 
                       id="builder-refine-input" 
                       class="builder-refine-input" 
@@ -814,12 +804,10 @@
                     ></textarea>
                   </div>
                   <button type="button" class="btn-refine-submit" id="btn-refine-submit" title="Apply Natural Language Modification">
-                    <span class="btn-icon">➔</span>
+                    <span class="btn-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">arrow_forward</span></span>
                     <span class="btn-text">Update</span>
                   </button>
-                  <button type="button" class="btn-refine-regen" id="btn-refine-regen" title="Regenerate whole design">
-                    ↻
-                  </button>
+                  <button type="button" class="btn-refine-regen" id="btn-refine-regen" title="Regenerate whole design"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">refresh</span></button>
                 </div>
               </div>
             </div>
@@ -829,7 +817,7 @@
           <aside class="builder-panel builder-right-panel" id="builder-right-panel">
             <div class="panel-header">
               <div class="panel-title-wrap">
-                <span class="panel-icon">🎨</span>
+                <span class="panel-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">tune</span></span>
                 <h3>Inspector</h3>
               </div>
               <div class="inspector-header-right">
@@ -837,7 +825,7 @@
                   <button type="button" class="insp-tab-btn active" id="tab-btn-section" data-tab="section" title="Edit selected section properties & AI refinement">Section</button>
                   <button type="button" class="insp-tab-btn" id="tab-btn-element" data-tab="element" title="Edit individual element properties">Element</button>
                 </div>
-                <button type="button" class="btn-panel-action btn-collapse-panel" id="btn-collapse-right-panel" title="Collapse inspector sidebar">▶</button>
+                <button type="button" class="btn-panel-action btn-collapse-panel" id="btn-collapse-right-panel" title="Collapse inspector sidebar"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">chevron_right</span></button>
               </div>
             </div>
 
@@ -847,7 +835,7 @@
               <div class="inspector-empty" id="inspector-section-empty" style="display: none;">
                 <div class="project-overview-panel" id="project-overview-panel">
                   <div class="proj-overview-header">
-                    <span class="proj-badge-icon">🌐</span>
+                    <span class="proj-badge-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">web</span></span>
                     <h4 class="proj-overview-title" id="proj-settings-title">Project Overview</h4>
                   </div>
                   <p class="proj-overview-desc">Select any section or element to inspect and edit its styles live, or manage global project configuration below.</p>
@@ -882,8 +870,8 @@
                   </div>
 
                   <div class="proj-quick-shortcuts">
-                    <button type="button" class="btn-proj-shortcut" id="btn-shortcut-add-sec">➕ Add New Section</button>
-                    <button type="button" class="btn-proj-shortcut" id="btn-shortcut-edit-code">💻 View Source Code</button>
+                    <button type="button" class="btn-proj-shortcut" id="btn-shortcut-add-sec"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">add_circle</span> Add New Section</button>
+                    <button type="button" class="btn-proj-shortcut" id="btn-shortcut-edit-code"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">code</span> View Source Code</button>
                   </div>
                 </div>
               </div>
@@ -895,9 +883,9 @@
                   <div class="sec-overview-top">
                     <span class="sec-id-pill" id="sec-prop-id-badge">#hero</span>
                     <div class="sec-quick-actions">
-                      <button type="button" class="sec-btn-act" id="btn-sec-move-up" title="Move Section Up">▲</button>
-                      <button type="button" class="sec-btn-act" id="btn-sec-move-down" title="Move Section Down">▼</button>
-                      <button type="button" class="sec-btn-act sec-btn-del" id="btn-sec-delete" title="Delete Section">🗑️</button>
+                      <button type="button" class="sec-btn-act" id="btn-sec-move-up" title="Move Section Up"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">keyboard_arrow_up</span></button>
+                      <button type="button" class="sec-btn-act" id="btn-sec-move-down" title="Move Section Down"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">keyboard_arrow_down</span></button>
+                      <button type="button" class="sec-btn-act sec-btn-del" id="btn-sec-delete" title="Delete Section"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">delete</span></button>
                     </div>
                   </div>
                   <div class="sec-name-wrap">
@@ -909,20 +897,20 @@
                 <!-- DEDICATED AI SECTION REFINEMENT (Requirement 4) -->
                 <div class="inspector-group sec-ai-box">
                   <div class="sec-ai-header">
-                    <span class="sec-ai-icon">✨</span>
+                    <span class="sec-ai-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">auto_awesome</span></span>
                     <span class="sec-ai-title">AI Section Refiner</span>
                   </div>
                   <p class="sec-ai-desc">Prompt Gemini to modify ONLY this section (e.g. "Make this hero section more premium", "Change background to black", "Add three modern trainer cards").</p>
                   <textarea id="section-ai-prompt" class="prop-input-textarea sec-ai-textarea" rows="2" placeholder="Describe changes for this section only..."></textarea>
                   <div class="sec-ai-chips">
-                    <button type="button" class="sec-ai-chip" data-prompt="Make this section more premium and modern">✨ Make Premium</button>
-                    <button type="button" class="sec-ai-chip" data-prompt="Change the background of this section to black">🎨 Dark Background</button>
-                    <button type="button" class="sec-ai-chip" data-prompt="Add three modern cards to this section">🍱 Add Cards</button>
-                    <button type="button" class="sec-ai-chip" data-prompt="Make this section responsive and polished on mobile">📱 Mobile Polish</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Make this section more premium and modern"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> Make Premium</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Change the background of this section to black"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">palette</span> Dark Background</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Add three modern cards to this section"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">view_quilt</span> Add Cards</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Make this section responsive and polished on mobile"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">smartphone</span> Mobile Polish</button>
                   </div>
                   <button type="button" class="btn-sec-ai-apply" id="btn-section-ai-apply">
                     <span class="btn-sec-ai-text">Apply to This Section</span>
-                    <span class="btn-sec-ai-icon">➔</span>
+                    <span class="btn-sec-ai-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">arrow_forward</span></span>
                   </button>
                 </div>
 
@@ -1018,7 +1006,7 @@
             <div class="inspector-content" id="inspector-element-content" style="display: none;">
               <!-- Empty State -->
               <div class="inspector-empty" id="inspector-empty">
-                <div class="empty-icon">👆</div>
+                <div class="empty-icon"><span class="material-symbols-rounded ui-icon ui-icon-xl" aria-hidden="true">touch_app</span></div>
                 <p>Click any element in the preview canvas to inspect, edit text, colors, spacing, and styles live.</p>
               </div>
 
@@ -1028,7 +1016,7 @@
                   <div class="elem-badge-wrap">
                     <span class="elem-badge" id="inspector-elem-badge">&lt;div&gt;</span>
                     <button type="button" class="btn-elem-parent-sec" id="btn-elem-parent-sec" title="Select parent section">
-                      Jump to Section ➔
+                      Jump to Section <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">arrow_forward</span>
                     </button>
                   </div>
                 </div>
@@ -1158,7 +1146,7 @@
 
                 <!-- AI Element Enhancement -->
                 <div class="inspector-group ai-enhancement-group">
-                  <label class="group-label">✨ AI Element Assistant</label>
+                  <label class="group-label"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> AI Element Assistant</label>
                   <input type="text" id="prop-ai-instruction" class="prop-input" placeholder="e.g. Make this button pop with orange glow">
                   <button type="button" class="btn-prop-ai" id="btn-prop-ai">Enhance with AI</button>
                 </div>
@@ -1170,7 +1158,7 @@
               <div class="inspector-form" style="display: block;">
                 <div class="inspector-elem-header">
                   <div class="elem-badge-wrap">
-                    <span class="elem-badge">🏷️ Logo & Brand System</span>
+                    <span class="elem-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">draw</span> Logo & Brand System</span>
                   </div>
                 </div>
 
@@ -1214,18 +1202,18 @@
                 <!-- AI Brand Refiner -->
                 <div class="inspector-group sec-ai-box">
                   <div class="sec-ai-header">
-                    <span class="sec-ai-icon">✨</span>
+                    <span class="sec-ai-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">auto_awesome</span></span>
                     <span class="sec-ai-title">AI Brand Refiner</span>
                   </div>
                   <textarea id="logo-ai-prompt" class="prop-input-textarea sec-ai-textarea" rows="2" placeholder="e.g. Make it more luxury with gold accents, or pastel pink and cream..."></textarea>
                   <div class="sec-ai-chips">
-                    <button type="button" class="sec-ai-chip" data-prompt="Make this design more premium with cream and pastel pink colors">🌸 Pastel Pink & Cream</button>
-                    <button type="button" class="sec-ai-chip" data-prompt="Make it black and gold luxury style">👑 Black & Gold</button>
-                    <button type="button" class="sec-ai-chip" data-prompt="Make it minimalist monochrome">⚡ Minimalist</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Make this design more premium with cream and pastel pink colors"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">palette</span> Pastel Pink & Cream</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Make it black and gold luxury style"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">stars</span> Black & Gold</button>
+                    <button type="button" class="sec-ai-chip" data-prompt="Make it minimalist monochrome"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check_circle</span> Minimalist</button>
                   </div>
                   <button type="button" class="btn-sec-ai-apply" id="btn-logo-ai-apply">
                     <span class="btn-sec-ai-text">Refine Logo & Identity</span>
-                    <span class="btn-sec-ai-icon">➔</span>
+                    <span class="btn-sec-ai-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">arrow_forward</span></span>
                   </button>
                 </div>
 
@@ -1233,8 +1221,8 @@
                 <div class="inspector-group">
                   <label class="group-label">Export Vector & Assets</label>
                   <div style="display: flex; gap: 8px; flex-direction: column;">
-                    <button type="button" class="action-btn btn-modal-primary" id="btn-inspector-download-svg" style="width: 100%; justify-content: center;">📥 Download SVG Vector</button>
-                    <button type="button" class="action-btn" id="btn-inspector-download-png" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.06);">🖼️ Download PNG Image</button>
+                    <button type="button" class="action-btn btn-modal-primary" id="btn-inspector-download-svg" style="width: 100%; justify-content: center;"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">download</span> Download SVG Vector</button>
+                    <button type="button" class="action-btn" id="btn-inspector-download-png" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.06);"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">image</span> Download PNG Image</button>
                   </div>
                 </div>
               </div>
@@ -1245,7 +1233,7 @@
               <div class="inspector-form" style="display: block;">
                 <div class="inspector-elem-header">
                   <div class="elem-badge-wrap">
-                    <span class="elem-badge">🎨 AI Visual Asset</span>
+                    <span class="elem-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">image</span> AI Visual Asset</span>
                   </div>
                 </div>
 
@@ -1266,18 +1254,18 @@
                 <!-- AI Image Variation Prompt -->
                 <div class="inspector-group sec-ai-box">
                   <div class="sec-ai-header">
-                    <span class="sec-ai-icon">✨</span>
+                    <span class="sec-ai-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">auto_awesome</span></span>
                     <span class="sec-ai-title">Generate Variation</span>
                   </div>
                   <textarea id="image-variation-prompt" class="prop-input-textarea sec-ai-textarea" rows="2" placeholder="Describe changes or new lighting, style, background..."></textarea>
                   <button type="button" class="btn-sec-ai-apply" id="btn-image-variation-apply">
                     <span class="btn-sec-ai-text">Generate Variation</span>
-                    <span class="btn-sec-ai-icon">➔</span>
+                    <span class="btn-sec-ai-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">arrow_forward</span></span>
                   </button>
                 </div>
 
                 <div class="inspector-group">
-                  <button type="button" class="action-btn btn-modal-primary" id="btn-inspector-download-image" style="width: 100%; justify-content: center;">📥 Download Generated Image</button>
+                  <button type="button" class="action-btn btn-modal-primary" id="btn-inspector-download-image" style="width: 100%; justify-content: center;"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">download</span> Download Generated Image</button>
                 </div>
               </div>
             </div>
@@ -1287,7 +1275,7 @@
               <div class="inspector-form" style="display: block;">
                 <div class="inspector-elem-header">
                   <div class="elem-badge-wrap">
-                    <span class="elem-badge">📱 UI/UX App Screens</span>
+                    <span class="elem-badge"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">devices</span> UI/UX App Screens</span>
                   </div>
                 </div>
 
@@ -1301,13 +1289,13 @@
 
                 <div class="inspector-group sec-ai-box">
                   <div class="sec-ai-header">
-                    <span class="sec-ai-icon">✨</span>
+                    <span class="sec-ai-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">auto_awesome</span></span>
                     <span class="sec-ai-title">AI Screen Refiner</span>
                   </div>
                   <textarea id="uiux-ai-prompt" class="prop-input-textarea sec-ai-textarea" rows="2" placeholder="e.g. Make this screen dark mode with neon accents, add modern rounded cards..."></textarea>
                   <button type="button" class="btn-sec-ai-apply" id="btn-uiux-ai-apply">
                     <span class="btn-sec-ai-text">Refine App Screen</span>
-                    <span class="btn-sec-ai-icon">➔</span>
+                    <span class="btn-sec-ai-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">arrow_forward</span></span>
                   </button>
                 </div>
               </div>
@@ -1322,8 +1310,8 @@
   <div class="modal-backdrop" id="modal-custom-instructions" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-custom-title">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 id="modal-custom-title">⚙️ Custom AI Instructions</h3>
-        <button class="modal-close" id="btn-close-custom-modal" aria-label="Close modal">✕</button>
+        <h3 id="modal-custom-title"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">tune</span> Custom AI Instructions</h3>
+        <button class="modal-close" id="btn-close-custom-modal" aria-label="Close modal"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">Provide custom rules or domain guidance for how Gemini should tailor its responses.</p>
@@ -1342,34 +1330,34 @@
     <div class="modal-card modal-stats-card">
       <div class="modal-header">
         <div>
-          <h3 id="modal-stats-title">📊 Conversation Analytics</h3>
+          <h3 id="modal-stats-title"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">analytics</span> Conversation Analytics</h3>
           <p class="modal-subtitle" id="stats-conv-title">Thread Insights</p>
         </div>
-        <button class="modal-close" id="btn-close-stats-modal" aria-label="Close analytics modal">✕</button>
+        <button class="modal-close" id="btn-close-stats-modal" aria-label="Close analytics modal"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       <div class="modal-body stats-modal-body">
         <!-- 4 KPI Cards -->
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon">💬</div>
+            <div class="stat-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">chat</span></div>
             <div class="stat-value" id="stat-total-messages">0</div>
             <div class="stat-label">Total Messages</div>
             <div class="stat-sublabel" id="stat-msg-breakdown">0 user / 0 AI</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">⚡</div>
+            <div class="stat-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">bolt</span></div>
             <div class="stat-value" id="stat-total-tokens">0</div>
             <div class="stat-label">Estimated Tokens</div>
             <div class="stat-sublabel" id="stat-token-breakdown">0 prompt / 0 output</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">📝</div>
+            <div class="stat-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">edit_note</span></div>
             <div class="stat-value" id="stat-total-words">0</div>
             <div class="stat-label">Total Words</div>
             <div class="stat-sublabel" id="stat-word-breakdown">0 user / 0 AI</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
+            <div class="stat-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">schedule</span></div>
             <div class="stat-value" id="stat-thread-duration">0s</div>
             <div class="stat-label">Thread Lifespan</div>
             <div class="stat-sublabel" id="stat-duration-sublabel">active duration</div>
@@ -1409,7 +1397,7 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button type="button" class="action-btn btn-modal-secondary" id="btn-copy-stats">📋 Copy Summary</button>
+        <button type="button" class="action-btn btn-modal-secondary" id="btn-copy-stats"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">content_copy</span> Copy Summary</button>
         <button type="button" class="btn-auth-submit btn-modal-primary" id="btn-dismiss-stats">Close</button>
       </div>
     </div>
@@ -1420,15 +1408,15 @@
     <div class="modal-card modal-prompt-card">
       <div class="modal-header">
         <div>
-          <h3 id="modal-prompt-title">💡 AI Prompt Library & Templates</h3>
+          <h3 id="modal-prompt-title"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">lightbulb</span> AI Prompt Library & Templates</h3>
           <p class="modal-subtitle">Curated production-grade prompts and engineering presets</p>
         </div>
-        <button class="modal-close" id="btn-close-prompt-modal" aria-label="Close prompt modal">✕</button>
+        <button class="modal-close" id="btn-close-prompt-modal" aria-label="Close prompt modal"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       <div class="modal-body prompt-modal-body">
         <!-- Search & Filter Controls -->
         <div class="prompt-search-bar">
-          <span class="prompt-search-icon">🔍</span>
+          <span class="prompt-search-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">search</span></span>
           <input 
             type="text" 
             id="prompt-search-input" 
@@ -1436,17 +1424,17 @@
             placeholder="Search prompts by keyword, domain, or task..."
             aria-label="Search prompts"
           >
-          <button type="button" id="btn-clear-prompt-search" class="prompt-search-clear" style="display: none;" title="Clear search">×</button>
+          <button type="button" id="btn-clear-prompt-search" class="prompt-search-clear" style="display: none;" title="Clear search"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">close</span></button>
         </div>
 
         <!-- Category Pills Bar -->
         <div class="prompt-category-pills" id="prompt-category-pills" role="tablist">
-          <button type="button" class="category-pill active" data-cat="all">⚡ All Prompts</button>
-          <button type="button" class="category-pill" data-cat="coding">💻 Code & Architecture</button>
-          <button type="button" class="category-pill" data-cat="security">🛡️ Security & Performance</button>
-          <button type="button" class="category-pill" data-cat="writing">📝 Writing & Specs</button>
-          <button type="button" class="category-pill" data-cat="executive">💼 Executive & Business</button>
-          <button type="button" class="category-pill" data-cat="creative">🎨 Brainstorm & Creative</button>
+          <button type="button" class="category-pill active" data-cat="all"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> All Prompts</button>
+          <button type="button" class="category-pill" data-cat="coding"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">code</span> Code & Architecture</button>
+          <button type="button" class="category-pill" data-cat="security"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">shield</span> Security & Performance</button>
+          <button type="button" class="category-pill" data-cat="writing"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">edit_note</span> Writing & Specs</button>
+          <button type="button" class="category-pill" data-cat="executive"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">business_center</span> Executive & Business</button>
+          <button type="button" class="category-pill" data-cat="creative"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">palette</span> Brainstorm & Creative</button>
         </div>
 
         <!-- Prompts Grid Container -->
@@ -1469,23 +1457,23 @@
           <img src="images/logo.png" alt="PixelCraft AI Assistant Logo" class="brand-logo">
           <span id="modal-auth-gate-title">PixelCraft AI</span>
         </div>
-        <button class="modal-close" id="btn-close-auth-gate-modal" aria-label="Close modal">✕</button>
+        <button class="modal-close" id="btn-close-auth-gate-modal" aria-label="Close modal"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       <div class="modal-body auth-gate-modal-body">
-        <div class="auth-gate-badge">🔒 Authentication Required</div>
+        <div class="auth-gate-badge"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">lock</span> Authentication Required</div>
         <h3 class="auth-gate-headline">Sign in to Continue</h3>
         <p class="auth-gate-message">Sign in or create an account to use PixelCraft AI.</p>
         <div class="auth-gate-features">
           <div class="auth-gate-feature-item">
-            <span class="gate-feat-icon">⚡</span>
+            <span class="gate-feat-icon"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">bolt</span></span>
             <span>Real-time intelligent answers powered by Google Gemini</span>
           </div>
           <div class="auth-gate-feature-item">
-            <span class="gate-feat-icon">💾</span>
+            <span class="gate-feat-icon"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">cloud_sync</span></span>
             <span>Save and manage your conversation history</span>
           </div>
           <div class="auth-gate-feature-item">
-            <span class="gate-feat-icon">🎯</span>
+            <span class="gate-feat-icon"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">tune</span></span>
             <span>Custom AI personas, prompt templates & analytics</span>
           </div>
         </div>
@@ -1505,7 +1493,7 @@
           <h3 id="modal-profile-title">User Profile</h3>
           <p class="modal-subtitle">Personal account overview and authentication status</p>
         </div>
-        <button class="modal-close" id="btn-close-profile-modal" aria-label="Close profile modal">✕</button>
+        <button class="modal-close" id="btn-close-profile-modal" aria-label="Close profile modal"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       <div class="modal-body profile-modal-body">
         <div class="profile-hero-card">
@@ -1544,7 +1532,7 @@
         <div id="profile-edit-feedback" class="profile-notice" style="display: none;"></div>
       </div>
       <div class="modal-actions profile-modal-actions">
-        <button type="button" class="action-btn btn-modal-secondary" id="btn-edit-profile">✏️ Edit Profile</button>
+        <button type="button" class="action-btn btn-modal-secondary" id="btn-edit-profile"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">edit</span> Edit Profile</button>
         <button type="button" class="btn-auth-submit btn-modal-primary" id="btn-dismiss-profile">Close</button>
       </div>
     </div>
@@ -1555,25 +1543,25 @@
     <div class="modal-card modal-settings-card">
       <div class="modal-header">
         <div class="modal-header-titles">
-          <h3 id="modal-settings-title">⚙️ Application Settings</h3>
+          <h3 id="modal-settings-title"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">settings</span> Application Settings</h3>
           <p class="modal-subtitle">Manage preferences, appearance, security, and connected accounts</p>
         </div>
-        <button class="modal-close" id="btn-close-settings-modal" aria-label="Close settings modal">✕</button>
+        <button class="modal-close" id="btn-close-settings-modal" aria-label="Close settings modal"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       
       <!-- Settings Navigation Tabs -->
       <div class="settings-nav-tabs" role="tablist" aria-label="Settings categories">
         <button type="button" class="settings-tab-btn active" data-tab="account" role="tab" aria-selected="true" id="tab-btn-account">
-          <span class="tab-icon">👤</span> Account & Identities
+          <span class="tab-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">account_circle</span></span> Account & Identities
         </button>
         <button type="button" class="settings-tab-btn" data-tab="appearance" role="tab" aria-selected="false" id="tab-btn-appearance">
-          <span class="tab-icon">🎨</span> Appearance
+          <span class="tab-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">palette</span></span> Appearance
         </button>
         <button type="button" class="settings-tab-btn" data-tab="security" role="tab" aria-selected="false" id="tab-btn-security">
-          <span class="tab-icon">🛡️</span> Security
+          <span class="tab-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">shield</span></span> Security
         </button>
         <button type="button" class="settings-tab-btn" data-tab="about" role="tab" aria-selected="false" id="tab-btn-about">
-          <span class="tab-icon">✨</span> About
+          <span class="tab-icon"><span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">info</span></span> About
         </button>
       </div>
 
@@ -1650,17 +1638,17 @@
             <p class="settings-section-desc">Select your preferred color theme for PixelCraft AI.</p>
             <div class="theme-selection-grid">
               <button type="button" class="theme-option-btn active" data-theme-val="dark">
-                <span class="theme-icon">🌙</span>
+                <span class="theme-icon"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">dark_mode</span></span>
                 <span class="theme-name">Dark</span>
-                <span class="theme-indicator">✓ Active</span>
+                <span class="theme-indicator"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span> Active</span>
               </button>
               <button type="button" class="theme-option-btn" data-theme-val="light">
-                <span class="theme-icon">☀️</span>
+                <span class="theme-icon"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">light_mode</span></span>
                 <span class="theme-name">Light</span>
                 <span class="theme-indicator">Select</span>
               </button>
               <button type="button" class="theme-option-btn" data-theme-val="system">
-                <span class="theme-icon">💻</span>
+                <span class="theme-icon"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">computer</span></span>
                 <span class="theme-name">System</span>
                 <span class="theme-indicator">Sync with OS</span>
               </button>
@@ -1693,19 +1681,19 @@
             <p class="settings-section-desc">Choose a primary theme accent for buttons and highlights.</p>
             <div class="accent-swatches-grid">
               <button type="button" class="accent-swatch active" data-accent="#6366f1" style="--swatch-color: #6366f1;" title="Indigo (Default)">
-                <span class="swatch-check">✓</span>
+                <span class="swatch-check"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span></span>
               </button>
               <button type="button" class="accent-swatch" data-accent="#06b6d4" style="--swatch-color: #06b6d4;" title="Cyan">
-                <span class="swatch-check">✓</span>
+                <span class="swatch-check"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span></span>
               </button>
               <button type="button" class="accent-swatch" data-accent="#10b981" style="--swatch-color: #10b981;" title="Emerald">
-                <span class="swatch-check">✓</span>
+                <span class="swatch-check"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span></span>
               </button>
               <button type="button" class="accent-swatch" data-accent="#8b5cf6" style="--swatch-color: #8b5cf6;" title="Violet">
-                <span class="swatch-check">✓</span>
+                <span class="swatch-check"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span></span>
               </button>
               <button type="button" class="accent-swatch" data-accent="#f43f5e" style="--swatch-color: #f43f5e;" title="Rose">
-                <span class="swatch-check">✓</span>
+                <span class="swatch-check"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">check</span></span>
               </button>
             </div>
           </div>
@@ -1736,7 +1724,7 @@
             <h4 class="settings-section-title">Sign Out of PixelCraft AI</h4>
             <p class="settings-section-desc">Securely terminate the active session and remove cached credentials from this device.</p>
             <button type="button" class="action-btn btn-danger-action" id="btn-settings-signout">
-              🚪 Sign Out of All Sessions
+              <span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">logout</span> Sign Out of All Sessions
             </button>
           </div>
         </div>
@@ -1787,14 +1775,14 @@
     <div class="modal-card modal-code-card">
       <div class="modal-header">
         <div class="code-modal-header-left">
-          <h3 id="modal-code-title">💻 Source Code Inspector</h3>
+          <h3 id="modal-code-title"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">code</span> Source Code Inspector</h3>
           <div class="code-file-tabs">
             <button type="button" class="code-tab active" data-file="html">index.html</button>
             <button type="button" class="code-tab" data-file="css">style.css</button>
             <button type="button" class="code-tab" data-file="js">app.js</button>
           </div>
         </div>
-        <button class="modal-close" id="btn-close-code-modal" aria-label="Close code inspector">✕</button>
+        <button class="modal-close" id="btn-close-code-modal" aria-label="Close code inspector"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       <div class="modal-body code-modal-body">
         <textarea id="code-editor-textarea" class="code-editor-textarea" spellcheck="false"></textarea>
@@ -1802,8 +1790,8 @@
       <div class="modal-footer code-modal-footer">
         <div class="code-status" id="code-sync-status">Ready</div>
         <div class="code-actions-right">
-          <button type="button" class="btn-modal-secondary" id="btn-copy-code">📋 Copy Code</button>
-          <button type="button" class="btn-modal-primary" id="btn-apply-code-to-preview">⚡ Sync Changes to Preview</button>
+          <button type="button" class="btn-modal-secondary" id="btn-copy-code"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">content_copy</span> Copy Code</button>
+          <button type="button" class="btn-modal-primary" id="btn-apply-code-to-preview"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">sync</span> Sync Changes to Preview</button>
         </div>
       </div>
     </div>
@@ -1813,22 +1801,22 @@
   <div class="modal-backdrop" id="modal-builder-export" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-export-title">
     <div class="modal-card modal-export-card">
       <div class="modal-header">
-        <h3 id="modal-export-title">📥 Export Website Project</h3>
-        <button class="modal-close" id="btn-close-export-modal" aria-label="Close export modal">✕</button>
+        <h3 id="modal-export-title"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">download</span> Export Website Project</h3>
+        <button class="modal-close" id="btn-close-export-modal" aria-label="Close export modal"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       <div class="modal-body export-modal-body">
         <p class="export-intro">Export your generated website as a clean, production-ready bundle. No API keys, no server dependencies — runs instantly on any browser or hosting provider.</p>
         
         <div class="export-options-grid">
           <div class="export-option-card selected" id="opt-export-zip">
-            <div class="opt-icon">📦</div>
+            <div class="opt-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">folder_zip</span></div>
             <div class="opt-info">
               <h4>Full Project Package (ZIP)</h4>
               <p>Includes separate <code>index.html</code>, <code>css/style.css</code>, <code>js/app.js</code>, and <code>README.md</code>.</p>
             </div>
           </div>
           <div class="export-option-card" id="opt-export-single">
-            <div class="opt-icon">📄</div>
+            <div class="opt-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">html</span></div>
             <div class="opt-info">
               <h4>Single Standalone HTML</h4>
               <p>Self-contained HTML file with embedded CSS and JS. Double-click to open offline anywhere.</p>
@@ -1838,7 +1826,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-modal-secondary" id="btn-dismiss-export">Cancel</button>
-        <button type="button" class="btn-modal-primary" id="btn-trigger-download">Download Package ➔</button>
+        <button type="button" class="btn-modal-primary" id="btn-trigger-download">Download Package <span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">arrow_forward</span></button>
       </div>
     </div>
   </div>
@@ -1848,15 +1836,15 @@
     <div class="modal-card modal-add-section-card">
       <div class="modal-header">
         <div>
-          <h3 id="modal-add-section-title">➕ Add New Section</h3>
+          <h3 id="modal-add-section-title"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">add_circle</span> Add New Section</h3>
           <p class="modal-subtitle">Choose a pre-built section component to insert into your website:</p>
         </div>
-        <button class="modal-close" id="btn-close-add-section-modal" aria-label="Close add section modal">✕</button>
+        <button class="modal-close" id="btn-close-add-section-modal" aria-label="Close add section modal"><span class="material-symbols-rounded ui-icon" aria-hidden="true">close</span></button>
       </div>
       <div class="modal-body add-section-modal-body">
         <div class="section-presets-grid">
           <div class="preset-card" data-preset="hero">
-            <div class="preset-icon">⚡</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">bolt</span></div>
             <div class="preset-info">
               <h4>Hero & Value Proposition</h4>
               <p>Bold headline, badge pill, dual CTA buttons, and featured showcase image.</p>
@@ -1864,7 +1852,7 @@
             <button type="button" class="btn-preset-insert">Insert Section</button>
           </div>
           <div class="preset-card" data-preset="features">
-            <div class="preset-icon">🍱</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">view_quilt</span></div>
             <div class="preset-info">
               <h4>Features / Bento Grid</h4>
               <p>3-column bento cards with glowing icons, metric tags, and benefit copy.</p>
@@ -1872,7 +1860,7 @@
             <button type="button" class="btn-preset-insert">Insert Section</button>
           </div>
           <div class="preset-card" data-preset="trainers">
-            <div class="preset-icon">🏋️</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">group</span></div>
             <div class="preset-info">
               <h4>Team / Coaches & Trainers</h4>
               <p>Expert profiles with portrait photo, specialty badges, and credentials.</p>
@@ -1880,7 +1868,7 @@
             <button type="button" class="btn-preset-insert">Insert Section</button>
           </div>
           <div class="preset-card" data-preset="pricing">
-            <div class="preset-icon">💳</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">credit_card</span></div>
             <div class="preset-info">
               <h4>Membership & Pricing Tiers</h4>
               <p>3-tier value cards with Popular ribbon, perk checklist, and checkout CTAs.</p>
@@ -1888,7 +1876,7 @@
             <button type="button" class="btn-preset-insert">Insert Section</button>
           </div>
           <div class="preset-card" data-preset="testimonials">
-            <div class="preset-icon">💬</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">format_quote</span></div>
             <div class="preset-info">
               <h4>Testimonials & Reviews</h4>
               <p>Customer social proof cards with quote, 5-star rating, and member avatar.</p>
@@ -1896,7 +1884,7 @@
             <button type="button" class="btn-preset-insert">Insert Section</button>
           </div>
           <div class="preset-card" data-preset="faq">
-            <div class="preset-icon">❓</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">help</span></div>
             <div class="preset-info">
               <h4>FAQ Accordion</h4>
               <p>Interactive questions with animated expandable answers.</p>
@@ -1904,7 +1892,7 @@
             <button type="button" class="btn-preset-insert">Insert Section</button>
           </div>
           <div class="preset-card" data-preset="gallery">
-            <div class="preset-icon">🖼️</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">photo_library</span></div>
             <div class="preset-info">
               <h4>Gallery & Media Showcase</h4>
               <p>4-item responsive image grid with hover zoom and captions.</p>
@@ -1912,7 +1900,7 @@
             <button type="button" class="btn-preset-insert">Insert Section</button>
           </div>
           <div class="preset-card" data-preset="cta">
-            <div class="preset-icon">📣</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">campaign</span></div>
             <div class="preset-info">
               <h4>Call To Action Banner</h4>
               <p>High-converting conversion banner with urgency copy and action button.</p>
@@ -1920,7 +1908,7 @@
             <button type="button" class="btn-preset-insert">Insert Section</button>
           </div>
           <div class="preset-card" data-preset="contact">
-            <div class="preset-icon">✉️</div>
+            <div class="preset-icon"><span class="material-symbols-rounded ui-icon ui-icon-lg" aria-hidden="true">mail</span></div>
             <div class="preset-info">
               <h4>Contact & Booking Form</h4>
               <p>Interactive form with inputs for Name, Email, Phone, Message and submit feedback.</p>

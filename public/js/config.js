@@ -13,3 +13,17 @@ window.PIXELCRAFT_CONFIG = {
   // ← Set your Render backend URL here once the service is deployed:
   RENDER_BACKEND_URL: ''
 };
+
+/**
+ * Global Google Material Symbols Icon Component Helper
+ * Generates consistent, accessible Material Symbols Rounded icon markup
+ * Compatible with Vanilla JavaScript throughout PixelCraft AI
+ */
+window.PixelCraftIcons = {
+  render(iconName, sizeClass = '', extraClass = '') {
+    const size = sizeClass ? ` ${sizeClass}` : '';
+    const extra = extraClass ? ` ${extraClass}` : '';
+    return `<span class="material-symbols-rounded ui-icon${size}${extra}" aria-hidden="true">${iconName}</span>`;
+  }
+};
+window.renderUiIcon = window.PixelCraftIcons.render;

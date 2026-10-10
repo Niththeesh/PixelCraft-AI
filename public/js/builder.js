@@ -590,7 +590,7 @@
     if (el.uiuxScreenTabs && uiuxData.screens && uiuxData.screens.length > 0) {
       el.uiuxScreenTabs.innerHTML = uiuxData.screens.map((scr, idx) => `
         <button type="button" class="uiux-screen-tab-btn ${idx === 0 ? 'active' : ''}" data-screen-id="${scr.id}">
-          <span class="tab-icon">📱</span>
+          <span class="tab-icon"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">smartphone</span></span>
           <span class="tab-text">${scr.title}</span>
         </button>
       `).join('');
@@ -703,7 +703,7 @@
     if (state.projectAssets.length === 0) {
       el.builderAssetsList.innerHTML = `
         <div class="empty-assets-state" style="padding:32px 16px;text-align:center;">
-          <span style="font-size:32px;display:block;margin-bottom:8px;">🎨</span>
+          <span class="material-symbols-rounded ui-icon ui-icon-xl" style="font-size:32px;display:block;margin-bottom:8px;" aria-hidden="true">palette</span>
           <p style="font-size:13px; color:var(--text-muted); margin:0;">No assets generated yet.</p>
           <p style="font-size:11px; color:var(--text-dim); margin-top:4px;">Generate a logo, poster, or UI to populate your asset kit.</p>
         </div>
@@ -712,20 +712,20 @@
     }
 
     el.builderAssetsList.innerHTML = state.projectAssets.map(asset => {
-      let icon = '🎨';
+      let icon = 'palette';
       let previewHtml = '';
       if (asset.type === 'logo') {
-        icon = '✨';
-        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;">${asset.preview || '<span>SVG</span>'}</div>`;
+        icon = 'draw';
+        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;">${asset.preview || '<span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true">draw</span>'}</div>`;
       } else if (asset.type === 'image') {
-        icon = '🖼️';
+        icon = 'image';
         previewHtml = `<img class="asset-preview-thumb-img" src="${asset.url || asset.preview}" alt="${asset.title}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" />`;
       } else if (asset.type === 'uiux') {
-        icon = '📱';
-        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">📱</div>`;
+        icon = 'devices';
+        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">devices</span></div>`;
       } else {
-        icon = '🌐';
-        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">🌐</div>`;
+        icon = 'web';
+        previewHtml = `<div class="asset-preview-thumb-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;"><span class="material-symbols-rounded ui-icon ui-icon-md" aria-hidden="true">web</span></div>`;
       }
 
       return `
@@ -733,11 +733,11 @@
           <div class="asset-card-thumb" style="width:40px;height:40px;border-radius:6px;background:var(--bg-card);flex-shrink:0;overflow:hidden;">${previewHtml}</div>
           <div class="asset-card-info" style="flex:1;min-width:0;">
             <div class="asset-card-title" style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-main);">${asset.title}</div>
-            <div class="asset-card-meta" style="font-size:10px;color:var(--text-dim);">${icon} ${asset.format || asset.type}</div>
+            <div class="asset-card-meta" style="font-size:10px;color:var(--text-dim);"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true" style="margin-right:2px;vertical-align:middle;">${icon}</span> ${asset.format || asset.type}</div>
           </div>
           <div class="asset-card-actions" style="display:flex;gap:4px;flex-shrink:0;">
-            <button type="button" class="btn-icon-subtle" onclick="window.PixelCraftBuilder.previewAsset('${asset.id}')" title="Preview on canvas" style="padding:4px 6px;font-size:12px;background:transparent;border:1px solid var(--border-color);border-radius:4px;cursor:pointer;">👁️</button>
-            <button type="button" class="btn-icon-subtle" onclick="window.PixelCraftBuilder.downloadAsset('${asset.id}')" title="Download" style="padding:4px 6px;font-size:12px;background:transparent;border:1px solid var(--border-color);border-radius:4px;cursor:pointer;">⬇️</button>
+            <button type="button" class="btn-icon-subtle" onclick="window.PixelCraftBuilder.previewAsset('${asset.id}')" title="Preview on canvas" style="padding:4px 6px;font-size:12px;background:transparent;border:1px solid var(--border-color);border-radius:4px;cursor:pointer;"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">visibility</span></button>
+            <button type="button" class="btn-icon-subtle" onclick="window.PixelCraftBuilder.downloadAsset('${asset.id}')" title="Download" style="padding:4px 6px;font-size:12px;background:transparent;border:1px solid var(--border-color);border-radius:4px;cursor:pointer;"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">download</span></button>
           </div>
         </div>
       `;
@@ -844,25 +844,25 @@
     if (scope === 'section') {
       const secName = state.currentProject?.sections?.find(s => s.id === state.selectedSectionId)?.name || 'this section';
       chipsHtml = `
-        <button type="button" class="refine-chip" data-prompt="Make this section more premium and modern">✨ Make Premium</button>
-        <button type="button" class="refine-chip" data-prompt="Change the background of this section to black">🎨 Dark Background</button>
-        <button type="button" class="refine-chip" data-prompt="Add three modern cards to this section">🍱 Add 3 Cards</button>
-        <button type="button" class="refine-chip" data-prompt="Make this section responsive and polished on mobile">📱 Mobile Polish</button>
+        <button type="button" class="refine-chip" data-prompt="Make this section more premium and modern"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> Make Premium</button>
+        <button type="button" class="refine-chip" data-prompt="Change the background of this section to black"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">palette</span> Dark Background</button>
+        <button type="button" class="refine-chip" data-prompt="Add three modern cards to this section"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">view_quilt</span> Add 3 Cards</button>
+        <button type="button" class="refine-chip" data-prompt="Make this section responsive and polished on mobile"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">smartphone</span> Mobile Polish</button>
       `;
     } else if (scope === 'element') {
       const tag = state.selectedElementData?.tagName?.toUpperCase() || 'ELEMENT';
       chipsHtml = `
-        <button type="button" class="refine-chip" data-prompt="Make this ${tag.toLowerCase()} bolder with glowing orange highlight">✨ Glow & Pop</button>
-        <button type="button" class="refine-chip" data-prompt="Make this ${tag.toLowerCase()} uppercase with tracking">🔤 Bold Uppercase</button>
-        <button type="button" class="refine-chip" data-prompt="Add subtle smooth hover elevation animation">⚡ Hover Elevation</button>
+        <button type="button" class="refine-chip" data-prompt="Make this ${tag.toLowerCase()} bolder with glowing orange highlight"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> Glow & Pop</button>
+        <button type="button" class="refine-chip" data-prompt="Make this ${tag.toLowerCase()} uppercase with tracking"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">title</span> Bold Uppercase</button>
+        <button type="button" class="refine-chip" data-prompt="Add subtle smooth hover elevation animation"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">bolt</span> Hover Elevation</button>
       `;
     } else {
       chipsHtml = `
-        <button type="button" class="refine-chip" data-prompt="Change the color palette to black and orange with athletic vibes">🎨 Black & Orange Theme</button>
-        <button type="button" class="refine-chip" data-prompt="Make the whole design modern dark luxury with glassmorphism cards">✨ Dark Luxury Glass</button>
-        <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing">❓ Add FAQ Accordion</button>
-        <button type="button" class="refine-chip" data-prompt="Make the mobile layout and navigation super smooth and responsive">📱 Polish Mobile Layout</button>
-        <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects">⚡ Micro-Animations</button>
+        <button type="button" class="refine-chip" data-prompt="Change the color palette to black and orange with athletic vibes"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">palette</span> Black & Orange Theme</button>
+        <button type="button" class="refine-chip" data-prompt="Make the whole design modern dark luxury with glassmorphism cards"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> Dark Luxury Glass</button>
+        <button type="button" class="refine-chip" data-prompt="Add an interactive FAQ section with accordion after pricing"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">help</span> Add FAQ Accordion</button>
+        <button type="button" class="refine-chip" data-prompt="Make the mobile layout and navigation super smooth and responsive"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">smartphone</span> Polish Mobile Layout</button>
+        <button type="button" class="refine-chip" data-prompt="Add subtle hover animations and card lift effects"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">auto_awesome</span> Micro-Animations</button>
       `;
     }
 
@@ -885,9 +885,9 @@
       el.builderWorkspace.classList.toggle('fullpage-inspection-mode', state.isFullPageMode);
     }
     if (state.isFullPageMode) {
-      showToastNotification('🔍 Full-page inspection mode enabled');
+      showToastNotification('Full-page inspection mode enabled', 'open_in_full');
     } else {
-      showToastNotification('Normal studio mode restored');
+      showToastNotification('Normal studio mode restored', 'close_fullscreen');
     }
   }
 
@@ -902,7 +902,7 @@
       el.btnInteractiveMode.classList.toggle('active-design', isEdit);
       el.btnInteractiveMode.classList.toggle('active-preview', !isEdit);
     }
-    if (el.modeIcon) el.modeIcon.textContent = isEdit ? '✏️' : '👁️';
+    if (el.modeIcon) el.modeIcon.textContent = isEdit ? 'edit' : 'visibility';
     if (el.modeLabel) el.modeLabel.textContent = isEdit ? 'Design Mode' : 'Preview Mode';
 
     // Broadcast mode to sandboxed iframe
@@ -915,9 +915,9 @@
 
     if (!isEdit) {
       hideInspector();
-      showToastNotification('👁️ Preview Mode: Direct interactions & links enabled');
+      showToastNotification('Preview Mode: Direct interactions & links enabled', 'visibility');
     } else {
-      showToastNotification('✏️ Design Mode: Click any element or section to inspect');
+      showToastNotification('Design Mode: Click any element or section to inspect', 'edit');
     }
   }
 
@@ -946,7 +946,7 @@
       const snapshot = state.historyStack[state.historyIndex];
       loadProject(snapshot, false);
       updateUndoRedoButtons();
-      showToastNotification('↩ Undone last change');
+      showToastNotification('Undone last change', 'undo');
     }
   }
 
@@ -956,7 +956,7 @@
       const snapshot = state.historyStack[state.historyIndex];
       loadProject(snapshot, false);
       updateUndoRedoButtons();
-      showToastNotification('↪ Redone change');
+      showToastNotification('Redone change', 'redo');
     }
   }
 
@@ -1498,19 +1498,19 @@
     }
 
     const typeIcons = {
-      navbar: '🧭',
-      hero: '⚡',
-      about: '📖',
-      features: '🍱',
-      trainers: '🏋️',
-      pricing: '💳',
-      testimonials: '💬',
-      faq: '❓',
-      gallery: '🖼️',
-      cta: '📣',
-      contact: '✉️',
-      footer: '⚓',
-      default: '📄'
+      navbar: 'navigation',
+      hero: 'bolt',
+      about: 'menu_book',
+      features: 'view_quilt',
+      trainers: 'group',
+      pricing: 'credit_card',
+      testimonials: 'format_quote',
+      faq: 'help',
+      gallery: 'photo_library',
+      cta: 'campaign',
+      contact: 'mail',
+      footer: 'vertical_align_bottom',
+      default: 'web'
     };
 
     sections.forEach((sec, idx) => {
@@ -1539,15 +1539,15 @@
 
       li.innerHTML = `
         <span class="sec-tree-num">${idx + 1}</span>
-        <span class="sec-tree-icon">${icon}</span>
+        <span class="sec-tree-icon"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">${icon}</span></span>
         <span class="sec-tree-name" title="${escapeHtml(sec.name)}">${escapeHtml(sec.name)}</span>
-        ${isInView ? '<span class="sec-in-view-badge" title="Currently visible in preview">👁️ In view</span>' : ''}
+        ${isInView ? '<span class="sec-in-view-badge" title="Currently visible in preview"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">visibility</span> In view</span>' : ''}
         <div class="sec-tree-actions">
-          <button type="button" class="sec-action-btn btn-sec-visibility" title="${isHidden ? 'Show Section' : 'Hide Section'}">${isHidden ? '👁️‍🗨️' : '👁️'}</button>
-          <button type="button" class="sec-action-btn btn-sec-up" title="Move Section Up" ${isFirst ? 'disabled' : ''}>▲</button>
-          <button type="button" class="sec-action-btn btn-sec-down" title="Move Section Down" ${isLast ? 'disabled' : ''}>▼</button>
-          <button type="button" class="sec-action-btn btn-sec-rename" title="Rename Section">✏️</button>
-          <button type="button" class="sec-action-btn del-btn btn-sec-del" title="Delete Section">🗑️</button>
+          <button type="button" class="sec-action-btn btn-sec-visibility" title="${isHidden ? 'Show Section' : 'Hide Section'}"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">${isHidden ? 'visibility_off' : 'visibility'}</span></button>
+          <button type="button" class="sec-action-btn btn-sec-up" title="Move Section Up" ${isFirst ? 'disabled' : ''}><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">keyboard_arrow_up</span></button>
+          <button type="button" class="sec-action-btn btn-sec-down" title="Move Section Down" ${isLast ? 'disabled' : ''}><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">keyboard_arrow_down</span></button>
+          <button type="button" class="sec-action-btn btn-sec-rename" title="Rename Section"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">edit</span></button>
+          <button type="button" class="sec-action-btn del-btn btn-sec-del" title="Delete Section"><span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">delete</span></button>
         </div>
       `;
 
@@ -1644,7 +1644,7 @@
       setSaveStatus('saved');
     } catch (_) {}
 
-    showToastNotification(newlyHidden ? `👁️‍🗨️ Hidden "${secName || sectionId}" section` : `👁️ Shown "${secName || sectionId}" section`);
+    showToastNotification(newlyHidden ? `Hidden "${secName || sectionId}" section` : `Shown "${secName || sectionId}" section`, newlyHidden ? 'visibility_off' : 'visibility');
   }
 
   // ==========================================================================
@@ -1885,7 +1885,7 @@
 
     state.currentProject.html = doc.body.innerHTML;
     syncAndReloadProject(sectionId);
-    showToastNotification(`Moved section ${direction === 'up' ? 'up ▲' : 'down ▼'}`);
+    showToastNotification(`Moved section ${direction === 'up' ? 'up' : 'down'}`, direction === 'up' ? 'keyboard_arrow_up' : 'keyboard_arrow_down');
   }
 
   function confirmDeleteSection(sectionId, name) {
@@ -1907,7 +1907,7 @@
     state.selectedSectionId = null;
 
     syncAndReloadProject();
-    showToastNotification(`🗑️ Deleted "${secName}" section`);
+    showToastNotification(`Deleted "${secName}" section`, 'delete');
   }
 
   function promptRenameSection(sectionId, currentName) {
@@ -1988,7 +1988,7 @@
 
     closeAddSectionModal();
     syncAndReloadProject(uniqueId);
-    showToastNotification(`➕ Added "${preset.name}" section`);
+    showToastNotification(`Added "${preset.name}" section`, 'add_circle');
   }
 
   function getSectionPresets() {
@@ -2459,20 +2459,20 @@
         if (data.mode === 'logo' || data.logo) {
           renderLogoStudio(data.logo);
           setSaveStatus('saved');
-          showToastNotification('✨ Logo & Brand Kit generated successfully!');
+          showToastNotification('Logo & Brand Kit generated successfully!', 'auto_awesome');
         } else if (data.mode === 'image' || data.image) {
           renderImageStudio(data.image);
           setSaveStatus('saved');
-          showToastNotification('🎨 Real visual asset generated!');
+          showToastNotification('Real visual asset generated!', 'image');
         } else if (data.mode === 'uiux' || data.uiux) {
           renderUiUxStudio(data.uiux);
           setSaveStatus('saved');
-          showToastNotification('📱 UI/UX prototype created!');
+          showToastNotification('UI/UX prototype created!', 'devices');
         } else if (data.project) {
           setCreativeMode('website');
           loadProject(data.project, true);
           setSaveStatus('saved');
-          showToastNotification('🎉 Website generated successfully!');
+          showToastNotification('Website generated successfully!', 'check_circle');
         }
       } else {
         setSaveStatus('saved');
@@ -2540,7 +2540,7 @@
         loadProject(data.project, true);
         if (el.refineInput) el.refineInput.value = '';
         setSaveStatus('saved');
-        showToastNotification(data.project.lastChangeSummary || '✨ Design updated successfully!');
+        showToastNotification(data.project.lastChangeSummary || 'Design updated successfully!', 'auto_awesome');
       } else {
         setSaveStatus('saved');
         alert(data.error || 'Failed to apply design modification.');
@@ -2579,7 +2579,7 @@
         if (el.refineInput) el.refineInput.value = '';
         if (el.logoAiPrompt) el.logoAiPrompt.value = '';
         setSaveStatus('saved');
-        showToastNotification(data.summary || '✨ Logo updated successfully!');
+        showToastNotification(data.summary || 'Logo updated successfully!', 'auto_awesome');
       } else {
         setSaveStatus('saved');
         alert(data.error || 'Failed to refine logo.');
@@ -2618,7 +2618,7 @@
         if (el.refineInput) el.refineInput.value = '';
         if (el.imageRefinePrompt) el.imageRefinePrompt.value = '';
         setSaveStatus('saved');
-        showToastNotification(data.summary || '🎨 Generated new image variation!');
+        showToastNotification(data.summary || 'Generated new image variation!', 'image');
       } else {
         setSaveStatus('saved');
         alert(data.error || 'Failed to refine image.');
@@ -2657,7 +2657,7 @@
         if (el.refineInput) el.refineInput.value = '';
         if (el.uiuxAiPrompt) el.uiuxAiPrompt.value = '';
         setSaveStatus('saved');
-        showToastNotification(data.summary || '📱 UI prototype updated!');
+        showToastNotification(data.summary || 'UI prototype updated!', 'devices');
       } else {
         setSaveStatus('saved');
         alert(data.error || 'Failed to refine UI/UX.');
@@ -2709,7 +2709,7 @@
       if (response.ok && data.success && data.project) {
         loadProject(data.project, true);
         if (el.sectionAiPrompt) el.sectionAiPrompt.value = '';
-        showToastNotification(data.project.lastChangeSummary || `✨ Updated "${secName}" section!`);
+        showToastNotification(data.project.lastChangeSummary || `Updated "${secName}" section!`, 'auto_awesome');
       } else {
         alert(data.error || 'Failed to refine section.');
       }
@@ -2783,22 +2783,22 @@
     loadProject(state.currentProject, true);
 
     if (el.codeSyncStatus) {
-      el.codeSyncStatus.textContent = '⚡ Changes synced to preview!';
+      el.codeSyncStatus.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true" style="margin-right:4px;">sync</span> Changes synced to preview!';
       setTimeout(() => {
         if (el.codeSyncStatus) el.codeSyncStatus.textContent = 'Ready';
       }, 2500);
     }
-    showToastNotification('⚡ Code synced to live preview!');
+    showToastNotification('Code synced to live preview!', 'sync');
   }
 
   function copyCurrentCode() {
     if (!el.codeEditorTextarea) return;
     navigator.clipboard.writeText(el.codeEditorTextarea.value).then(() => {
-      showToastNotification('📋 Code copied to clipboard!');
+      showToastNotification('Code copied to clipboard!', 'content_copy');
     }).catch(() => {
       el.codeEditorTextarea.select();
       document.execCommand('copy');
-      showToastNotification('📋 Code copied to clipboard!');
+      showToastNotification('Code copied to clipboard!', 'content_copy');
     });
   }
 
@@ -2823,7 +2823,7 @@
       // Standalone single HTML download
       const htmlDoc = bundleDocumentHtml(project);
       downloadBlob(new Blob([htmlDoc], { type: 'text/html' }), `${slug}.html`);
-      showToastNotification('📥 Downloaded standalone HTML website!');
+      showToastNotification('Downloaded standalone HTML website!', 'download');
       closeExportModal();
     } else {
       // Full ZIP Package with JSZip
@@ -2874,7 +2874,7 @@ Generated with PixelCraft AI Studio.
 
       const content = await zip.generateAsync({ type: 'blob' });
       downloadBlob(content, `${slug}-project.zip`);
-      showToastNotification('📦 Downloaded complete project ZIP package!');
+      showToastNotification('Downloaded complete project ZIP package!', 'folder_zip');
       closeExportModal();
     }
   }
@@ -3242,7 +3242,7 @@ Generated with PixelCraft AI Studio.
     });
   }
 
-  function showToastNotification(text) {
+  function showToastNotification(text, iconName) {
     let toast = document.getElementById('studio-toast-banner');
     if (!toast) {
       toast = document.createElement('div');
@@ -3250,8 +3250,12 @@ Generated with PixelCraft AI Studio.
       toast.className = 'studio-toast-banner';
       document.body.appendChild(toast);
     }
-    toast.textContent = text;
-    toast.style.display = 'block';
+    const iconHtml = iconName 
+      ? `<span class="material-symbols-rounded ui-icon ui-icon-sm" aria-hidden="true" style="margin-right:8px;vertical-align:middle;">${iconName}</span>`
+      : '';
+    toast.innerHTML = `${iconHtml}<span>${text}</span>`;
+    toast.style.display = 'inline-flex';
+    toast.style.alignItems = 'center';
     toast.classList.add('show');
     setTimeout(() => {
       toast.classList.remove('show');
@@ -3284,7 +3288,7 @@ Generated with PixelCraft AI Studio.
       el.originalPromptInput.value = optimized;
       el.originalPromptInput.focus();
     }
-    showToastNotification('✨ Prompt optimized with professional specifications!');
+    showToastNotification('Prompt optimized with professional specifications!', 'auto_awesome');
   }
 
   // ==========================================================================
@@ -3880,7 +3884,7 @@ Generated with PixelCraft AI Studio.
             const b = document.createElement('span');
             b.className = 'sec-in-view-badge';
             b.title = 'Currently visible in preview';
-            b.textContent = '👁️ In view';
+            b.innerHTML = '<span class="material-symbols-rounded ui-icon ui-icon-xs" aria-hidden="true">visibility</span> In view';
             const nameEl = item.querySelector('.sec-tree-name');
             if (nameEl && nameEl.nextSibling) {
               item.insertBefore(b, nameEl.nextSibling);
